@@ -10,6 +10,13 @@ import MembershipPage from "./pages/MembershipPage";
 import ContactPage from "./pages/ContactPage";
 import LoginPage from "./pages/LoginPage";
 import InstitutionalForm from "./pages/InstitutionalForm";
+import TeacherCouncilForm from "./pages/TeacherCouncilForm";
+import ParentCouncilForm from "./pages/ParentCouncilForm";
+import ProprietorForm from "./pages/ProprietorForm";
+import ServiceProviderForm from "./pages/ServiceProviderForm";
+import NonTeachingStaffForm from "./pages/NonTeachingStaffForm";
+import UserDashboard from "./pages/UserDashboard";
+import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +35,13 @@ const App = () => (
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register/institutional" element={<InstitutionalForm />} />
+          <Route path="/register/teacher" element={<TeacherCouncilForm />} />
+          <Route path="/register/parent" element={<ParentCouncilForm />} />
+          <Route path="/register/proprietor" element={<ProprietorForm />} />
+          <Route path="/register/service-provider" element={<ServiceProviderForm />} />
+          <Route path="/register/non-teaching-staff" element={<NonTeachingStaffForm />} />
+          <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/admin" element={<AdminPanel />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
