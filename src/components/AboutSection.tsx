@@ -33,7 +33,7 @@ const AboutSection = () => {
           ].map((item, index) => (
             <div
               key={index}
-              className="bg-card border border-card-border rounded-lg p-8 hover:border-primary transition-all duration-300 animate-fade-in-up"
+              className="bg-card border border-card-border rounded-lg p-8 hover:border-primary transition-all duration-300 animate-fade-in-up hover-lift"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <h3 className="text-2xl font-semibold mb-4 text-accent">

@@ -45,7 +45,7 @@ const HowItWorks = () => {
             return (
               <div
                 key={index}
-                className="relative text-center animate-fade-in-up"
+                className="relative text-center animate-fade-in-up hover-lift"
                 style={{ animationDelay: `${index * 0.15}s` }}
               >
                 {/* Step Number */}

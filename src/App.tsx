@@ -19,6 +19,19 @@ import UserDashboard from "./pages/UserDashboard";
 import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
 
+// Admin Pages
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminApplications from "./pages/admin/AdminApplications";
+import AdminCertificates from "./pages/admin/AdminCertificates";
+import AdminMessages from "./pages/admin/AdminMessages";
+import AdminSettings from "./pages/admin/AdminSettings";
+
+// User Pages
+import UserPayments from "./pages/user/UserPayments";
+import UserCertificate from "./pages/user/UserCertificate";
+import UserNotifications from "./pages/user/UserNotifications";
+import UserAccount from "./pages/user/UserAccount";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -40,8 +53,24 @@ const App = () => (
           <Route path="/register/proprietor" element={<ProprietorForm />} />
           <Route path="/register/service-provider" element={<ServiceProviderForm />} />
           <Route path="/register/non-teaching-staff" element={<NonTeachingStaffForm />} />
-          <Route path="/dashboard" element={<UserDashboard />} />
-          <Route path="/admin" element={<AdminPanel />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminPanel />}>
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="applications" element={<AdminApplications />} />
+            <Route path="certificates" element={<AdminCertificates />} />
+            <Route path="messages" element={<AdminMessages />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
+
+          {/* User Routes */}
+          <Route path="/dashboard" element={<UserDashboard />}>
+            <Route path="account" element={<UserAccount />} />
+            <Route path="payments" element={<UserPayments />} />
+            <Route path="certificate" element={<UserCertificate />} />
+            <Route path="notifications" element={<UserNotifications />} />
+          </Route>
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

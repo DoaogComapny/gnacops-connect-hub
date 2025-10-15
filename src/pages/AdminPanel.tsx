@@ -3,7 +3,7 @@ import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu } from 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, Outlet, useLocation } from "react-router-dom";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
@@ -18,6 +18,8 @@ const menuItems = [
 
 const AdminPanel = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isDashboard = location.pathname === "/admin";
   const [stats] = useState({
     totalMembers: 245,
     pendingApplications: 12,
@@ -52,7 +54,13 @@ const AdminPanel = () => {
                   {menuItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild>
-                        <NavLink to={item.path} className={({ isActive }) => isActive ? "bg-accent/20 text-accent" : ""}>
+                        <NavLink 
+                          to={item.path} 
+                          end
+                          className={({ isActive }) => 
+                            `transition-all duration-200 ${isActive ? "bg-accent/20 text-accent" : "hover:bg-accent/10"}`
+                          }
+                        >
                           <item.icon className="mr-2 h-4 w-4" />
                           <span>{item.title}</span>
                         </NavLink>
@@ -73,115 +81,126 @@ const AdminPanel = () => {
         </Sidebar>
 
         <main className="flex-1 p-8">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-              <p className="text-muted-foreground">Manage GNACOPS platform</p>
-            </div>
-            <SidebarTrigger />
-          </div>
-
-          {/* Stats Cards */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-              <div className="flex items-center justify-between">
+          {isDashboard ? (
+            <>
+              <div className="flex items-center justify-between mb-8">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Members</p>
-                  <p className="text-3xl font-bold text-primary">{stats.totalMembers}</p>
+                  <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+                  <p className="text-muted-foreground">Manage GNACOPS platform</p>
                 </div>
-                <Users className="h-10 w-10 text-primary/50" />
+                <SidebarTrigger />
               </div>
-            </Card>
 
-            <Card className="p-6 bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Pending Apps</p>
-                  <p className="text-3xl font-bold text-accent">{stats.pendingApplications}</p>
-                </div>
-                <FileText className="h-10 w-10 text-accent/50" />
+              {/* Stats Cards */}
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 hover-card">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Members</p>
+                      <p className="text-3xl font-bold text-primary">{stats.totalMembers}</p>
+                    </div>
+                    <Users className="h-10 w-10 text-primary/50" />
+                  </div>
+                </Card>
+
+                <Card className="p-6 bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20 hover-card">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Pending Apps</p>
+                      <p className="text-3xl font-bold text-accent">{stats.pendingApplications}</p>
+                    </div>
+                    <FileText className="h-10 w-10 text-accent/50" />
+                  </div>
+                </Card>
+
+                <Card className="p-6 bg-gradient-to-br from-green-500/10 to-green-500/5 border-green-500/20 hover-card">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Revenue</p>
+                      <p className="text-2xl font-bold text-green-600">{stats.totalRevenue}</p>
+                    </div>
+                    <BarChart className="h-10 w-10 text-green-500/50" />
+                  </div>
+                </Card>
+
+                <Card className="p-6 bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20 hover-card">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Active Users</p>
+                      <p className="text-3xl font-bold text-blue-600">{stats.activeUsers}</p>
+                    </div>
+                    <Shield className="h-10 w-10 text-blue-500/50" />
+                  </div>
+                </Card>
               </div>
-            </Card>
 
-            <Card className="p-6 bg-gradient-to-br from-green-500/10 to-green-500/5 border-green-500/20">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Revenue</p>
-                  <p className="text-2xl font-bold text-green-600">{stats.totalRevenue}</p>
-                </div>
-                <BarChart className="h-10 w-10 text-green-500/50" />
+              {/* Recent Applications */}
+              <Card className="p-6 hover-card">
+                <h2 className="text-xl font-semibold mb-4">Recent Applications</h2>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {recentApplications.map((app) => (
+                      <TableRow key={app.id}>
+                        <TableCell className="font-medium">{app.name}</TableCell>
+                        <TableCell>{app.type}</TableCell>
+                        <TableCell>
+                          <Badge variant={app.status === "Approved" ? "default" : "secondary"}>
+                            {app.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{app.date}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline" onClick={() => navigate("/admin/applications")}>View</Button>
+                            {app.status === "Pending" && (
+                              <Button size="sm" variant="cta">Approve</Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Card>
+
+              {/* Quick Actions */}
+              <div className="grid md:grid-cols-3 gap-6 mt-6">
+                <Card className="p-6 hover-card">
+                  <h3 className="font-semibold mb-2">Manage Users</h3>
+                  <p className="text-sm text-muted-foreground mb-4">View and manage all members</p>
+                  <Button variant="outline" className="w-full" onClick={() => navigate("/admin/users")}>View Users</Button>
+                </Card>
+
+                <Card className="p-6 hover-card">
+                  <h3 className="font-semibold mb-2">Generate Certificates</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Create and send certificates</p>
+                  <Button variant="outline" className="w-full" onClick={() => navigate("/admin/certificates")}>Manage</Button>
+                </Card>
+
+                <Card className="p-6 hover-card">
+                  <h3 className="font-semibold mb-2">Site Settings</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Update logo, colors, content</p>
+                  <Button variant="outline" className="w-full" onClick={() => navigate("/admin/settings")}>Settings</Button>
+                </Card>
               </div>
-            </Card>
-
-            <Card className="p-6 bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Active Users</p>
-                  <p className="text-3xl font-bold text-blue-600">{stats.activeUsers}</p>
-                </div>
-                <Shield className="h-10 w-10 text-blue-500/50" />
+            </>
+          ) : (
+            <>
+              <div className="flex items-center justify-between mb-8">
+                <SidebarTrigger />
               </div>
-            </Card>
-          </div>
-
-          {/* Recent Applications */}
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Recent Applications</h2>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentApplications.map((app) => (
-                  <TableRow key={app.id}>
-                    <TableCell className="font-medium">{app.name}</TableCell>
-                    <TableCell>{app.type}</TableCell>
-                    <TableCell>
-                      <Badge variant={app.status === "Approved" ? "default" : "secondary"}>
-                        {app.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{app.date}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline">View</Button>
-                        {app.status === "Pending" && (
-                          <Button size="sm" variant="cta">Approve</Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
-
-          {/* Quick Actions */}
-          <div className="grid md:grid-cols-3 gap-6 mt-6">
-            <Card className="p-6">
-              <h3 className="font-semibold mb-2">Manage Forms</h3>
-              <p className="text-sm text-muted-foreground mb-4">Edit registration form fields</p>
-              <Button variant="outline" className="w-full">Edit Forms</Button>
-            </Card>
-
-            <Card className="p-6">
-              <h3 className="font-semibold mb-2">Generate Certificates</h3>
-              <p className="text-sm text-muted-foreground mb-4">Create and send certificates</p>
-              <Button variant="outline" className="w-full">Generate</Button>
-            </Card>
-
-            <Card className="p-6">
-              <h3 className="font-semibold mb-2">Site Settings</h3>
-              <p className="text-sm text-muted-foreground mb-4">Update logo, colors, content</p>
-              <Button variant="outline" className="w-full">Settings</Button>
-            </Card>
-          </div>
+              <Outlet />
+            </>
+          )}
         </main>
       </div>
     </SidebarProvider>

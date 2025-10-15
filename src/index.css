@@ -88,6 +88,20 @@ All colors MUST be HSL.
   html {
     scroll-behavior: smooth;
   }
+
+  /* 3D Hover Effects */
+  .hover-card {
+    @apply transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-1;
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 hover:translate-y-[-4px];
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .hover-lift:hover {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  }
 }
 
 @layer utilities {

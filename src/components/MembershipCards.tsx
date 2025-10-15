@@ -68,7 +68,7 @@ const MembershipCards = () => {
             return (
               <Card
                 key={index}
-                className="bg-card border-card-border hover:border-accent transition-all duration-300 p-6 group animate-fade-in-up"
+                className="bg-card border-card-border hover:border-accent transition-all duration-300 p-6 group animate-fade-in-up hover-lift"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="flex flex-col h-full">
