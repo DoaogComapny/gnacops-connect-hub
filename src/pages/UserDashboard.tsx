@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, Bell, User, CreditCard, FileText, LogOut, Settings } from "lucide-react";
+import { Download, Bell, User, CreditCard, FileText, LogOut, Settings, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -10,6 +10,7 @@ const menuItems = [
   { title: "My Account", icon: Settings, path: "/dashboard/account" },
   { title: "Payments", icon: CreditCard, path: "/dashboard/payments" },
   { title: "Certificate", icon: FileText, path: "/dashboard/certificate" },
+  { title: "Support", icon: MessageSquare, path: "/dashboard/support" },
   { title: "Notifications", icon: Bell, path: "/dashboard/notifications" },
 ];
 

@@ -11,6 +11,7 @@ const menuItems = [
   { title: "Dashboard", icon: BarChart, path: "/admin" },
   { title: "Users", icon: Users, path: "/admin/users" },
   { title: "Applications", icon: FileText, path: "/admin/applications" },
+  { title: "Staff", icon: Shield, path: "/admin/staff" },
   { title: "Certificates", icon: Shield, path: "/admin/certificates" },
   { title: "Messages", icon: Mail, path: "/admin/messages" },
   { title: "Settings", icon: Settings, path: "/admin/settings" },

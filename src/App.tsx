@@ -25,12 +25,14 @@ import AdminApplications from "./pages/admin/AdminApplications";
 import AdminCertificates from "./pages/admin/AdminCertificates";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminStaff from "./pages/admin/AdminStaff";
 
 // User Pages
 import UserPayments from "./pages/user/UserPayments";
 import UserCertificate from "./pages/user/UserCertificate";
 import UserNotifications from "./pages/user/UserNotifications";
 import UserAccount from "./pages/user/UserAccount";
+import UserSupportTickets from "./pages/user/UserSupportTickets";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +60,7 @@ const App = () => (
           <Route path="/admin" element={<AdminPanel />}>
             <Route path="users" element={<AdminUsers />} />
             <Route path="applications" element={<AdminApplications />} />
+            <Route path="staff" element={<AdminStaff />} />
             <Route path="certificates" element={<AdminCertificates />} />
             <Route path="messages" element={<AdminMessages />} />
             <Route path="settings" element={<AdminSettings />} />
@@ -68,6 +71,7 @@ const App = () => (
             <Route path="account" element={<UserAccount />} />
             <Route path="payments" element={<UserPayments />} />
             <Route path="certificate" element={<UserCertificate />} />
+            <Route path="support" element={<UserSupportTickets />} />
             <Route path="notifications" element={<UserNotifications />} />
           </Route>
           
