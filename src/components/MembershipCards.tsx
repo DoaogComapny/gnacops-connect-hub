@@ -15,36 +15,42 @@ const membershipTypes = [
     icon: Building2,
     title: "Institutional Membership",
     description: "For private schools and educational institutions seeking official registration and support.",
+    price: 500,
     path: "/register/institutional",
   },
   {
     icon: GraduationCap,
     title: "Teacher Council",
     description: "Professional development and networking opportunities for dedicated educators.",
+    price: 200,
     path: "/register/teacher",
   },
   {
     icon: Users,
     title: "Parent Council",
     description: "Active parent involvement in shaping quality education for their children.",
+    price: 150,
     path: "/register/parent",
   },
   {
     icon: Briefcase,
     title: "Proprietor",
     description: "For school owners committed to excellence in private education management.",
+    price: 300,
     path: "/register/proprietor",
   },
   {
     icon: Wrench,
     title: "Service Provider",
     description: "Partner with GNACOPS schools by offering essential educational services.",
+    price: 250,
     path: "/register/service-provider",
   },
   {
     icon: UserCog,
     title: "Non-Teaching Staff",
     description: "Recognition and support for vital non-teaching school personnel.",
+    price: 150,
     path: "/register/non-teaching-staff",
   },
 ];
@@ -79,14 +85,18 @@ const MembershipCards = () => {
                     <h3 className="text-xl font-semibold mb-2 text-foreground">
                       {type.title}
                     </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                       {type.description}
                     </p>
+                    <div className="flex items-baseline gap-1 mb-2">
+                      <span className="text-2xl font-bold text-accent">GHS ₵{type.price}</span>
+                      <span className="text-sm text-muted-foreground">/year</span>
+                    </div>
                   </div>
                   <div className="mt-auto pt-4">
                     <Link to={type.path}>
                       <Button variant="cta" className="w-full">
-                        Register Now
+                        Apply Now
                       </Button>
                     </Link>
                   </div>

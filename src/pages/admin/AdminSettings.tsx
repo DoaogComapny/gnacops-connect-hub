@@ -1,16 +1,41 @@
 import { useState } from "react";
-import { Settings, Save, Upload } from "lucide-react";
+import { Settings, Save, Upload, CreditCard, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const AdminSettings = () => {
   const { toast } = useToast();
   const [siteName, setSiteName] = useState("GNACOPS");
   const [tagline, setTagline] = useState("Ghana National Association of Council of Private Schools");
   const [aboutText, setAboutText] = useState("GNACOPS is committed to excellence...");
+  
+  // Payment Gateway Settings
+  const [paymentProvider, setPaymentProvider] = useState("paystack");
+  const [paymentApiKey, setPaymentApiKey] = useState("");
+  const [paymentPublicKey, setPaymentPublicKey] = useState("");
+  
+  // Web Settings - Landing Page Content
+  const [heroTitle, setHeroTitle] = useState("Join Ghana's Private School Council Today");
+  const [heroSubtitle, setHeroSubtitle] = useState("Empowering Excellence in Private Education Across Ghana");
+  const [aboutSectionTitle, setAboutSectionTitle] = useState("About GNACOPS");
+  const [aboutSectionText, setAboutSectionText] = useState("Ghana National Association of Council of Private Schools");
+  
+  // Membership Pricing
+  const [institutionalPrice, setInstitutionalPrice] = useState("500");
+  const [teacherPrice, setTeacherPrice] = useState("200");
+  const [parentPrice, setParentPrice] = useState("150");
+  const [proprietorPrice, setProprietorPrice] = useState("300");
+  const [serviceProviderPrice, setServiceProviderPrice] = useState("250");
+  const [nonTeachingStaffPrice, setNonTeachingStaffPrice] = useState("150");
+  
+  // Footer Settings
+  const [footerEmail, setFooterEmail] = useState("info@gnacops.org");
+  const [footerPhone, setFooterPhone] = useState("+233 XX XXX XXXX");
+  const [footerAddress, setFooterAddress] = useState("Accra, Ghana");
 
   const handleSaveSettings = () => {
     toast({
@@ -96,18 +121,45 @@ const AdminSettings = () => {
         </div>
       </Card>
 
-      {/* Payment Settings */}
+      {/* Payment Gateway Configuration */}
       <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Payment Configuration</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <CreditCard className="h-5 w-5 text-accent" />
+          <h2 className="text-xl font-semibold">Payment Gateway Configuration</h2>
+        </div>
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium mb-2 block">Institutional Membership Fee (GHS)</label>
-            <Input type="number" defaultValue="500" />
+            <label className="text-sm font-medium mb-2 block">Payment Provider</label>
+            <Select value={paymentProvider} onValueChange={setPaymentProvider}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select payment provider" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="paystack">Paystack</SelectItem>
+                <SelectItem value="flutterwave">Flutterwave</SelectItem>
+                <SelectItem value="stripe">Stripe</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block">Individual Membership Fee (GHS)</label>
-            <Input type="number" defaultValue="200" />
+            <label className="text-sm font-medium mb-2 block">Public Key</label>
+            <Input 
+              type="text" 
+              placeholder="pk_live_xxxxxxxxxxxx"
+              value={paymentPublicKey}
+              onChange={(e) => setPaymentPublicKey(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">Secret Key</label>
+            <Input 
+              type="password" 
+              placeholder="sk_live_xxxxxxxxxxxx"
+              value={paymentApiKey}
+              onChange={(e) => setPaymentApiKey(e.target.value)}
+            />
           </div>
 
           <Button variant="cta" onClick={handleSaveSettings}>
@@ -117,23 +169,151 @@ const AdminSettings = () => {
         </div>
       </Card>
 
-      {/* Email Settings */}
+      {/* Web Settings - Landing Page Content */}
       <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Email Configuration</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <Globe className="h-5 w-5 text-accent" />
+          <h2 className="text-xl font-semibold">Web Settings - Landing Page</h2>
+        </div>
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium mb-2 block">Admin Email</label>
-            <Input type="email" defaultValue="admin@gnacops.org" />
+            <label className="text-sm font-medium mb-2 block">Hero Title</label>
+            <Input 
+              value={heroTitle}
+              onChange={(e) => setHeroTitle(e.target.value)}
+            />
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block">Support Email</label>
-            <Input type="email" defaultValue="support@gnacops.org" />
+            <label className="text-sm font-medium mb-2 block">Hero Subtitle</label>
+            <Input 
+              value={heroSubtitle}
+              onChange={(e) => setHeroSubtitle(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">About Section Title</label>
+            <Input 
+              value={aboutSectionTitle}
+              onChange={(e) => setAboutSectionTitle(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">About Section Text</label>
+            <Textarea 
+              rows={4}
+              value={aboutSectionText}
+              onChange={(e) => setAboutSectionText(e.target.value)}
+            />
           </div>
 
           <Button variant="cta" onClick={handleSaveSettings}>
             <Save className="mr-2 h-4 w-4" />
-            Save Email Settings
+            Save Content Settings
+          </Button>
+        </div>
+      </Card>
+
+      {/* Membership Pricing Configuration */}
+      <Card className="p-6">
+        <h2 className="text-xl font-semibold mb-4">Membership Pricing (GHS)</h2>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium mb-2 block">Institutional Membership</label>
+            <Input 
+              type="number" 
+              value={institutionalPrice}
+              onChange={(e) => setInstitutionalPrice(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">Teacher Council</label>
+            <Input 
+              type="number" 
+              value={teacherPrice}
+              onChange={(e) => setTeacherPrice(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">Parent Council</label>
+            <Input 
+              type="number" 
+              value={parentPrice}
+              onChange={(e) => setParentPrice(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">Proprietor</label>
+            <Input 
+              type="number" 
+              value={proprietorPrice}
+              onChange={(e) => setProprietorPrice(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">Service Provider</label>
+            <Input 
+              type="number" 
+              value={serviceProviderPrice}
+              onChange={(e) => setServiceProviderPrice(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">Non-Teaching Staff</label>
+            <Input 
+              type="number" 
+              value={nonTeachingStaffPrice}
+              onChange={(e) => setNonTeachingStaffPrice(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <Button variant="cta" onClick={handleSaveSettings} className="mt-4">
+          <Save className="mr-2 h-4 w-4" />
+          Save Pricing
+        </Button>
+      </Card>
+
+      {/* Footer Settings */}
+      <Card className="p-6">
+        <h2 className="text-xl font-semibold mb-4">Footer Configuration</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-medium mb-2 block">Contact Email</label>
+            <Input 
+              type="email" 
+              value={footerEmail}
+              onChange={(e) => setFooterEmail(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">Contact Phone</label>
+            <Input 
+              type="tel" 
+              value={footerPhone}
+              onChange={(e) => setFooterPhone(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">Address</label>
+            <Input 
+              value={footerAddress}
+              onChange={(e) => setFooterAddress(e.target.value)}
+            />
+          </div>
+
+          <Button variant="cta" onClick={handleSaveSettings}>
+            <Save className="mr-2 h-4 w-4" />
+            Save Footer Settings
           </Button>
         </div>
       </Card>

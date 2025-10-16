@@ -23,9 +23,14 @@ const UserDashboard = () => {
     name: "John Doe",
     email: "john@example.com",
     membershipType: "Institutional Membership",
-    status: "Pending Approval",
+    membershipPrice: 500,
+    status: "Approved",
     paymentStatus: "Unpaid",
   });
+
+  const handlePayNow = () => {
+    navigate("/dashboard/payments");
+  };
 
   const handleLogout = () => {
     // Placeholder: Will connect to auth later
@@ -136,12 +141,15 @@ const UserDashboard = () => {
                   <p className="text-muted-foreground mb-4">
                     Your membership fee payment is pending. Complete payment to receive your certificate.
                   </p>
-                  <Button variant="cta" disabled={userData.status === "Pending Approval"}>
+                  <Button variant="cta" onClick={handlePayNow} disabled={userData.status === "Pending Approval"}>
                     <CreditCard className="mr-2 h-4 w-4" />
-                    Pay Now (Coming Soon)
+                    Pay Now
                   </Button>
                   <p className="text-sm text-muted-foreground mt-2">
-                    * Payment will be enabled after admin approval
+                    {userData.status === "Pending Approval" 
+                      ? "* Payment will be enabled after admin approval"
+                      : `Amount due: GHS ₵${userData.membershipPrice}`
+                    }
                   </p>
                 </Card>
 
