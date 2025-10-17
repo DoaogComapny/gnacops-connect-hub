@@ -9,9 +9,9 @@ import { useToast } from "@/hooks/use-toast";
 const AdminCertificates = () => {
   const { toast } = useToast();
   const [certificates] = useState([
-    { id: 1, gnacopsId: "GNACOPS251001", name: "John Doe", type: "Institutional", status: "Generated", date: "2025-01-16" },
-    { id: 2, gnacopsId: "GNACOPS251002", name: "Jane Smith", type: "Teacher Council", status: "Sent", date: "2025-01-15" },
-    { id: 3, gnacopsId: "GNACOPS251003", name: "Bob Johnson", type: "Proprietor", status: "Pending", date: "2025-01-14" },
+    { id: 1, gnacopsId: "GNC/PM/01/0001", name: "John Doe", type: "Institutional", status: "Generated", date: "2025-01-16" },
+    { id: 2, gnacopsId: "GNC/AM/02/0002", name: "Jane Smith", type: "Teacher Council", status: "Sent", date: "2025-01-15" },
+    { id: 3, gnacopsId: "GNC/PM/01/0003", name: "Bob Johnson", type: "Proprietor", status: "Pending", date: "2025-01-14" },
   ]);
 
   const handleGenerate = (id: number) => {

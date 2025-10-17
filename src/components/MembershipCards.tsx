@@ -16,42 +16,48 @@ const membershipTypes = [
     title: "Institutional Membership",
     description: "For private schools and educational institutions seeking official registration and support.",
     price: 500,
-    path: "/register/institutional",
-  },
-  {
-    icon: GraduationCap,
-    title: "Teacher Council",
-    description: "Professional development and networking opportunities for dedicated educators.",
-    price: 200,
-    path: "/register/teacher",
-  },
-  {
-    icon: Users,
-    title: "Parent Council",
-    description: "Active parent involvement in shaping quality education for their children.",
-    price: 150,
-    path: "/register/parent",
+    path: "/register/multi-select",
+    category: "Prime Member",
   },
   {
     icon: Briefcase,
     title: "Proprietor",
     description: "For school owners committed to excellence in private education management.",
     price: 300,
-    path: "/register/proprietor",
+    path: "/register/multi-select",
+    category: "Prime Member",
+  },
+  {
+    icon: GraduationCap,
+    title: "Teacher Council",
+    description: "Professional development and networking opportunities for dedicated educators.",
+    price: 200,
+    path: "/register/multi-select",
+    category: "Associate Member",
+  },
+  {
+    icon: Users,
+    title: "Parent Council",
+    description: "Active parent involvement in shaping quality education for their children.",
+    price: 150,
+    path: "/register/multi-select",
+    category: "Associate Member",
   },
   {
     icon: Wrench,
     title: "Service Provider",
     description: "Partner with GNACOPS schools by offering essential educational services.",
     price: 250,
-    path: "/register/service-provider",
+    path: "/register/multi-select",
+    category: "Associate Member",
   },
   {
     icon: UserCog,
     title: "Non-Teaching Staff",
     description: "Recognition and support for vital non-teaching school personnel.",
     price: 150,
-    path: "/register/non-teaching-staff",
+    path: "/register/multi-select",
+    category: "Associate Member",
   },
 ];
 
@@ -68,42 +74,98 @@ const MembershipCards = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {membershipTypes.map((type, index) => {
-            const Icon = type.icon;
-            return (
-              <Card
-                key={index}
-                className="bg-card border-card-border hover:border-accent transition-all duration-300 p-6 group animate-fade-in-up hover-lift"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="flex flex-col h-full">
-                  <div className="mb-4">
-                    <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                      <Icon className="w-6 h-6 text-accent" />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2 text-foreground">
-                      {type.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                      {type.description}
-                    </p>
-                    <div className="flex items-baseline gap-1 mb-2">
-                      <span className="text-2xl font-bold text-accent">GHS ₵{type.price}</span>
-                      <span className="text-sm text-muted-foreground">/year</span>
-                    </div>
-                  </div>
-                  <div className="mt-auto pt-4">
-                    <Link to={type.path}>
-                      <Button variant="cta" className="w-full">
-                        Apply Now
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
+        <div className="space-y-12">
+          {/* Prime Members Section */}
+          <div>
+            <h3 className="text-2xl font-bold mb-6 text-center">
+              Prime Members
+            </h3>
+            <div className="grid md:grid-cols-2 gap-6">
+              {membershipTypes
+                .filter((type) => type.category === "Prime Member")
+                .map((type, index) => {
+                  const Icon = type.icon;
+                  return (
+                    <Card
+                      key={index}
+                      className="bg-card border-card-border hover:border-accent transition-all duration-300 p-6 group animate-fade-in-up hover-lift"
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <div className="flex flex-col h-full">
+                        <div className="mb-4">
+                          <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
+                            <Icon className="w-6 h-6 text-accent" />
+                          </div>
+                          <h3 className="text-xl font-semibold mb-2 text-foreground">
+                            {type.title}
+                          </h3>
+                          <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                            {type.description}
+                          </p>
+                          <div className="flex items-baseline gap-1 mb-2">
+                            <span className="text-2xl font-bold text-accent">GHS ₵{type.price}</span>
+                            <span className="text-sm text-muted-foreground">/year</span>
+                          </div>
+                        </div>
+                        <div className="mt-auto pt-4">
+                          <Link to={type.path}>
+                            <Button variant="cta" className="w-full">
+                              Apply Now
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
+            </div>
+          </div>
+
+          {/* Associate Members Section */}
+          <div>
+            <h3 className="text-2xl font-bold mb-6 text-center">
+              Associate Members
+            </h3>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {membershipTypes
+                .filter((type) => type.category === "Associate Member")
+                .map((type, index) => {
+                  const Icon = type.icon;
+                  return (
+                    <Card
+                      key={index}
+                      className="bg-card border-card-border hover:border-accent transition-all duration-300 p-6 group animate-fade-in-up hover-lift"
+                      style={{ animationDelay: `${(index + 2) * 0.1}s` }}
+                    >
+                      <div className="flex flex-col h-full">
+                        <div className="mb-4">
+                          <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
+                            <Icon className="w-6 h-6 text-accent" />
+                          </div>
+                          <h3 className="text-xl font-semibold mb-2 text-foreground">
+                            {type.title}
+                          </h3>
+                          <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                            {type.description}
+                          </p>
+                          <div className="flex items-baseline gap-1 mb-2">
+                            <span className="text-2xl font-bold text-accent">GHS ₵{type.price}</span>
+                            <span className="text-sm text-muted-foreground">/year</span>
+                          </div>
+                        </div>
+                        <div className="mt-auto pt-4">
+                          <Link to={type.path}>
+                            <Button variant="cta" className="w-full">
+                              Apply Now
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
+            </div>
+          </div>
         </div>
       </div>
     </section>

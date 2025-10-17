@@ -15,6 +15,7 @@ import ParentCouncilForm from "./pages/ParentCouncilForm";
 import ProprietorForm from "./pages/ProprietorForm";
 import ServiceProviderForm from "./pages/ServiceProviderForm";
 import NonTeachingStaffForm from "./pages/NonTeachingStaffForm";
+import MultiMembershipSelection from "./pages/MultiMembershipSelection";
 import UserDashboard from "./pages/UserDashboard";
 import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
@@ -49,6 +50,7 @@ const App = () => (
           <Route path="/membership" element={<MembershipPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register/multi-select" element={<MultiMembershipSelection />} />
           <Route path="/register/institutional" element={<InstitutionalForm />} />
           <Route path="/register/teacher" element={<TeacherCouncilForm />} />
           <Route path="/register/parent" element={<ParentCouncilForm />} />

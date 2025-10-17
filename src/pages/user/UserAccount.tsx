@@ -167,7 +167,7 @@ const UserAccount = () => {
         <div className="space-y-3">
           <div className="flex justify-between">
             <span className="text-muted-foreground">GNACOPS ID:</span>
-            <span className="font-mono font-semibold">GNACOPS251002</span>
+            <span className="font-mono font-semibold">GNC/PM/01/0002</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Membership Type:</span>

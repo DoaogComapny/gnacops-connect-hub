@@ -19,7 +19,7 @@ const UserDashboard = () => {
   const location = useLocation();
   const isDashboard = location.pathname === "/dashboard";
   const [userData] = useState({
-    gnacopsId: "GNACOPS251002",
+    gnacopsId: "GNC/PM/01/0002",
     name: "John Doe",
     email: "john@example.com",
     membershipType: "Institutional Membership",
