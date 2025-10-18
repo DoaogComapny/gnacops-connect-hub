@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Save, Upload, CreditCard, Globe } from "lucide-react";
+import { Settings, Save, Upload, CreditCard, Globe, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -36,6 +36,14 @@ const AdminSettings = () => {
   const [footerEmail, setFooterEmail] = useState("info@gnacops.org");
   const [footerPhone, setFooterPhone] = useState("+233 XX XXX XXXX");
   const [footerAddress, setFooterAddress] = useState("Accra, Ghana");
+  
+  // SMTP Settings
+  const [smtpHost, setSmtpHost] = useState("");
+  const [smtpPort, setSmtpPort] = useState("587");
+  const [smtpUser, setSmtpUser] = useState("");
+  const [smtpPassword, setSmtpPassword] = useState("");
+  const [smtpFromEmail, setSmtpFromEmail] = useState("");
+  const [smtpFromName, setSmtpFromName] = useState("GNACOPS");
 
   const handleSaveSettings = () => {
     toast({
@@ -314,6 +322,94 @@ const AdminSettings = () => {
           <Button variant="cta" onClick={handleSaveSettings}>
             <Save className="mr-2 h-4 w-4" />
             Save Footer Settings
+          </Button>
+        </div>
+      </Card>
+
+      {/* SMTP Configuration */}
+      <Card className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Mail className="h-5 w-5 text-accent" />
+          <h2 className="text-xl font-semibold">SMTP Email Configuration</h2>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Configure SMTP settings to send automated emails for registration confirmations, password resets, and member notifications.
+        </p>
+        <div className="space-y-4">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">SMTP Host</label>
+              <Input 
+                type="text" 
+                placeholder="smtp.gmail.com"
+                value={smtpHost}
+                onChange={(e) => setSmtpHost(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">SMTP Port</label>
+              <Input 
+                type="number" 
+                placeholder="587"
+                value={smtpPort}
+                onChange={(e) => setSmtpPort(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">SMTP Username/Email</label>
+            <Input 
+              type="email" 
+              placeholder="noreply@gnacops.org"
+              value={smtpUser}
+              onChange={(e) => setSmtpUser(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">SMTP Password</label>
+            <Input 
+              type="password" 
+              placeholder="••••••••"
+              value={smtpPassword}
+              onChange={(e) => setSmtpPassword(e.target.value)}
+            />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">From Email Address</label>
+              <Input 
+                type="email" 
+                placeholder="noreply@gnacops.org"
+                value={smtpFromEmail}
+                onChange={(e) => setSmtpFromEmail(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">From Name</label>
+              <Input 
+                type="text" 
+                placeholder="GNACOPS"
+                value={smtpFromName}
+                onChange={(e) => setSmtpFromName(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="bg-muted/50 p-4 rounded-lg">
+            <p className="text-sm text-muted-foreground">
+              <strong>Note:</strong> These settings will be used for all automated emails including:
+              registration confirmations with GNACOPS ID, password reset emails, and member notifications.
+            </p>
+          </div>
+
+          <Button variant="cta" onClick={handleSaveSettings}>
+            <Save className="mr-2 h-4 w-4" />
+            Save SMTP Settings
           </Button>
         </div>
       </Card>

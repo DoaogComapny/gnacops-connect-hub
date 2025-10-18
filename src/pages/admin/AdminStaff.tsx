@@ -34,6 +34,7 @@ const AVAILABLE_PERMISSIONS: Permission[] = [
   { id: "edit_content", name: "Edit Content", description: "Can edit website content and announcements" },
   { id: "view_analytics", name: "View Analytics", description: "Can access analytics and reports" },
   { id: "manage_staff", name: "Manage Staff", description: "Can add, edit, and remove staff members" },
+  { id: "forgot_id_password", name: "Forgot ID and Passwords", description: "Can handle forgot GNACOPS ID and password recovery requests" },
 ];
 
 const AdminStaff = () => {

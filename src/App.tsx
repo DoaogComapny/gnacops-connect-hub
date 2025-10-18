@@ -9,6 +9,7 @@ import AboutPage from "./pages/AboutPage";
 import MembershipPage from "./pages/MembershipPage";
 import ContactPage from "./pages/ContactPage";
 import LoginPage from "./pages/LoginPage";
+import ForgotPage from "./pages/ForgotPage";
 import InstitutionalForm from "./pages/InstitutionalForm";
 import TeacherCouncilForm from "./pages/TeacherCouncilForm";
 import ParentCouncilForm from "./pages/ParentCouncilForm";
@@ -28,6 +29,7 @@ import AdminMessages from "./pages/admin/AdminMessages";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminStaff from "./pages/admin/AdminStaff";
 import AdminSchoolsView from "./pages/admin/AdminSchoolsView";
+import StaffForgotRequests from "./pages/admin/StaffForgotRequests";
 
 // User Pages
 import UserPayments from "./pages/user/UserPayments";
@@ -51,6 +53,7 @@ const App = () => (
           <Route path="/membership" element={<MembershipPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot" element={<ForgotPage />} />
           <Route path="/register/multi-select" element={<MultiMembershipSelection />} />
           <Route path="/register/institutional" element={<InstitutionalForm />} />
           <Route path="/register/teacher" element={<TeacherCouncilForm />} />
@@ -67,6 +70,7 @@ const App = () => (
             <Route path="certificates" element={<AdminCertificates />} />
             <Route path="schools-view" element={<AdminSchoolsView />} />
             <Route path="messages" element={<AdminMessages />} />
+            <Route path="forgot-requests" element={<StaffForgotRequests />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
 
