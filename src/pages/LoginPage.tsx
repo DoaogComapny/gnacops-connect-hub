@@ -37,7 +37,7 @@ const LoginPage = () => {
                   value={gnacopsId}
                   onChange={(e) => setGnacopsId(e.target.value)}
                   className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-foreground"
-                  placeholder="e.g., GNC/PM/01/0002"
+                  placeholder="e.g., GNC/PM/01/0001"
                   required
                 />
               </div>

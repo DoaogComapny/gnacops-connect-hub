@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu } from "lucide-react";
+import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -13,6 +13,7 @@ const menuItems = [
   { title: "Applications", icon: FileText, path: "/admin/applications" },
   { title: "Staff", icon: Shield, path: "/admin/staff" },
   { title: "Certificates", icon: Shield, path: "/admin/certificates" },
+  { title: "Schools View", icon: MapPin, path: "/admin/schools-view" },
   { title: "Messages", icon: Mail, path: "/admin/messages" },
   { title: "Settings", icon: Settings, path: "/admin/settings" },
 ];

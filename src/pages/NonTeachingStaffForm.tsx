@@ -26,6 +26,7 @@ const NonTeachingStaffForm = () => {
     workExperience: "",
     gnacopsTraining: "",
     developmentProgram: "",
+    digitalAddress: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -120,6 +121,16 @@ const NonTeachingStaffForm = () => {
                 <div>
                   <Label>Name of School Employed *</Label>
                   <Input required value={formData.schoolName} onChange={(e) => setFormData({...formData, schoolName: e.target.value})} />
+                </div>
+
+                <div>
+                  <Label>School Ghana Post Digital Address *</Label>
+                  <Input 
+                    required 
+                    placeholder="e.g., GA-123-4567" 
+                    value={formData.digitalAddress || ''} 
+                    onChange={(e) => setFormData({...formData, digitalAddress: e.target.value})} 
+                  />
                 </div>
 
                 <div>

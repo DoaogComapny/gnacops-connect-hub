@@ -204,6 +204,15 @@ const InstitutionalForm = () => {
                   </div>
 
                   <div>
+                    <label className="block text-sm font-medium mb-2">Ghana Post Digital Address</label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                      placeholder="e.g., GA-123-4567"
+                    />
+                  </div>
+
+                  <div>
                     <label className="block text-sm font-medium mb-2">Vision Statement</label>
                     <textarea
                       rows={3}

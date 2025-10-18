@@ -33,6 +33,7 @@ const ServiceProviderForm = () => {
     referenceSchools: "",
     partnerNationwide: "",
     advertising: "",
+    digitalAddress: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -112,6 +113,16 @@ const ServiceProviderForm = () => {
                 <div>
                   <Label>Company Address *</Label>
                   <Input required value={formData.companyAddress} onChange={(e) => setFormData({...formData, companyAddress: e.target.value})} />
+                </div>
+
+                <div>
+                  <Label>Ghana Post Digital Address *</Label>
+                  <Input 
+                    required 
+                    placeholder="e.g., GA-123-4567" 
+                    value={formData.digitalAddress || ''} 
+                    onChange={(e) => setFormData({...formData, digitalAddress: e.target.value})} 
+                  />
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">

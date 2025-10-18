@@ -39,6 +39,7 @@ const TeacherCouncilForm = () => {
     professionalDevelopment: "",
     professionalDevelopmentDetails: "",
     agreement: false,
+    digitalAddress: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -162,6 +163,16 @@ const TeacherCouncilForm = () => {
                 <div>
                   <Label>School Address *</Label>
                   <Input required value={formData.schoolAddress} onChange={(e) => setFormData({...formData, schoolAddress: e.target.value})} />
+                </div>
+
+                <div>
+                  <Label>Ghana Post Digital Address *</Label>
+                  <Input 
+                    required 
+                    placeholder="e.g., GA-123-4567" 
+                    value={formData.digitalAddress || ''} 
+                    onChange={(e) => setFormData({...formData, digitalAddress: e.target.value})} 
+                  />
                 </div>
 
                 <div>
