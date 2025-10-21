@@ -1,25 +1,25 @@
-import { FileText, UserCheck, CreditCard, Award } from "lucide-react";
+import { FileText, CreditCard, CheckCircle, Award } from "lucide-react";
 
 const steps = [
   {
     icon: FileText,
-    title: "Fill Form",
+    title: "Fill Forms",
     description: "Complete your membership registration form with accurate details",
-  },
-  {
-    icon: UserCheck,
-    title: "Admin Approval",
-    description: "Our team reviews and verifies your application",
   },
   {
     icon: CreditCard,
     title: "Pay Membership Fee",
-    description: "Secure payment processing via our portal",
+    description: "Securely pay your membership fee through our payment gateway",
+  },
+  {
+    icon: CheckCircle,
+    title: "Admin Approval",
+    description: "Wait for admin review and approval of your application",
   },
   {
     icon: Award,
     title: "Get Certificate",
-    description: "Receive your official GNACOPS membership certificate",
+    description: "Receive your GNACOPS ID and official membership certificate",
   },
 ];
 

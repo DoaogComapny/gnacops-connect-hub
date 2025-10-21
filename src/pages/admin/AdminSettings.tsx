@@ -32,6 +32,32 @@ const AdminSettings = () => {
   const [serviceProviderPrice, setServiceProviderPrice] = useState("250");
   const [nonTeachingStaffPrice, setNonTeachingStaffPrice] = useState("150");
   
+  // Membership Titles
+  const [institutionalTitle, setInstitutionalTitle] = useState("Institutional Membership");
+  const [teacherTitle, setTeacherTitle] = useState("Teacher Council");
+  const [parentTitle, setParentTitle] = useState("Parent Council");
+  const [proprietorTitle, setProprietorTitle] = useState("Proprietor");
+  const [serviceProviderTitle, setServiceProviderTitle] = useState("Service Provider");
+  const [nonTeachingStaffTitle, setNonTeachingStaffTitle] = useState("Non-Teaching Staff");
+  
+  // Membership Descriptions
+  const [institutionalDesc, setInstitutionalDesc] = useState("For private schools and educational institutions seeking official registration and support.");
+  const [teacherDesc, setTeacherDesc] = useState("Professional development and networking opportunities for dedicated educators.");
+  const [parentDesc, setParentDesc] = useState("Active parent involvement in shaping quality education for their children.");
+  const [proprietorDesc, setProprietorDesc] = useState("For school owners committed to excellence in private education management.");
+  const [serviceProviderDesc, setServiceProviderDesc] = useState("Partner with GNACOPS schools by offering essential educational services.");
+  const [nonTeachingStaffDesc, setNonTeachingStaffDesc] = useState("Recognition and support for vital non-teaching school personnel.");
+  
+  // How It Works Steps
+  const [step1Title, setStep1Title] = useState("Fill Forms");
+  const [step1Desc, setStep1Desc] = useState("Complete your membership registration form with accurate details");
+  const [step2Title, setStep2Title] = useState("Pay Membership Fee");
+  const [step2Desc, setStep2Desc] = useState("Securely pay your membership fee through our payment gateway");
+  const [step3Title, setStep3Title] = useState("Admin Approval");
+  const [step3Desc, setStep3Desc] = useState("Wait for admin review and approval of your application");
+  const [step4Title, setStep4Title] = useState("Get Certificate");
+  const [step4Desc, setStep4Desc] = useState("Receive your GNACOPS ID and official membership certificate");
+  
   // Footer Settings
   const [footerEmail, setFooterEmail] = useState("info@gnacops.org");
   const [footerPhone, setFooterPhone] = useState("+233 XX XXX XXXX");
@@ -224,68 +250,213 @@ const AdminSettings = () => {
         </div>
       </Card>
 
-      {/* Membership Pricing Configuration */}
+      {/* Web Settings - Membership Configuration */}
       <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Membership Pricing (GHS)</h2>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium mb-2 block">Institutional Membership</label>
-            <Input 
-              type="number" 
-              value={institutionalPrice}
-              onChange={(e) => setInstitutionalPrice(e.target.value)}
-            />
+        <div className="flex items-center gap-2 mb-4">
+          <Settings className="h-5 w-5 text-accent" />
+          <h2 className="text-xl font-semibold">Web Settings - Membership Types</h2>
+        </div>
+        <p className="text-sm text-muted-foreground mb-6">
+          Configure titles, descriptions, and pricing for all membership types displayed on the website.
+        </p>
+        
+        <div className="space-y-8">
+          {/* Institutional Membership */}
+          <div className="border-b border-border pb-6">
+            <h3 className="font-semibold mb-4 text-primary">Institutional Membership (Prime)</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Title</label>
+                <Input value={institutionalTitle} onChange={(e) => setInstitutionalTitle(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Description</label>
+                <Textarea rows={2} value={institutionalDesc} onChange={(e) => setInstitutionalDesc(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Price (GHS)</label>
+                <Input type="number" value={institutionalPrice} onChange={(e) => setInstitutionalPrice(e.target.value)} />
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium mb-2 block">Teacher Council</label>
-            <Input 
-              type="number" 
-              value={teacherPrice}
-              onChange={(e) => setTeacherPrice(e.target.value)}
-            />
+          {/* Proprietor */}
+          <div className="border-b border-border pb-6">
+            <h3 className="font-semibold mb-4 text-primary">Proprietor (Prime)</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Title</label>
+                <Input value={proprietorTitle} onChange={(e) => setProprietorTitle(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Description</label>
+                <Textarea rows={2} value={proprietorDesc} onChange={(e) => setProprietorDesc(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Price (GHS)</label>
+                <Input type="number" value={proprietorPrice} onChange={(e) => setProprietorPrice(e.target.value)} />
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium mb-2 block">Parent Council</label>
-            <Input 
-              type="number" 
-              value={parentPrice}
-              onChange={(e) => setParentPrice(e.target.value)}
-            />
+          {/* Teacher Council */}
+          <div className="border-b border-border pb-6">
+            <h3 className="font-semibold mb-4 text-secondary">Teacher Council (Associate)</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Title</label>
+                <Input value={teacherTitle} onChange={(e) => setTeacherTitle(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Description</label>
+                <Textarea rows={2} value={teacherDesc} onChange={(e) => setTeacherDesc(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Price (GHS)</label>
+                <Input type="number" value={teacherPrice} onChange={(e) => setTeacherPrice(e.target.value)} />
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium mb-2 block">Proprietor</label>
-            <Input 
-              type="number" 
-              value={proprietorPrice}
-              onChange={(e) => setProprietorPrice(e.target.value)}
-            />
+          {/* Parent Council */}
+          <div className="border-b border-border pb-6">
+            <h3 className="font-semibold mb-4 text-secondary">Parent Council (Associate)</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Title</label>
+                <Input value={parentTitle} onChange={(e) => setParentTitle(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Description</label>
+                <Textarea rows={2} value={parentDesc} onChange={(e) => setParentDesc(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Price (GHS)</label>
+                <Input type="number" value={parentPrice} onChange={(e) => setParentPrice(e.target.value)} />
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium mb-2 block">Service Provider</label>
-            <Input 
-              type="number" 
-              value={serviceProviderPrice}
-              onChange={(e) => setServiceProviderPrice(e.target.value)}
-            />
+          {/* Service Provider */}
+          <div className="border-b border-border pb-6">
+            <h3 className="font-semibold mb-4 text-secondary">Service Provider (Associate)</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Title</label>
+                <Input value={serviceProviderTitle} onChange={(e) => setServiceProviderTitle(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Description</label>
+                <Textarea rows={2} value={serviceProviderDesc} onChange={(e) => setServiceProviderDesc(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Price (GHS)</label>
+                <Input type="number" value={serviceProviderPrice} onChange={(e) => setServiceProviderPrice(e.target.value)} />
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium mb-2 block">Non-Teaching Staff</label>
-            <Input 
-              type="number" 
-              value={nonTeachingStaffPrice}
-              onChange={(e) => setNonTeachingStaffPrice(e.target.value)}
-            />
+          {/* Non-Teaching Staff */}
+          <div className="pb-6">
+            <h3 className="font-semibold mb-4 text-secondary">Non-Teaching Staff (Associate)</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Title</label>
+                <Input value={nonTeachingStaffTitle} onChange={(e) => setNonTeachingStaffTitle(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Description</label>
+                <Textarea rows={2} value={nonTeachingStaffDesc} onChange={(e) => setNonTeachingStaffDesc(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Price (GHS)</label>
+                <Input type="number" value={nonTeachingStaffPrice} onChange={(e) => setNonTeachingStaffPrice(e.target.value)} />
+              </div>
+            </div>
           </div>
         </div>
 
         <Button variant="cta" onClick={handleSaveSettings} className="mt-4">
           <Save className="mr-2 h-4 w-4" />
-          Save Pricing
+          Save Membership Settings
+        </Button>
+      </Card>
+
+      {/* Web Settings - How It Works Section */}
+      <Card className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Globe className="h-5 w-5 text-accent" />
+          <h2 className="text-xl font-semibold">Web Settings - How It Works</h2>
+        </div>
+        <p className="text-sm text-muted-foreground mb-6">
+          Customize the steps shown in the "How It Works" section on the landing page.
+        </p>
+
+        <div className="space-y-6">
+          {/* Step 1 */}
+          <div className="border-b border-border pb-4">
+            <h3 className="font-semibold mb-3">Step 1</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Title</label>
+                <Input value={step1Title} onChange={(e) => setStep1Title(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Description</label>
+                <Textarea rows={2} value={step1Desc} onChange={(e) => setStep1Desc(e.target.value)} />
+              </div>
+            </div>
+          </div>
+
+          {/* Step 2 */}
+          <div className="border-b border-border pb-4">
+            <h3 className="font-semibold mb-3">Step 2</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Title</label>
+                <Input value={step2Title} onChange={(e) => setStep2Title(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Description</label>
+                <Textarea rows={2} value={step2Desc} onChange={(e) => setStep2Desc(e.target.value)} />
+              </div>
+            </div>
+          </div>
+
+          {/* Step 3 */}
+          <div className="border-b border-border pb-4">
+            <h3 className="font-semibold mb-3">Step 3</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Title</label>
+                <Input value={step3Title} onChange={(e) => setStep3Title(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Description</label>
+                <Textarea rows={2} value={step3Desc} onChange={(e) => setStep3Desc(e.target.value)} />
+              </div>
+            </div>
+          </div>
+
+          {/* Step 4 */}
+          <div>
+            <h3 className="font-semibold mb-3">Step 4</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Title</label>
+                <Input value={step4Title} onChange={(e) => setStep4Title(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Description</label>
+                <Textarea rows={2} value={step4Desc} onChange={(e) => setStep4Desc(e.target.value)} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Button variant="cta" onClick={handleSaveSettings} className="mt-4">
+          <Save className="mr-2 h-4 w-4" />
+          Save How It Works Settings
         </Button>
       </Card>
 
