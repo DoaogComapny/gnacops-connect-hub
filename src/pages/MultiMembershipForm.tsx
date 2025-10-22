@@ -395,38 +395,40 @@ const MultiMembershipForm = () => {
 
           {/* Progress Indicator */}
           <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              {selectedMemberships.map((membership: string, index: number) => (
-                <div key={membership} className="flex items-center">
-                  <div className={`flex items-center gap-2 ${
-                    index === currentFormIndex 
-                      ? "text-accent" 
-                      : completedForms.includes(membership)
-                      ? "text-primary"
-                      : "text-muted-foreground"
-                  }`}>
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-                      index === currentFormIndex
-                        ? "bg-accent text-accent-foreground"
+            <div className="overflow-x-auto pb-4 -mx-4 px-4">
+              <div className="flex items-center gap-2 min-w-max">
+                {selectedMemberships.map((membership: string, index: number) => (
+                  <div key={membership} className="flex items-center">
+                    <div className={`flex items-center gap-2 ${
+                      index === currentFormIndex 
+                        ? "text-accent" 
                         : completedForms.includes(membership)
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
+                        ? "text-primary"
+                        : "text-muted-foreground"
                     }`}>
-                      {completedForms.includes(membership) ? (
-                        <Check className="w-5 h-5" />
-                      ) : (
-                        index + 1
-                      )}
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
+                        index === currentFormIndex
+                          ? "bg-accent text-accent-foreground"
+                          : completedForms.includes(membership)
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                      }`}>
+                        {completedForms.includes(membership) ? (
+                          <Check className="w-5 h-5" />
+                        ) : (
+                          index + 1
+                        )}
+                      </div>
+                      <span className="text-sm font-medium whitespace-nowrap">
+                        {membership}
+                      </span>
                     </div>
-                    <span className="text-sm font-medium hidden md:block">
-                      {membership}
-                    </span>
+                    {index < selectedMemberships.length - 1 && (
+                      <div className="w-12 h-0.5 bg-muted mx-2" />
+                    )}
                   </div>
-                  {index < selectedMemberships.length - 1 && (
-                    <div className="w-12 h-0.5 bg-muted mx-2" />
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 

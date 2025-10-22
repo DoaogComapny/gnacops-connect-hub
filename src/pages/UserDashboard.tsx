@@ -19,11 +19,12 @@ const UserDashboard = () => {
   const location = useLocation();
   const isDashboard = location.pathname === "/dashboard";
   const [userData] = useState({
-    gnacopsId: "GNC/PM/01/0002",
+    gnacopsIds: [
+      { id: "GNC/PM/01/0002", membershipType: "Institutional Membership", price: 500 },
+      { id: "GNC/AM/01/0003", membershipType: "Teacher Council", price: 200 }
+    ],
     name: "John Doe",
     email: "john@example.com",
-    membershipType: "Institutional Membership",
-    membershipPrice: 500,
     status: "Approved",
     paymentStatus: "Unpaid",
   });
@@ -43,7 +44,13 @@ const UserDashboard = () => {
         <Sidebar className="border-r border-card-border">
           <div className="p-4 border-b border-card-border">
             <h2 className="text-xl font-bold text-gradient-accent">GNACOPS</h2>
-            <p className="text-sm text-muted-foreground">{userData.gnacopsId}</p>
+            <div className="space-y-1">
+              {userData.gnacopsIds.map((membership) => (
+                <p key={membership.id} className="text-xs text-muted-foreground">
+                  {membership.id}
+                </p>
+              ))}
+            </div>
           </div>
           
           <SidebarContent>
@@ -93,23 +100,20 @@ const UserDashboard = () => {
 
               {/* Overview Cards */}
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 hover-card">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">GNACOPS ID</p>
-                      <p className="text-2xl font-bold text-primary">{userData.gnacopsId}</p>
+                <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 hover-card col-span-2">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-3">GNACOPS IDs</p>
+                    <div className="space-y-2">
+                      {userData.gnacopsIds.map((membership) => (
+                        <div key={membership.id} className="flex items-center justify-between p-2 bg-background/50 rounded">
+                          <div>
+                            <p className="text-sm font-semibold text-primary">{membership.id}</p>
+                            <p className="text-xs text-muted-foreground">{membership.membershipType}</p>
+                          </div>
+                          <User className="h-6 w-6 text-primary/50" />
+                        </div>
+                      ))}
                     </div>
-                    <User className="h-10 w-10 text-primary/50" />
-                  </div>
-                </Card>
-
-                <Card className="p-6 bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20 hover-card">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Membership Type</p>
-                      <p className="text-lg font-semibold text-accent">{userData.membershipType}</p>
-                    </div>
-                    <FileText className="h-10 w-10 text-accent/50" />
                   </div>
                 </Card>
 
@@ -148,7 +152,7 @@ const UserDashboard = () => {
                   <p className="text-sm text-muted-foreground mt-2">
                     {userData.status === "Pending Approval" 
                       ? "* Payment will be enabled after admin approval"
-                      : `Amount due: GHS ₵${userData.membershipPrice}`
+                      : `Total amount due: GHS ₵${userData.gnacopsIds.reduce((sum, m) => sum + m.price, 0)}`
                     }
                   </p>
                 </Card>

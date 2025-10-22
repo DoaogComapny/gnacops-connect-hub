@@ -113,49 +113,51 @@ const Landing = () => {
             <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <Badge variant="default" className="bg-primary">Prime Members</Badge>
             </h3>
-            <div className="grid md:grid-cols-2 gap-6">
-              {membershipTypes
-                .filter((type) => isPrimeMembership(type.title))
-                .map((type) => {
-                  const Icon = type.icon;
-                  const isSelected = selectedMemberships.includes(type.title);
-                  return (
-                    <Card
-                      key={type.title}
-                      className={`p-6 cursor-pointer transition-all duration-300 hover-lift ${
-                        isSelected
-                          ? "border-accent bg-accent/10"
-                          : "bg-card border-card-border hover:border-accent/50"
-                      }`}
-                      onClick={() => handleToggleMembership(type.title)}
-                    >
-                      <div className="flex gap-4">
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() => handleToggleMembership(type.title)}
-                          className="mt-1"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                                <Icon className="w-5 h-5 text-accent" />
+            <div className="overflow-x-auto pb-4 -mx-4 px-4">
+              <div className="flex md:grid md:grid-cols-2 gap-6 min-w-max md:min-w-0">
+                {membershipTypes
+                  .filter((type) => isPrimeMembership(type.title))
+                  .map((type) => {
+                    const Icon = type.icon;
+                    const isSelected = selectedMemberships.includes(type.title);
+                    return (
+                      <Card
+                        key={type.title}
+                        className={`flex-shrink-0 w-[320px] md:w-auto p-6 cursor-pointer transition-all duration-300 hover-lift ${
+                          isSelected
+                            ? "border-accent bg-accent/10"
+                            : "bg-card border-card-border hover:border-accent/50"
+                        }`}
+                        onClick={() => handleToggleMembership(type.title)}
+                      >
+                        <div className="flex gap-4">
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={() => handleToggleMembership(type.title)}
+                            className="mt-1"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                                  <Icon className="w-5 h-5 text-accent" />
+                                </div>
+                                <h4 className="text-lg font-semibold">{type.title}</h4>
                               </div>
-                              <h4 className="text-lg font-semibold">{type.title}</h4>
+                              <div className="text-right">
+                                <span className="text-xl font-bold text-accent">GHS ₵{type.price}</span>
+                                <span className="text-xs text-muted-foreground block">/year</span>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <span className="text-xl font-bold text-accent">GHS ₵{type.price}</span>
-                              <span className="text-xs text-muted-foreground block">/year</span>
-                            </div>
+                            <p className="text-sm text-muted-foreground leading-relaxed">
+                              {type.description}
+                            </p>
                           </div>
-                          <p className="text-sm text-muted-foreground leading-relaxed">
-                            {type.description}
-                          </p>
                         </div>
-                      </div>
-                    </Card>
-                  );
-                })}
+                      </Card>
+                    );
+                  })}
+              </div>
             </div>
           </div>
 
@@ -164,49 +166,51 @@ const Landing = () => {
             <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <Badge variant="secondary">Associate Members</Badge>
             </h3>
-            <div className="grid md:grid-cols-2 gap-6">
-              {membershipTypes
-                .filter((type) => !isPrimeMembership(type.title))
-                .map((type) => {
-                  const Icon = type.icon;
-                  const isSelected = selectedMemberships.includes(type.title);
-                  return (
-                    <Card
-                      key={type.title}
-                      className={`p-6 cursor-pointer transition-all duration-300 hover-lift ${
-                        isSelected
-                          ? "border-accent bg-accent/10"
-                          : "bg-card border-card-border hover:border-accent/50"
-                      }`}
-                      onClick={() => handleToggleMembership(type.title)}
-                    >
-                      <div className="flex gap-4">
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() => handleToggleMembership(type.title)}
-                          className="mt-1"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                                <Icon className="w-5 h-5 text-accent" />
+            <div className="overflow-x-auto pb-4 -mx-4 px-4">
+              <div className="flex md:grid md:grid-cols-2 gap-6 min-w-max md:min-w-0">
+                {membershipTypes
+                  .filter((type) => !isPrimeMembership(type.title))
+                  .map((type) => {
+                    const Icon = type.icon;
+                    const isSelected = selectedMemberships.includes(type.title);
+                    return (
+                      <Card
+                        key={type.title}
+                        className={`flex-shrink-0 w-[320px] md:w-auto p-6 cursor-pointer transition-all duration-300 hover-lift ${
+                          isSelected
+                            ? "border-accent bg-accent/10"
+                            : "bg-card border-card-border hover:border-accent/50"
+                        }`}
+                        onClick={() => handleToggleMembership(type.title)}
+                      >
+                        <div className="flex gap-4">
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={() => handleToggleMembership(type.title)}
+                            className="mt-1"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                                  <Icon className="w-5 h-5 text-accent" />
+                                </div>
+                                <h4 className="text-lg font-semibold">{type.title}</h4>
                               </div>
-                              <h4 className="text-lg font-semibold">{type.title}</h4>
+                              <div className="text-right">
+                                <span className="text-xl font-bold text-accent">GHS ₵{type.price}</span>
+                                <span className="text-xs text-muted-foreground block">/year</span>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <span className="text-xl font-bold text-accent">GHS ₵{type.price}</span>
-                              <span className="text-xs text-muted-foreground block">/year</span>
-                            </div>
+                            <p className="text-sm text-muted-foreground leading-relaxed">
+                              {type.description}
+                            </p>
                           </div>
-                          <p className="text-sm text-muted-foreground leading-relaxed">
-                            {type.description}
-                          </p>
                         </div>
-                      </div>
-                    </Card>
-                  );
-                })}
+                      </Card>
+                    );
+                  })}
+              </div>
             </div>
           </div>
 

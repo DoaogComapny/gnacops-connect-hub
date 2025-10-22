@@ -62,6 +62,41 @@ const AdminSettings = () => {
   const [footerEmail, setFooterEmail] = useState("info@gnacops.org");
   const [footerPhone, setFooterPhone] = useState("+233 XX XXX XXXX");
   const [footerAddress, setFooterAddress] = useState("Accra, Ghana");
+  const [footerQuickLinks, setFooterQuickLinks] = useState([
+    { label: "Home", path: "/" },
+    { label: "About Us", path: "/about" },
+    { label: "Membership", path: "/membership" },
+    { label: "Contact", path: "/contact" },
+  ]);
+  
+  // About Page Settings
+  const [aboutPageTitle, setAboutPageTitle] = useState("About GNACOPS");
+  const [aboutPageIntro, setAboutPageIntro] = useState("The Ghana National Council of Private Schools (GNACOPS) is a premier organization dedicated to supporting and elevating private education standards across Ghana.");
+  const [aboutMissionTitle, setAboutMissionTitle] = useState("Our Mission");
+  const [aboutMissionText, setAboutMissionText] = useState("To support, regulate, and elevate the standards of private educational institutions throughout Ghana, ensuring quality education for all students.");
+  const [aboutVisionTitle, setAboutVisionTitle] = useState("Our Vision");
+  const [aboutVisionText, setAboutVisionText] = useState("A thriving private education sector that contributes significantly to Ghana's educational excellence and national development.");
+  const [aboutValuesTitle, setAboutValuesTitle] = useState("Our Values");
+  const [aboutValuesItems, setAboutValuesItems] = useState([
+    "Quality in Education",
+    "Integrity and Transparency",
+    "Innovation and Excellence",
+    "Collaboration and Partnership"
+  ]);
+  
+  // Contact Page Settings
+  const [contactPageTitle, setContactPageTitle] = useState("Contact Us");
+  const [contactEmail, setContactEmail] = useState("info@gnacops.org");
+  const [contactPhone, setContactPhone] = useState("+233 XX XXX XXXX");
+  const [contactAddress, setContactAddress] = useState("Accra, Ghana");
+  
+  // Header/Navbar Settings
+  const [navbarLinks, setNavbarLinks] = useState([
+    { label: "Home", path: "/" },
+    { label: "About", path: "/about" },
+    { label: "Membership", path: "/membership" },
+    { label: "Contact", path: "/contact" },
+  ]);
   
   // SMTP Settings
   const [smtpHost, setSmtpHost] = useState("");
@@ -460,6 +495,49 @@ const AdminSettings = () => {
         </Button>
       </Card>
 
+      {/* Header/Navbar Settings */}
+      <Card className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Globe className="h-5 w-5 text-accent" />
+          <h2 className="text-xl font-semibold">Header/Navbar Configuration</h2>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Customize navigation links shown in the header/navbar.
+        </p>
+        <div className="space-y-4">
+          {navbarLinks.map((link, index) => (
+            <div key={index} className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Link Label</label>
+                <Input 
+                  value={link.label}
+                  onChange={(e) => {
+                    const newLinks = [...navbarLinks];
+                    newLinks[index].label = e.target.value;
+                    setNavbarLinks(newLinks);
+                  }}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Link Path</label>
+                <Input 
+                  value={link.path}
+                  onChange={(e) => {
+                    const newLinks = [...navbarLinks];
+                    newLinks[index].path = e.target.value;
+                    setNavbarLinks(newLinks);
+                  }}
+                />
+              </div>
+            </div>
+          ))}
+          <Button variant="cta" onClick={handleSaveSettings}>
+            <Save className="mr-2 h-4 w-4" />
+            Save Header Settings
+          </Button>
+        </div>
+      </Card>
+
       {/* Footer Settings */}
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4">Footer Configuration</h2>
@@ -490,9 +568,146 @@ const AdminSettings = () => {
             />
           </div>
 
+          <div>
+            <label className="text-sm font-medium mb-2 block">Quick Links</label>
+            <p className="text-xs text-muted-foreground mb-3">Manage footer quick links</p>
+            {footerQuickLinks.map((link, index) => (
+              <div key={index} className="grid grid-cols-2 gap-4 mb-3 p-3 bg-muted/30 rounded">
+                <div>
+                  <Input 
+                    placeholder="Link Label"
+                    value={link.label}
+                    onChange={(e) => {
+                      const newLinks = [...footerQuickLinks];
+                      newLinks[index].label = e.target.value;
+                      setFooterQuickLinks(newLinks);
+                    }}
+                  />
+                </div>
+                <div>
+                  <Input 
+                    placeholder="Link Path"
+                    value={link.path}
+                    onChange={(e) => {
+                      const newLinks = [...footerQuickLinks];
+                      newLinks[index].path = e.target.value;
+                      setFooterQuickLinks(newLinks);
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
           <Button variant="cta" onClick={handleSaveSettings}>
             <Save className="mr-2 h-4 w-4" />
             Save Footer Settings
+          </Button>
+        </div>
+      </Card>
+
+      {/* About Page Settings */}
+      <Card className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Globe className="h-5 w-5 text-accent" />
+          <h2 className="text-xl font-semibold">About Page Configuration</h2>
+        </div>
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-medium mb-2 block">Page Title</label>
+            <Input value={aboutPageTitle} onChange={(e) => setAboutPageTitle(e.target.value)} />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-2 block">Introduction Text</label>
+            <Textarea rows={3} value={aboutPageIntro} onChange={(e) => setAboutPageIntro(e.target.value)} />
+          </div>
+          <div className="border-t pt-4">
+            <h3 className="font-semibold mb-3">Mission Section</h3>
+            <div className="space-y-3">
+              <Input 
+                placeholder="Mission Title"
+                value={aboutMissionTitle} 
+                onChange={(e) => setAboutMissionTitle(e.target.value)} 
+              />
+              <Textarea 
+                rows={3}
+                placeholder="Mission Text"
+                value={aboutMissionText} 
+                onChange={(e) => setAboutMissionText(e.target.value)} 
+              />
+            </div>
+          </div>
+          <div className="border-t pt-4">
+            <h3 className="font-semibold mb-3">Vision Section</h3>
+            <div className="space-y-3">
+              <Input 
+                placeholder="Vision Title"
+                value={aboutVisionTitle} 
+                onChange={(e) => setAboutVisionTitle(e.target.value)} 
+              />
+              <Textarea 
+                rows={3}
+                placeholder="Vision Text"
+                value={aboutVisionText} 
+                onChange={(e) => setAboutVisionText(e.target.value)} 
+              />
+            </div>
+          </div>
+          <div className="border-t pt-4">
+            <h3 className="font-semibold mb-3">Values Section</h3>
+            <Input 
+              placeholder="Values Title"
+              value={aboutValuesTitle} 
+              onChange={(e) => setAboutValuesTitle(e.target.value)} 
+              className="mb-3"
+            />
+            {aboutValuesItems.map((item, index) => (
+              <Input 
+                key={index}
+                placeholder={`Value ${index + 1}`}
+                value={item}
+                onChange={(e) => {
+                  const newItems = [...aboutValuesItems];
+                  newItems[index] = e.target.value;
+                  setAboutValuesItems(newItems);
+                }}
+                className="mb-2"
+              />
+            ))}
+          </div>
+          <Button variant="cta" onClick={handleSaveSettings}>
+            <Save className="mr-2 h-4 w-4" />
+            Save About Page Settings
+          </Button>
+        </div>
+      </Card>
+
+      {/* Contact Page Settings */}
+      <Card className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Mail className="h-5 w-5 text-accent" />
+          <h2 className="text-xl font-semibold">Contact Page Configuration</h2>
+        </div>
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-medium mb-2 block">Page Title</label>
+            <Input value={contactPageTitle} onChange={(e) => setContactPageTitle(e.target.value)} />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-2 block">Contact Email</label>
+            <Input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-2 block">Contact Phone</label>
+            <Input type="tel" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-2 block">Contact Address</label>
+            <Input value={contactAddress} onChange={(e) => setContactAddress(e.target.value)} />
+          </div>
+          <Button variant="cta" onClick={handleSaveSettings}>
+            <Save className="mr-2 h-4 w-4" />
+            Save Contact Page Settings
           </Button>
         </div>
       </Card>
