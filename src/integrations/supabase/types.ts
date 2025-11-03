@@ -367,6 +367,24 @@ export type Database = {
         }
         Relationships: []
       }
+      membership_serials: {
+        Row: {
+          category_id: string
+          last_serial: number
+          updated_at: string | null
+        }
+        Insert: {
+          category_id: string
+          last_serial?: number
+          updated_at?: string | null
+        }
+        Update: {
+          category_id?: string
+          last_serial?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       memberships: {
         Row: {
           amount: number | null
@@ -501,6 +519,7 @@ export type Database = {
           avatar_url: string | null
           created_at: string | null
           email: string | null
+          email_verified: boolean | null
           full_name: string | null
           id: string
           phone: string | null
@@ -510,6 +529,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string | null
           email?: string | null
+          email_verified?: boolean | null
           full_name?: string | null
           id: string
           phone?: string | null
@@ -519,6 +539,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string | null
           email?: string | null
+          email_verified?: boolean | null
           full_name?: string | null
           id?: string
           phone?: string | null
@@ -712,6 +733,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      next_membership_serial: {
+        Args: { _category_id: string }
+        Returns: number
       }
     }
     Enums: {
