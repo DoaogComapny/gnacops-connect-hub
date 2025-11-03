@@ -526,6 +526,27 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          settings_data: Json
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          settings_data?: Json
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          settings_data?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       smtp_settings: {
         Row: {
           created_at: string | null

@@ -1,6 +1,7 @@
 import { FileText, CreditCard, CheckCircle, Award } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
-const steps = [
+const defaultSteps = [
   {
     icon: FileText,
     title: "Fill Forms",
@@ -24,6 +25,15 @@ const steps = [
 ];
 
 const HowItWorks = () => {
+  const { settings } = useSiteSettings();
+  
+  const icons = [FileText, CreditCard, CheckCircle, Award];
+  const steps = settings.howItWorks?.map((step, idx) => ({
+    icon: icons[idx] || FileText,
+    title: step.title,
+    description: step.description,
+  })) || defaultSteps;
+
   return (
     <section className="py-20 px-4">
       <div className="container mx-auto max-w-6xl">

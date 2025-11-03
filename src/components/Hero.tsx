@@ -1,34 +1,13 @@
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const Hero = () => {
-  const [content, setContent] = useState({
-    title: "Join Ghana's Private School Council Today",
-    subtitle: "Empowering Excellence in Private Education Across Ghana"
-  });
-
-  useEffect(() => {
-    fetchContent();
-  }, []);
-
-  const fetchContent = async () => {
-    const { data } = await supabase
-      .from('page_content')
-      .select('content')
-      .eq('page_key', 'hero')
-      .maybeSingle();
-
-    if (data?.content && typeof data.content === 'object' && data.content !== null) {
-      const jsonContent = data.content as any;
-      setContent({
-        title: jsonContent.title || content.title,
-        subtitle: jsonContent.subtitle || content.subtitle
-      });
-    }
-  };
+  const { settings } = useSiteSettings();
+  
+  const title = settings.heroTitle || "Join Ghana's Private School Council Today";
+  const subtitle = settings.heroSubtitle || "Empowering Excellence in Private Education Across Ghana";
 
   return (
     <section className="relative h-screen w-full overflow-hidden">
@@ -50,15 +29,15 @@ const Hero = () => {
       <div className="absolute bottom-0 left-0 right-0 z-20 pb-20 px-4">
         <div className="container mx-auto max-w-4xl text-center space-y-8">
           <h1 className="text-5xl md:text-7xl font-bold leading-tight animate-fade-in-up">
-            <span className="text-gradient-primary">{content.title.split(' ').slice(0, 2).join(' ')}</span>
+            <span className="text-gradient-primary">{title.split(' ').slice(0, 2).join(' ')}</span>
             <br />
-            <span className="text-gradient-accent">{content.title.split(' ').slice(2, 5).join(' ')}</span>
+            <span className="text-gradient-accent">{title.split(' ').slice(2, 5).join(' ')}</span>
             <br />
-            <span className="text-foreground">{content.title.split(' ').slice(5).join(' ')}</span>
+            <span className="text-foreground">{title.split(' ').slice(5).join(' ')}</span>
           </h1>
 
           <p className="text-xl md:text-2xl text-muted-foreground animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            {content.subtitle}
+            {subtitle}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in-up" style={{ animationDelay: "0.4s" }}>

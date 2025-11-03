@@ -1,36 +1,14 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const AboutSection = () => {
-  const [content, setContent] = useState({
-    title: "About GNACOPS",
-    description: "The Ghana National Council of Private Schools (GNACOPS) is the leading organization dedicated to promoting excellence and standards in private education across Ghana.",
-    mission: "To support, regulate, and elevate the standards of private educational institutions throughout Ghana.",
-    vision: "A thriving private education sector that contributes significantly to Ghana's educational excellence and national development.",
-    values: "Quality, Integrity, Innovation, and Collaboration in fostering exceptional learning environments."
-  });
-
-  useEffect(() => {
-    fetchContent();
-  }, []);
-
-  const fetchContent = async () => {
-    const { data } = await supabase
-      .from('page_content')
-      .select('content')
-      .eq('page_key', 'about')
-      .maybeSingle();
-
-    if (data?.content && typeof data.content === 'object' && data.content !== null) {
-      const jsonContent = data.content as any;
-      setContent({
-        title: jsonContent.title || content.title,
-        description: jsonContent.intro || content.description,
-        mission: jsonContent.mission || content.mission,
-        vision: jsonContent.vision || content.vision,
-        values: jsonContent.values || content.values
-      });
-    }
+  const { settings } = useSiteSettings();
+  
+  const content = {
+    title: settings.aboutSectionTitle || "About GNACOPS",
+    description: settings.aboutSectionText || "The Ghana National Council of Private Schools (GNACOPS) is the leading organization dedicated to promoting excellence and standards in private education across Ghana.",
+    mission: settings.aboutPage?.mission?.text || "To support, regulate, and elevate the standards of private educational institutions throughout Ghana.",
+    vision: settings.aboutPage?.vision?.text || "A thriving private education sector that contributes significantly to Ghana's educational excellence and national development.",
+    values: settings.aboutPage?.values?.items?.join(", ") || "Quality, Integrity, Innovation, and Collaboration in fostering exceptional learning environments."
   };
 
   return (
