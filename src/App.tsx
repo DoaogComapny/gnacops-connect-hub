@@ -10,6 +10,7 @@ import MembershipPage from "./pages/MembershipPage";
 import ContactPage from "./pages/ContactPage";
 import LoginPage from "./pages/LoginPage";
 import ForgotPage from "./pages/ForgotPage";
+import AdminSignup from "./pages/AdminSignup";
 import InstitutionalForm from "./pages/InstitutionalForm";
 import TeacherCouncilForm from "./pages/TeacherCouncilForm";
 import ParentCouncilForm from "./pages/ParentCouncilForm";
@@ -58,6 +59,7 @@ const App = () => (
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot" element={<ForgotPage />} />
+          <Route path="/admin-signup" element={<AdminSignup />} />
           <Route path="/register/multi-select" element={<MultiMembershipSelection />} />
           <Route path="/register/multi-form" element={<MultiMembershipForm />} />
           <Route path="/register/institutional" element={<InstitutionalForm />} />
