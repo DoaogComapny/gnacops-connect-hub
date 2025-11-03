@@ -105,12 +105,13 @@ const AdminWebSettings = () => {
       </div>
 
       <Tabs defaultValue="about" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="about">About</TabsTrigger>
           <TabsTrigger value="contact">Contact</TabsTrigger>
           <TabsTrigger value="header">Header</TabsTrigger>
           <TabsTrigger value="footer">Footer</TabsTrigger>
           <TabsTrigger value="social">Social</TabsTrigger>
+          <TabsTrigger value="smtp">SMTP</TabsTrigger>
         </TabsList>
 
         <TabsContent value="about">
@@ -326,8 +327,177 @@ const AdminWebSettings = () => {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="smtp">
+          <SMTPSettings />
+        </TabsContent>
       </Tabs>
     </div>
+  );
+};
+
+// SMTP Settings Component
+const SMTPSettings = () => {
+  const [smtpConfig, setSmtpConfig] = useState({
+    host: '',
+    port: 587,
+    username: '',
+    password: '',
+    from_email: '',
+    from_name: ''
+  });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchSMTPSettings();
+  }, []);
+
+  const fetchSMTPSettings = async () => {
+    const { data, error } = await supabase
+      .from('smtp_settings')
+      .select('*')
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (data && !error) {
+      setSmtpConfig({
+        host: data.host,
+        port: data.port,
+        username: data.username,
+        password: data.password,
+        from_email: data.from_email,
+        from_name: data.from_name
+      });
+    }
+  };
+
+  const saveSMTPSettings = async () => {
+    if (!smtpConfig.host || !smtpConfig.username || !smtpConfig.password || !smtpConfig.from_email) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    setLoading(true);
+
+    const { data: existing } = await supabase
+      .from('smtp_settings')
+      .select('id')
+      .eq('is_active', true)
+      .maybeSingle();
+
+    const { error } = existing
+      ? await supabase.from('smtp_settings').update(smtpConfig).eq('id', existing.id)
+      : await supabase.from('smtp_settings').insert({ ...smtpConfig, is_active: true });
+
+    setLoading(false);
+
+    if (error) {
+      toast.error('Failed to save SMTP settings');
+      return;
+    }
+
+    toast.success('SMTP settings saved successfully');
+  };
+
+  const testSMTPConnection = async () => {
+    setLoading(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('send-email', {
+        body: {
+          to: smtpConfig.from_email,
+          subject: 'GNACOPS SMTP Test',
+          html: '<p>This is a test email. Your SMTP configuration is working correctly!</p>'
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success('Test email sent successfully! Check your inbox.');
+    } catch (error: any) {
+      toast.error('Failed to send test email: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>SMTP Configuration</CardTitle>
+        <CardDescription>Configure your VPS SMTP server for sending emails</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label>SMTP Host *</Label>
+            <Input
+              value={smtpConfig.host}
+              onChange={(e) => setSmtpConfig({ ...smtpConfig, host: e.target.value })}
+              placeholder="mail.yourserver.com"
+            />
+          </div>
+          <div>
+            <Label>SMTP Port *</Label>
+            <Input
+              type="number"
+              value={smtpConfig.port}
+              onChange={(e) => setSmtpConfig({ ...smtpConfig, port: parseInt(e.target.value) })}
+              placeholder="587"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label>Username *</Label>
+            <Input
+              value={smtpConfig.username}
+              onChange={(e) => setSmtpConfig({ ...smtpConfig, username: e.target.value })}
+              placeholder="your-email@domain.com"
+            />
+          </div>
+          <div>
+            <Label>Password *</Label>
+            <Input
+              type="password"
+              value={smtpConfig.password}
+              onChange={(e) => setSmtpConfig({ ...smtpConfig, password: e.target.value })}
+              placeholder="••••••••"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label>From Email *</Label>
+            <Input
+              value={smtpConfig.from_email}
+              onChange={(e) => setSmtpConfig({ ...smtpConfig, from_email: e.target.value })}
+              placeholder="noreply@gnacops.org"
+            />
+          </div>
+          <div>
+            <Label>From Name</Label>
+            <Input
+              value={smtpConfig.from_name}
+              onChange={(e) => setSmtpConfig({ ...smtpConfig, from_name: e.target.value })}
+              placeholder="GNACOPS"
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-3">
+          <Button onClick={saveSMTPSettings} variant="cta" disabled={loading}>
+            <Save className="mr-2 h-4 w-4" />
+            {loading ? 'Saving...' : 'Save SMTP Settings'}
+          </Button>
+          <Button onClick={testSMTPConnection} variant="outline" disabled={loading}>
+            {loading ? 'Testing...' : 'Test Connection'}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

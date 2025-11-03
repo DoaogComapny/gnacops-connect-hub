@@ -17,29 +17,46 @@ export type Database = {
       certificate_templates: {
         Row: {
           background_url: string | null
+          category_id: string | null
           created_at: string | null
           id: string
           is_active: boolean | null
           name: string
-          template_config: Json
+          template_config: Json | null
+          template_html: string
+          updated_at: string | null
         }
         Insert: {
           background_url?: string | null
+          category_id?: string | null
           created_at?: string | null
           id?: string
           is_active?: boolean | null
           name: string
-          template_config: Json
+          template_config?: Json | null
+          template_html: string
+          updated_at?: string | null
         }
         Update: {
           background_url?: string | null
+          category_id?: string | null
           created_at?: string | null
           id?: string
           is_active?: boolean | null
           name?: string
-          template_config?: Json
+          template_config?: Json | null
+          template_html?: string
+          updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "certificate_templates_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "form_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       certificates: {
         Row: {
@@ -79,6 +96,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      email_verifications: {
+        Row: {
+          code: string
+          created_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          user_id: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          email: string
+          expires_at: string
+          id?: string
+          user_id?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          user_id?: string | null
+          verified_at?: string | null
+        }
+        Relationships: []
       }
       footer_legal_links: {
         Row: {
@@ -476,6 +523,45 @@ export type Database = {
           id?: string
           phone?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      smtp_settings: {
+        Row: {
+          created_at: string | null
+          from_email: string
+          from_name: string
+          host: string
+          id: string
+          is_active: boolean | null
+          password: string
+          port: number
+          updated_at: string | null
+          username: string
+        }
+        Insert: {
+          created_at?: string | null
+          from_email: string
+          from_name: string
+          host: string
+          id?: string
+          is_active?: boolean | null
+          password: string
+          port?: number
+          updated_at?: string | null
+          username: string
+        }
+        Update: {
+          created_at?: string | null
+          from_email?: string
+          from_name?: string
+          host?: string
+          id?: string
+          is_active?: boolean | null
+          password?: string
+          port?: number
+          updated_at?: string | null
+          username?: string
         }
         Relationships: []
       }
