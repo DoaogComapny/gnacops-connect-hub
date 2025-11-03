@@ -27,6 +27,20 @@ const AdminPanel = () => {
   const location = useLocation();
   const { user, isAdmin, loading, signOut } = useAuth();
   const isDashboard = location.pathname === "/admin/panel";
+  
+  // All useState hooks MUST come before any conditional returns
+  const [stats] = useState({
+    totalMembers: 245,
+    pendingApplications: 12,
+    totalRevenue: "GHS 123,450",
+    activeUsers: 198,
+  });
+
+  const [recentApplications] = useState([
+    { id: 1, name: "John Doe", type: "Institutional", status: "Pending", date: "2025-01-15" },
+    { id: 2, name: "Jane Smith", type: "Teacher Council", status: "Approved", date: "2025-01-14" },
+    { id: 3, name: "Bob Johnson", type: "Proprietor", status: "Pending", date: "2025-01-13" },
+  ]);
 
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) {
@@ -41,18 +55,6 @@ const AdminPanel = () => {
       </div>
     );
   }
-  const [stats] = useState({
-    totalMembers: 245,
-    pendingApplications: 12,
-    totalRevenue: "GHS 123,450",
-    activeUsers: 198,
-  });
-
-  const [recentApplications] = useState([
-    { id: 1, name: "John Doe", type: "Institutional", status: "Pending", date: "2025-01-15" },
-    { id: 2, name: "Jane Smith", type: "Teacher Council", status: "Approved", date: "2025-01-14" },
-    { id: 3, name: "Bob Johnson", type: "Proprietor", status: "Pending", date: "2025-01-13" },
-  ]);
 
 
   return (
