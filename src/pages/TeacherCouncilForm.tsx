@@ -42,7 +42,9 @@ const TeacherCouncilForm = () => {
     digitalAddress: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.agreement) {
@@ -54,15 +56,47 @@ const TeacherCouncilForm = () => {
       return;
     }
 
-    // Placeholder: This will connect to backend later
-    console.log("Teacher Council Form Data:", formData);
+    setLoading(true);
     
-    toast({
-      title: "Registration Submitted!",
-      description: "Your application is pending admin approval. You'll receive login details via email.",
-    });
-    
-    setTimeout(() => navigate("/"), 2000);
+    try {
+      const { registerUser } = await import("@/utils/registrationHelper");
+      
+      // Get Teacher Council category
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data: category } = await supabase
+        .from('form_categories')
+        .select('id, name')
+        .eq('name', 'Teacher Council')
+        .single();
+      
+      if (!category) throw new Error('Teacher Council category not found');
+      
+      const result = await registerUser({
+        fullName: formData.fullName,
+        email: formData.email,
+        formData,
+        categoryId: category.id,
+        categoryName: category.name,
+      });
+      
+      if (result.success) {
+        toast({
+          title: "Registration Successful!",
+          description: "Check your email for login credentials. You can now log in and complete payment.",
+        });
+        setTimeout(() => navigate("/login"), 3000);
+      } else {
+        throw new Error(result.error || 'Registration failed');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Registration Failed",
+        description: error.message || "Please try again later",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -243,8 +277,8 @@ const TeacherCouncilForm = () => {
                 </div>
               </div>
 
-              <Button type="submit" variant="cta" className="w-full" size="lg">
-                Submit Application
+              <Button type="submit" variant="cta" className="w-full" size="lg" disabled={loading}>
+                {loading ? "Submitting..." : "Submit Application"}
               </Button>
             </form>
           </div>
