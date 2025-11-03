@@ -57,7 +57,8 @@ const App = () => (
           <Route path="/about" element={<AboutPage />} />
           <Route path="/membership" element={<MembershipPage />} />
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="/auth" element={<LoginPage />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot" element={<ForgotPage />} />
           <Route path="/register/multi-select" element={<MultiMembershipSelection />} />
           <Route path="/register/multi-form" element={<MultiMembershipForm />} />

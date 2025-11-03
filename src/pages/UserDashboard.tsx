@@ -1,41 +1,86 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Download, Bell, User, CreditCard, FileText, LogOut, Settings, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { NavLink, useNavigate, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
 
 const menuItems = [
-  { title: "Overview", icon: User, path: "/dashboard" },
-  { title: "My Account", icon: Settings, path: "/dashboard/account" },
-  { title: "Payments", icon: CreditCard, path: "/dashboard/payments" },
-  { title: "Certificate", icon: FileText, path: "/dashboard/certificate" },
-  { title: "Support", icon: MessageSquare, path: "/dashboard/support" },
-  { title: "Notifications", icon: Bell, path: "/dashboard/notifications" },
+  { title: "Overview", icon: User, path: "/user/dashboard" },
+  { title: "My Account", icon: Settings, path: "/user/dashboard/account" },
+  { title: "Payments", icon: CreditCard, path: "/user/dashboard/payments" },
+  { title: "Certificate", icon: FileText, path: "/user/dashboard/certificate" },
+  { title: "Support", icon: MessageSquare, path: "/user/dashboard/support" },
+  { title: "Notifications", icon: Bell, path: "/user/dashboard/notifications" },
 ];
 
 const UserDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const isDashboard = location.pathname === "/dashboard";
-  const [userData] = useState({
-    gnacopsIds: [
-      { id: "GNC/PM/01/0002", membershipType: "Institutional Membership", price: 500 },
-      { id: "GNC/AM/01/0003", membershipType: "Teacher Council", price: 200 }
-    ],
-    name: "John Doe",
-    email: "john@example.com",
-    status: "Approved",
-    paymentStatus: "Unpaid",
-  });
+  const { user, loading, signOut } = useAuth();
+  const isDashboard = location.pathname === "/user/dashboard";
+  const [memberships, setMemberships] = useState<any[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
 
-  const handlePayNow = () => {
-    navigate("/dashboard/payments");
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserMemberships();
+    }
+  }, [user]);
+
+  const fetchUserMemberships = async () => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from('memberships')
+      .select(`
+        *,
+        form_categories (name, type)
+      `)
+      .eq('user_id', user.id);
+
+    if (!error && data) {
+      setMemberships(data);
+    }
+    setLoadingData(false);
   };
 
-  const handleLogout = () => {
-    // Placeholder: Will connect to auth later
-    navigate("/login");
+  if (loading || loadingData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  const userData = {
+    gnacopsIds: memberships.map(m => ({
+      id: m.gnacops_id,
+      membershipType: m.form_categories?.name || 'Unknown',
+      price: m.amount || 0
+    })),
+    name: user?.user_metadata?.full_name || user?.email || 'User',
+    email: user?.email || '',
+    status: memberships[0]?.status || 'Pending',
+    paymentStatus: memberships[0]?.payment_status || 'Unpaid',
+  };
+
+  const handlePayNow = () => {
+    navigate("/user/dashboard/payments");
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/auth");
   };
 
   return (

@@ -1,15 +1,47 @@
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
 const AboutSection = () => {
+  const [content, setContent] = useState({
+    title: "About GNACOPS",
+    description: "The Ghana National Council of Private Schools (GNACOPS) is the leading organization dedicated to promoting excellence and standards in private education across Ghana.",
+    mission: "To support, regulate, and elevate the standards of private educational institutions throughout Ghana.",
+    vision: "A thriving private education sector that contributes significantly to Ghana's educational excellence and national development.",
+    values: "Quality, Integrity, Innovation, and Collaboration in fostering exceptional learning environments."
+  });
+
+  useEffect(() => {
+    fetchContent();
+  }, []);
+
+  const fetchContent = async () => {
+    const { data } = await supabase
+      .from('page_content')
+      .select('content')
+      .eq('page_key', 'about')
+      .maybeSingle();
+
+    if (data?.content && typeof data.content === 'object' && data.content !== null) {
+      const jsonContent = data.content as any;
+      setContent({
+        title: jsonContent.title || content.title,
+        description: jsonContent.intro || content.description,
+        mission: jsonContent.mission || content.mission,
+        vision: jsonContent.vision || content.vision,
+        values: jsonContent.values || content.values
+      });
+    }
+  };
+
   return (
     <section id="about" className="py-20 px-4 spotlight-effect">
       <div className="container mx-auto max-w-6xl relative z-10">
         <div className="text-center mb-16 animate-fade-in-up">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            About <span className="text-gradient-accent">GNACOPS</span>
+            {content.title}
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            The Ghana National Council of Private Schools (GNACOPS) is the leading
-            organization dedicated to promoting excellence and standards in private
-            education across Ghana.
+            {content.description}
           </p>
         </div>
 
@@ -18,18 +50,15 @@ const AboutSection = () => {
             {[
               {
                 title: "Our Mission",
-                description:
-                  "To support, regulate, and elevate the standards of private educational institutions throughout Ghana.",
+                description: content.mission,
               },
               {
                 title: "Our Vision",
-                description:
-                  "A thriving private education sector that contributes significantly to Ghana's educational excellence and national development.",
+                description: content.vision,
               },
               {
                 title: "Our Values",
-                description:
-                  "Quality, Integrity, Innovation, and Collaboration in fostering exceptional learning environments.",
+                description: content.values,
               },
             ].map((item, index) => (
               <div
