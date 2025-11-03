@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Save, Upload, CreditCard, Globe, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -8,10 +8,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import QuickLinksManager from "@/components/admin/QuickLinksManager";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const AdminSettings = () => {
   const { settings, updateSettings, isLoading } = useSiteSettings();
+  const { toast } = useToast();
   const [localSettings, setLocalSettings] = useState(settings);
+  const [uploading, setUploading] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const faviconInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (settings && Object.keys(settings).length > 0) {
@@ -35,6 +41,61 @@ const AdminSettings = () => {
     current[keys[keys.length - 1]] = value;
     
     setLocalSettings(newSettings);
+  };
+
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    type: 'logo' | 'favicon'
+  ) => {
+    if (!event.target.files || event.target.files.length === 0) return;
+
+    const file = event.target.files[0];
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${type}-${Date.now()}.${fileExt}`;
+
+    setUploading(true);
+    try {
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('site-assets')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('site-assets')
+        .getPublicUrl(fileName);
+
+      // Update settings
+      const settingKey = type === 'logo' ? 'logoUrl' : 'faviconUrl';
+      const newSettings = { ...localSettings, [settingKey]: publicUrl };
+      setLocalSettings(newSettings);
+      
+      // Save immediately
+      updateSettings(newSettings);
+
+      // Update favicon in document head if it's a favicon
+      if (type === 'favicon') {
+        const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+        if (link) {
+          link.href = publicUrl;
+        }
+      }
+
+      toast({
+        title: "Success",
+        description: `${type === 'logo' ? 'Logo' : 'Favicon'} uploaded successfully`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
   };
 
   if (isLoading) {
@@ -89,17 +150,72 @@ const AdminSettings = () => {
 
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4">Branding</h2>
-            <div className="space-y-4">
+            <div className="space-y-6">
+              {/* Logo Upload */}
               <div>
-                <label className="text-sm font-medium mb-2 block">Logo</label>
+                <label className="text-sm font-medium mb-2 block">Site Logo</label>
                 <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-muted">
-                    <Upload className="h-8 w-8 text-muted-foreground" />
+                  <div className="w-32 h-32 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-muted overflow-hidden">
+                    {localSettings.logoUrl ? (
+                      <img src={localSettings.logoUrl} alt="Logo" className="max-w-full max-h-full object-contain" />
+                    ) : (
+                      <Upload className="h-8 w-8 text-muted-foreground" />
+                    )}
                   </div>
-                  <Button variant="outline">
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload Logo
-                  </Button>
+                  <div>
+                    <input
+                      ref={logoInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload(e, 'logo')}
+                      className="hidden"
+                    />
+                    <Button 
+                      variant="outline" 
+                      onClick={() => logoInputRef.current?.click()}
+                      disabled={uploading}
+                    >
+                      <Upload className="mr-2 h-4 w-4" />
+                      {uploading ? "Uploading..." : "Upload Logo"}
+                    </Button>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Recommended: PNG or SVG, transparent background
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Favicon Upload */}
+              <div>
+                <label className="text-sm font-medium mb-2 block">Favicon</label>
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-muted overflow-hidden">
+                    {localSettings.faviconUrl ? (
+                      <img src={localSettings.faviconUrl} alt="Favicon" className="max-w-full max-h-full object-contain" />
+                    ) : (
+                      <Upload className="h-6 w-6 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div>
+                    <input
+                      ref={faviconInputRef}
+                      type="file"
+                      accept="image/x-icon,image/png,image/svg+xml"
+                      onChange={(e) => handleFileUpload(e, 'favicon')}
+                      className="hidden"
+                    />
+                    <Button 
+                      variant="outline" 
+                      onClick={() => faviconInputRef.current?.click()}
+                      disabled={uploading}
+                    >
+                      <Upload className="mr-2 h-4 w-4" />
+                      {uploading ? "Uploading..." : "Upload Favicon"}
+                    </Button>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      ICO, PNG or SVG. 32x32 or 64x64 pixels recommended
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { User, Mail, Phone, MapPin, Building, Save, Upload, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -15,13 +15,16 @@ const UserAccount = () => {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [membership, setMembership] = useState<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
     address: "",
+    avatar_url: "",
   });
   const [passwordData, setPasswordData] = useState({
     newPassword: "",
@@ -53,6 +56,7 @@ const UserAccount = () => {
         email: user.email || "",
         phone: profile.phone || "",
         address: "",
+        avatar_url: profile.avatar_url || "",
       });
     }
 
@@ -66,6 +70,52 @@ const UserAccount = () => {
     
     if (membershipData) {
       setMembership(membershipData);
+    }
+  };
+
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user || !event.target.files || event.target.files.length === 0) return;
+
+    const file = event.target.files[0];
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+    setUploading(true);
+    try {
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('profile-photos')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('profile-photos')
+        .getPublicUrl(fileName);
+
+      // Update profile
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      setFormData({ ...formData, avatar_url: publicUrl });
+      toast({
+        title: "Success",
+        description: "Profile photo updated successfully",
+      });
+      await loadProfile();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -169,9 +219,17 @@ const UserAccount = () => {
       {/* Profile Overview */}
       <Card className="p-6 hover-card">
         <div className="flex items-center gap-6 mb-6">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-3xl font-bold text-white">
-            {formData.fullName ? formData.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}
-          </div>
+          {formData.avatar_url ? (
+            <img 
+              src={formData.avatar_url} 
+              alt="Profile" 
+              className="w-24 h-24 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-3xl font-bold text-white">
+              {formData.fullName ? formData.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}
+            </div>
+          )}
           <div className="flex-1">
             <h2 className="text-2xl font-bold">{formData.fullName || "User"}</h2>
             <p className="text-muted-foreground">{formData.email}</p>
@@ -181,10 +239,26 @@ const UserAccount = () => {
               </Badge>
             )}
           </div>
-          <Button variant="outline" disabled>
-            <Upload className="mr-2 h-4 w-4" />
-            Upload Photo (Coming Soon)
-          </Button>
+          <div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoUpload}
+              className="hidden"
+            />
+            <Button 
+              variant="outline" 
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              {uploading ? "Uploading..." : "Upload Photo"}
+            </Button>
+            <p className="text-xs text-muted-foreground mt-2">
+              JPG, PNG or WEBP. Max 5MB.
+            </p>
+          </div>
         </div>
       </Card>
 

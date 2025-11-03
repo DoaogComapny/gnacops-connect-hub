@@ -2,10 +2,12 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const Navbar = () => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { settings } = useSiteSettings();
 
   const navItems = [
     { label: "Home", path: "/" },
@@ -22,9 +24,13 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="text-2xl font-bold text-gradient-accent">
-              GNACOPS
-            </div>
+            {settings.logoUrl ? (
+              <img src={settings.logoUrl} alt={settings.siteName || "GNACOPS"} className="h-8" />
+            ) : (
+              <div className="text-2xl font-bold text-gradient-accent">
+                {settings.siteName || "GNACOPS"}
+              </div>
+            )}
           </Link>
 
           {/* Desktop Navigation */}

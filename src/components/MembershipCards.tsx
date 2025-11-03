@@ -9,6 +9,7 @@ import {
   Wrench,
   UserCog,
 } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const membershipTypes = [
   {
@@ -62,6 +63,11 @@ const membershipTypes = [
 ];
 
 const MembershipCards = () => {
+  const { settings } = useSiteSettings();
+
+  // Use settings if available, otherwise use defaults
+  const memberships = settings.memberships || {};
+
   return (
     <section id="membership" className="py-20 px-4 bg-secondary/30">
       <div className="container mx-auto max-w-7xl">
@@ -103,7 +109,9 @@ const MembershipCards = () => {
                             {type.description}
                           </p>
                           <div className="flex items-baseline gap-1 mb-2">
-                            <span className="text-2xl font-bold text-accent">GHS ₵{type.price}</span>
+                            <span className="text-2xl font-bold text-accent">
+                              GHS ₵{type.price}
+                            </span>
                             <span className="text-sm text-muted-foreground">/year</span>
                           </div>
                         </div>

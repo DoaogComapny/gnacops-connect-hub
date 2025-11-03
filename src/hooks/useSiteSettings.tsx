@@ -5,6 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 export interface SiteSettings {
   siteName?: string;
   tagline?: string;
+  logoUrl?: string;
+  faviconUrl?: string;
   aboutText?: string;
   paymentProvider?: string;
   paymentApiKey?: string;

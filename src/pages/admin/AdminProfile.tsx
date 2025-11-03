@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { User, Mail, Lock, Upload, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -17,7 +17,10 @@ const AdminProfile = () => {
     full_name: "",
     email: "",
     phone: "",
+    avatar_url: "",
   });
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -48,7 +51,53 @@ const AdminProfile = () => {
         full_name: profile.full_name || "",
         email: user.email || "",
         phone: profile.phone || "",
+        avatar_url: profile.avatar_url || "",
       });
+    }
+  };
+
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user || !event.target.files || event.target.files.length === 0) return;
+
+    const file = event.target.files[0];
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+    setUploading(true);
+    try {
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('profile-photos')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('profile-photos')
+        .getPublicUrl(fileName);
+
+      // Update profile
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      setProfileData({ ...profileData, avatar_url: publicUrl });
+      toast({
+        title: "Success",
+        description: "Profile photo updated successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -141,16 +190,35 @@ const AdminProfile = () => {
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4">Profile Picture</h2>
         <div className="flex items-center gap-6">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-3xl font-bold text-white">
-            {profileData.full_name ? profileData.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : 'A'}
-          </div>
+          {profileData.avatar_url ? (
+            <img 
+              src={profileData.avatar_url} 
+              alt="Profile" 
+              className="w-24 h-24 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-3xl font-bold text-white">
+              {profileData.full_name ? profileData.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : 'A'}
+            </div>
+          )}
           <div>
-            <Button variant="outline" disabled>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoUpload}
+              className="hidden"
+            />
+            <Button 
+              variant="outline" 
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+            >
               <Upload className="mr-2 h-4 w-4" />
-              Upload Photo (Coming Soon)
+              {uploading ? "Uploading..." : "Upload Photo"}
             </Button>
             <p className="text-xs text-muted-foreground mt-2">
-              Photo upload feature will be available soon
+              JPG, PNG or WEBP. Max 5MB.
             </p>
           </div>
         </div>

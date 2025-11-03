@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Mail, Send, Inbox } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -6,12 +6,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminMessages = () => {
   const { toast } = useToast();
   const [recipient, setRecipient] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [stats, setStats] = useState({ sent: 0, inbox: 0 });
+  const [recentMessages, setRecentMessages] = useState<any[]>([]);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    // Load real data from database - currently empty until implemented
+    setStats({ sent: 0, inbox: 0 });
+    setRecentMessages([]);
+  };
 
   const handleSendMessage = () => {
     toast({
@@ -38,7 +51,7 @@ const AdminMessages = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Sent Messages</p>
-              <p className="text-3xl font-bold text-primary">47</p>
+              <p className="text-3xl font-bold text-primary">{stats.sent}</p>
             </div>
             <Send className="h-10 w-10 text-primary/50" />
           </div>
@@ -48,7 +61,7 @@ const AdminMessages = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Inbox</p>
-              <p className="text-3xl font-bold text-accent">12</p>
+              <p className="text-3xl font-bold text-accent">{stats.inbox}</p>
             </div>
             <Inbox className="h-10 w-10 text-accent/50" />
           </div>
@@ -106,27 +119,25 @@ const AdminMessages = () => {
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4">Recent Messages</h2>
         <div className="space-y-4">
-          <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 hover-card">
-            <Mail className="h-5 w-5 text-primary mt-1" />
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-1">
-                <p className="font-medium">Welcome to GNACOPS</p>
-                <span className="text-xs text-muted-foreground">2 hours ago</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Sent to: All Members</p>
+          {recentMessages.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Mail className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <p>No messages sent yet</p>
             </div>
-          </div>
-
-          <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 hover-card">
-            <Mail className="h-5 w-5 text-primary mt-1" />
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-1">
-                <p className="font-medium">Payment Reminder</p>
-                <span className="text-xs text-muted-foreground">1 day ago</span>
+          ) : (
+            recentMessages.map((msg, index) => (
+              <div key={index} className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 hover-card">
+                <Mail className="h-5 w-5 text-primary mt-1" />
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="font-medium">{msg.subject}</p>
+                    <span className="text-xs text-muted-foreground">{msg.time}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">Sent to: {msg.recipient}</p>
+                </div>
               </div>
-              <p className="text-sm text-muted-foreground">Sent to: Pending Applications</p>
-            </div>
-          </div>
+            ))
+          )}
         </div>
       </Card>
     </div>

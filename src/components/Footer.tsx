@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import { Mail, Phone, MapPin } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const Footer = () => {
+  const { settings } = useSiteSettings();
+
   return (
     <footer className="bg-secondary border-t border-border py-12 px-4">
       <div className="container mx-auto max-w-6xl">
@@ -9,10 +12,10 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <h3 className="text-2xl font-bold text-gradient-accent mb-4">
-              GNACOPS
+              {settings.siteName || "GNACOPS"}
             </h3>
             <p className="text-muted-foreground text-sm">
-              Ghana National Council of Private Schools - Empowering Excellence in Education
+              {settings.tagline || "Ghana National Council of Private Schools - Empowering Excellence in Education"}
             </p>
           </div>
 
@@ -76,15 +79,15 @@ const Footer = () => {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2 text-muted-foreground">
                 <Mail className="w-4 h-4 mt-0.5 text-accent" />
-                <span>info@gnacops.org</span>
+                <span>{settings.footer?.email || "info@gnacops.org"}</span>
               </li>
               <li className="flex items-start gap-2 text-muted-foreground">
                 <Phone className="w-4 h-4 mt-0.5 text-accent" />
-                <span>+233 XX XXX XXXX</span>
+                <span>{settings.footer?.phone || "+233 XX XXX XXXX"}</span>
               </li>
               <li className="flex items-start gap-2 text-muted-foreground">
                 <MapPin className="w-4 h-4 mt-0.5 text-accent" />
-                <span>Accra, Ghana</span>
+                <span>{settings.footer?.address || "Accra, Ghana"}</span>
               </li>
             </ul>
           </div>
@@ -92,7 +95,7 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="border-t border-border pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} GNACOPS. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} {settings.siteName || "GNACOPS"}. All rights reserved.</p>
         </div>
       </div>
     </footer>

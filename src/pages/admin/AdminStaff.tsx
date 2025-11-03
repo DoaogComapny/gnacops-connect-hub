@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UserPlus, Shield, Trash2, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -39,16 +39,12 @@ const AVAILABLE_PERMISSIONS: Permission[] = [
 
 const AdminStaff = () => {
   const { toast } = useToast();
-  const [staff, setStaff] = useState<StaffMember[]>([
-    {
-      id: "1",
-      name: "Sarah Johnson",
-      email: "sarah@gnacops.com",
-      role: "Support Manager",
-      permissions: ["reply_tickets", "view_payments"],
-      addedDate: "2025-01-10",
-    },
-  ]);
+  const [staff, setStaff] = useState<StaffMember[]>([]);
+
+  useEffect(() => {
+    // Load real staff data from database when implemented
+    setStaff([]);
+  }, []);
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newStaff, setNewStaff] = useState({
@@ -209,7 +205,14 @@ const AdminStaff = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {staff.map((member) => (
+            {staff.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  No staff members added yet
+                </TableCell>
+              </TableRow>
+            ) : (
+              staff.map((member) => (
               <TableRow key={member.id}>
                 <TableCell className="font-medium">{member.name}</TableCell>
                 <TableCell>{member.email}</TableCell>
@@ -242,7 +245,8 @@ const AdminStaff = () => {
                   </div>
                 </TableCell>
               </TableRow>
-            ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </Card>
