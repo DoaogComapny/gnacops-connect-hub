@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Settings, Save, Upload, CreditCard, Globe, Mail } from "lucide-react";
+import { Settings, Save, Upload, CreditCard, Globe, Mail, Shield, FileText, Users, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 const AdminSettings = () => {
   // Site Settings
@@ -37,6 +38,21 @@ const AdminSettings = () => {
     from_email: '',
     from_name: ''
   });
+
+  // System Settings
+  const [autoApproveRegistrations, setAutoApproveRegistrations] = useState(false);
+  const [requireEmailVerification, setRequireEmailVerification] = useState(true);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [allowPublicRegistration, setAllowPublicRegistration] = useState(true);
+  
+  // Certificate Settings
+  const [certificatePrefix, setCertificatePrefix] = useState("GNACOPS");
+  const [certificateValidityYears, setCertificateValidityYears] = useState(1);
+  
+  // Notification Settings
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [smsNotifications, setSmsNotifications] = useState(false);
+  const [adminNotificationEmail, setAdminNotificationEmail] = useState("");
 
   useEffect(() => {
     fetchAllSettings();
@@ -180,6 +196,159 @@ const AdminSettings = () => {
           <TabsTrigger value="payment">Payment</TabsTrigger>
           <TabsTrigger value="smtp">SMTP</TabsTrigger>
         </TabsList>
+
+        {/* System Settings */}
+        <TabsContent value="system">
+          <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <Shield className="h-5 w-5 text-accent" />
+              System Configuration
+            </h2>
+            <div className="space-y-6">
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <Label className="text-base">Auto-Approve Registrations</Label>
+                  <p className="text-sm text-muted-foreground">Automatically approve new membership applications</p>
+                </div>
+                <Switch 
+                  checked={autoApproveRegistrations}
+                  onCheckedChange={setAutoApproveRegistrations}
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <Label className="text-base">Require Email Verification</Label>
+                  <p className="text-sm text-muted-foreground">Users must verify email before accessing dashboard</p>
+                </div>
+                <Switch 
+                  checked={requireEmailVerification}
+                  onCheckedChange={setRequireEmailVerification}
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <Label className="text-base">Maintenance Mode</Label>
+                  <p className="text-sm text-muted-foreground">Temporarily disable site access for maintenance</p>
+                </div>
+                <Switch 
+                  checked={maintenanceMode}
+                  onCheckedChange={setMaintenanceMode}
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <Label className="text-base">Allow Public Registration</Label>
+                  <p className="text-sm text-muted-foreground">Enable or disable new user registrations</p>
+                </div>
+                <Switch 
+                  checked={allowPublicRegistration}
+                  onCheckedChange={setAllowPublicRegistration}
+                />
+              </div>
+
+              <Button variant="cta" onClick={() => toast.success('System settings saved!')}>
+                <Save className="mr-2 h-4 w-4" />
+                Save System Settings
+              </Button>
+            </div>
+          </Card>
+        </TabsContent>
+
+        {/* Certificate Settings */}
+        <TabsContent value="certificates">
+          <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <FileText className="h-5 w-5 text-accent" />
+              Certificate Configuration
+            </h2>
+            <div className="space-y-4">
+              <div>
+                <Label>Certificate ID Prefix</Label>
+                <Input 
+                  value={certificatePrefix}
+                  onChange={(e) => setCertificatePrefix(e.target.value)}
+                  placeholder="e.g., GNACOPS, GNA"
+                />
+                <p className="text-sm text-muted-foreground mt-1">
+                  This will be used as prefix for all certificate IDs (e.g., GNACOPS-2024-001)
+                </p>
+              </div>
+
+              <div>
+                <Label>Certificate Validity (Years)</Label>
+                <Input 
+                  type="number"
+                  value={certificateValidityYears}
+                  onChange={(e) => setCertificateValidityYears(Number(e.target.value))}
+                  min="1"
+                  max="10"
+                />
+                <p className="text-sm text-muted-foreground mt-1">
+                  Number of years before certificate needs renewal
+                </p>
+              </div>
+
+              <Button variant="cta" onClick={() => toast.success('Certificate settings saved!')}>
+                <Save className="mr-2 h-4 w-4" />
+                Save Certificate Settings
+              </Button>
+            </div>
+          </Card>
+        </TabsContent>
+
+        {/* Notification Settings */}
+        <TabsContent value="notifications">
+          <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <Mail className="h-5 w-5 text-accent" />
+              Notification Preferences
+            </h2>
+            <div className="space-y-6">
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <Label className="text-base">Email Notifications</Label>
+                  <p className="text-sm text-muted-foreground">Send email notifications to users</p>
+                </div>
+                <Switch 
+                  checked={emailNotifications}
+                  onCheckedChange={setEmailNotifications}
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <Label className="text-base">SMS Notifications</Label>
+                  <p className="text-sm text-muted-foreground">Send SMS notifications to users</p>
+                </div>
+                <Switch 
+                  checked={smsNotifications}
+                  onCheckedChange={setSmsNotifications}
+                />
+              </div>
+
+              <div>
+                <Label>Admin Notification Email</Label>
+                <Input 
+                  type="email"
+                  value={adminNotificationEmail}
+                  onChange={(e) => setAdminNotificationEmail(e.target.value)}
+                  placeholder="admin@gnacops.org"
+                />
+                <p className="text-sm text-muted-foreground mt-1">
+                  Email address to receive admin notifications
+                </p>
+              </div>
+
+              <Button variant="cta" onClick={() => toast.success('Notification settings saved!')}>
+                <Save className="mr-2 h-4 w-4" />
+                Save Notification Settings
+              </Button>
+            </div>
+          </Card>
+        </TabsContent>
 
         {/* General Settings */}
         <TabsContent value="general">

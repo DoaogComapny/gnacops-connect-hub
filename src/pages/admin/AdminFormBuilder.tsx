@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Plus, Trash2, GripVertical, Settings } from 'lucide-react';
+import { Plus, Trash2, GripVertical, Edit2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 
@@ -56,6 +56,7 @@ const AdminFormBuilder = () => {
     is_required: true,
     repeatable_config: '',
   });
+  const [editingQuestion, setEditingQuestion] = useState<FormQuestion | null>(null);
 
   useEffect(() => {
     fetchCategories();
@@ -166,6 +167,76 @@ const AdminFormBuilder = () => {
     fetchQuestions(selectedCategory);
   };
 
+  const startEditQuestion = (question: FormQuestion) => {
+    setEditingQuestion(question);
+    setNewQuestion({
+      question_text: question.question_text,
+      question_type: question.question_type,
+      options: Array.isArray(question.options) ? question.options.join('\n') : '',
+      is_required: question.is_required,
+      repeatable_config: question.repeatable_config ? JSON.stringify(question.repeatable_config, null, 2) : '',
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingQuestion(null);
+    setNewQuestion({
+      question_text: '',
+      question_type: 'short_text',
+      options: '',
+      is_required: true,
+      repeatable_config: '',
+    });
+  };
+
+  const updateQuestion = async () => {
+    if (!editingQuestion || !newQuestion.question_text) {
+      toast.error('Please enter question text');
+      return;
+    }
+
+    let optionsData = null;
+    let repeatableConfigData = null;
+
+    if (['multiple_choice', 'dropdown'].includes(newQuestion.question_type)) {
+      try {
+        optionsData = newQuestion.options.split('\n').filter(o => o.trim());
+      } catch (e) {
+        toast.error('Invalid options format');
+        return;
+      }
+    }
+
+    if (newQuestion.question_type === 'repeatable' && newQuestion.repeatable_config) {
+      try {
+        repeatableConfigData = JSON.parse(newQuestion.repeatable_config);
+      } catch (e) {
+        toast.error('Invalid repeatable config JSON');
+        return;
+      }
+    }
+
+    const { error } = await supabase
+      .from('form_questions')
+      .update({
+        question_text: newQuestion.question_text,
+        question_type: newQuestion.question_type,
+        options: optionsData,
+        is_required: newQuestion.is_required,
+        repeatable_config: repeatableConfigData,
+      })
+      .eq('id', editingQuestion.id);
+
+    if (error) {
+      toast.error('Failed to update question');
+      return;
+    }
+
+    toast.success('Question updated successfully');
+    cancelEdit();
+    fetchQuestions(selectedCategory);
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -205,7 +276,10 @@ const AdminFormBuilder = () => {
             <>
               <Card>
                 <CardHeader>
-                  <CardTitle>Add New Question</CardTitle>
+                  <CardTitle>{editingQuestion ? 'Edit Question' : 'Add New Question'}</CardTitle>
+                  {editingQuestion && (
+                    <CardDescription>Editing existing question</CardDescription>
+                  )}
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
@@ -268,10 +342,23 @@ const AdminFormBuilder = () => {
                     <Label>Required</Label>
                   </div>
 
-                  <Button onClick={addQuestion} variant="cta">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Question
-                  </Button>
+                  <div className="flex gap-2">
+                    {editingQuestion ? (
+                      <>
+                        <Button onClick={updateQuestion} variant="cta">
+                          Update Question
+                        </Button>
+                        <Button onClick={cancelEdit} variant="outline">
+                          Cancel
+                        </Button>
+                      </>
+                    ) : (
+                      <Button onClick={addQuestion} variant="cta">
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add Question
+                      </Button>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
 
@@ -287,7 +374,9 @@ const AdminFormBuilder = () => {
                       {questions.map((q, idx) => (
                         <div
                           key={q.id}
-                          className="flex items-center gap-3 p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                          className={`flex items-center gap-3 p-4 border rounded-lg hover:bg-accent/50 transition-colors ${
+                            editingQuestion?.id === q.id ? 'bg-accent/30 border-accent' : ''
+                          }`}
                         >
                           <GripVertical className="h-5 w-5 text-muted-foreground" />
                           <div className="flex-1">
@@ -297,6 +386,13 @@ const AdminFormBuilder = () => {
                               {q.is_required && ' • Required'}
                             </p>
                           </div>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => startEditQuestion(q)}
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
                           <Button
                             variant="destructive"
                             size="icon"
