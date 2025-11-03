@@ -67,31 +67,14 @@ const ForgotPage = () => {
           <Card className="p-8">
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold mb-2">
-                Forgot GNACOPS ID or Password?
+                Forgot Password?
               </h1>
               <p className="text-muted-foreground">
-                Fill in your details and we'll help you recover your account
+                Enter your details and we'll help you recover your account
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <Label htmlFor="requestType">What do you need help with? *</Label>
-                <Select
-                  value={formData.requestType}
-                  onValueChange={(value) => setFormData({ ...formData, requestType: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="both">GNACOPS ID and Password</SelectItem>
-                    <SelectItem value="gnacops_id">GNACOPS ID only</SelectItem>
-                    <SelectItem value="password">Password only</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
+              <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <Label htmlFor="fullName">Full Name *</Label>
                 <Input

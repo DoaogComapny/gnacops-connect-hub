@@ -20,16 +20,20 @@ const menuItems = [
 const UserDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, signOut, isAdmin } = useAuth();
   const isDashboard = location.pathname === "/user/dashboard";
   const [memberships, setMemberships] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate('/login');
+    if (!loading) {
+      if (!user) {
+        navigate('/login');
+      } else if (isAdmin) {
+        navigate('/admin/panel');
+      }
     }
-  }, [user, loading, navigate]);
+  }, [user, isAdmin, loading, navigate]);
 
   useEffect(() => {
     if (user) {

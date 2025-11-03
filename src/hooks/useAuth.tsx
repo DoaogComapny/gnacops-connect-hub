@@ -93,13 +93,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
       password,
     });
-    
-    if (!error) {
-      toast.success('Signed in successfully!');
-      navigate('/user/dashboard');
+
+    if (error) {
+      toast.error(error.message || 'Failed to sign in');
+      return { error };
     }
-    
-    return { error };
+
+    // Determine destination based on role
+    const { data: { user } } = await supabase.auth.getUser();
+    let admin = false;
+    if (user) {
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+      admin = !!data;
+      setIsAdmin(admin);
+    }
+
+    toast.success('Signed in successfully!');
+    navigate(admin ? '/admin/panel' : '/user/dashboard');
+    return { error: null };
   };
 
   const signOut = async () => {
