@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu, MapPin, KeyRound, LayoutDashboard, Globe, HelpCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -18,7 +19,6 @@ const menuItems = [
   { title: "Messages", icon: Mail, path: "/admin/panel/messages" },
   { title: "Support", icon: HelpCircle, path: "/admin/panel/support" },
   { title: "Form Builder", icon: LayoutDashboard, path: "/admin/panel/form-builder" },
-  { title: "Web Settings", icon: Globe, path: "/admin/panel/web-settings" },
   { title: "Settings", icon: Settings, path: "/admin/panel/settings" },
 ];
 
@@ -28,19 +28,53 @@ const AdminPanel = () => {
   const { user, isAdmin, loading, signOut } = useAuth();
   const isDashboard = location.pathname === "/admin/panel";
   
-  // All useState hooks MUST come before any conditional returns
-  const [stats] = useState({
-    totalMembers: 245,
-    pendingApplications: 12,
-    totalRevenue: "GHS 123,450",
-    activeUsers: 198,
+  // Real-time stats from database
+  const [stats, setStats] = useState({
+    totalMembers: 0,
+    pendingApplications: 0,
+    totalRevenue: "GHS 0",
+    activeUsers: 0,
   });
 
-  const [recentApplications] = useState([
-    { id: 1, name: "John Doe", type: "Institutional", status: "Pending", date: "2025-01-15" },
-    { id: 2, name: "Jane Smith", type: "Teacher Council", status: "Approved", date: "2025-01-14" },
-    { id: 3, name: "Bob Johnson", type: "Proprietor", status: "Pending", date: "2025-01-13" },
-  ]);
+  useEffect(() => {
+    const fetchStats = async () => {
+      // Fetch total members
+      const { count: memberCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+
+      // Fetch pending applications
+      const { count: pendingCount } = await supabase
+        .from('memberships')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
+      // Fetch total revenue
+      const { data: payments } = await supabase
+        .from('payments')
+        .select('amount')
+        .eq('status', 'completed');
+      
+      const revenue = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
+
+      // Fetch active users (approved memberships)
+      const { count: activeCount } = await supabase
+        .from('memberships')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'approved');
+
+      setStats({
+        totalMembers: memberCount || 0,
+        pendingApplications: pendingCount || 0,
+        totalRevenue: `GHS ${revenue.toLocaleString()}`,
+        activeUsers: activeCount || 0,
+      });
+    };
+
+    if (!loading && user && isAdmin) {
+      fetchStats();
+    }
+  }, [user, isAdmin, loading]);
 
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) {
@@ -154,11 +188,14 @@ const AdminPanel = () => {
                 </Card>
               </div>
 
-              {/* Recent Applications */}
+              {/* Recent Applications - Real Data */}
               <Card className="p-6 hover-card">
                 <h2 className="text-xl font-semibold mb-4">Recent Applications</h2>
-                {/* Application table will be populated from database */}
-                <p className="text-muted-foreground">Recent applications will appear here</p>
+                {stats.pendingApplications > 0 ? (
+                  <p className="text-muted-foreground">{stats.pendingApplications} pending applications</p>
+                ) : (
+                  <p className="text-muted-foreground">No pending applications</p>
+                )}
               </Card>
 
               {/* Quick Actions */}

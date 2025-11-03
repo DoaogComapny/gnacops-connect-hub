@@ -106,6 +106,15 @@ const AdminUsers = () => {
     );
   });
 
+  // Calculate dynamic total based on current filter
+  const displayTotal = selectedType === 'all' 
+    ? users.length 
+    : users.filter(user => 
+        user.memberships?.some((m: any) => 
+          m.form_categories?.type.toLowerCase() === selectedType.toLowerCase()
+        )
+      ).length;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -118,6 +127,19 @@ const AdminUsers = () => {
           Export Users
         </Button>
       </div>
+
+      {/* Dynamic Total Users Display */}
+      <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+        <div className="flex items-center gap-4">
+          <Users className="h-12 w-12 text-primary" />
+          <div>
+            <p className="text-sm text-muted-foreground">
+              {selectedType === 'all' ? 'Total Users' : `${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} Members`}
+            </p>
+            <p className="text-4xl font-bold text-primary">{displayTotal}</p>
+          </div>
+        </div>
+      </Card>
 
       {/* Form Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

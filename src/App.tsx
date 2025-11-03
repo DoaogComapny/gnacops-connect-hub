@@ -32,7 +32,6 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminStaff from "./pages/admin/AdminStaff";
 import AdminSchoolsView from "./pages/admin/AdminSchoolsView";
 import AdminFormBuilder from "./pages/admin/AdminFormBuilder";
-import AdminWebSettings from "./pages/admin/AdminWebSettings";
 import AdminSupport from "./pages/admin/AdminSupport";
 import StaffForgotRequests from "./pages/admin/StaffForgotRequests";
 
@@ -80,7 +79,6 @@ const App = () => (
             <Route path="forgot-requests" element={<StaffForgotRequests />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="form-builder" element={<AdminFormBuilder />} />
-            <Route path="web-settings" element={<AdminWebSettings />} />
             <Route path="support" element={<AdminSupport />} />
           </Route>
 
