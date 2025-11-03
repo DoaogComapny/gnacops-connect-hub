@@ -10,63 +10,50 @@ import {
   UserCog,
 } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { isPrimeMembership } from "@/lib/gnacopsId";
 
-const membershipTypes = [
-  {
-    icon: Building2,
-    title: "Institutional Membership",
-    description: "For private schools and educational institutions seeking official registration and support.",
-    price: 500,
-    path: "/register/multi-select",
-    category: "Prime Member",
-  },
-  {
-    icon: Briefcase,
-    title: "Proprietor",
-    description: "For school owners committed to excellence in private education management.",
-    price: 300,
-    path: "/register/multi-select",
-    category: "Prime Member",
-  },
-  {
-    icon: GraduationCap,
-    title: "Teacher Council",
-    description: "Professional development and networking opportunities for dedicated educators.",
-    price: 200,
-    path: "/register/multi-select",
-    category: "Associate Member",
-  },
-  {
-    icon: Users,
-    title: "Parent Council",
-    description: "Active parent involvement in shaping quality education for their children.",
-    price: 150,
-    path: "/register/multi-select",
-    category: "Associate Member",
-  },
-  {
-    icon: Wrench,
-    title: "Service Provider",
-    description: "Partner with GNACOPS schools by offering essential educational services.",
-    price: 250,
-    path: "/register/multi-select",
-    category: "Associate Member",
-  },
-  {
-    icon: UserCog,
-    title: "Non-Teaching Staff",
-    description: "Recognition and support for vital non-teaching school personnel.",
-    price: 150,
-    path: "/register/multi-select",
-    category: "Associate Member",
-  },
-];
+const iconMap: Record<string, any> = {
+  institutional: Building2,
+  proprietor: Briefcase,
+  teacher: GraduationCap,
+  parent: Users,
+  serviceProvider: Wrench,
+  nonTeachingStaff: UserCog,
+};
 
 const MembershipCards = () => {
-  const { settings } = useSiteSettings();
+  const { settings, isLoading } = useSiteSettings();
 
-  // Use settings if available, otherwise use defaults
-  const memberships = settings.memberships || {};
+  const fallbackMemberships = [
+    { icon: Building2, title: "Institutional Membership", description: "For private schools and educational institutions seeking official registration and support.", price: 500, path: "/register/multi-select", category: "Prime Member", key: 'institutional' },
+    { icon: Briefcase, title: "Proprietor", description: "For school owners committed to excellence in private education management.", price: 300, path: "/register/multi-select", category: "Prime Member", key: 'proprietor' },
+    { icon: GraduationCap, title: "Teacher Council", description: "Professional development and networking opportunities for dedicated educators.", price: 200, path: "/register/multi-select", category: "Associate Member", key: 'teacher' },
+    { icon: Users, title: "Parent Council", description: "Active parent involvement in shaping quality education for their children.", price: 150, path: "/register/multi-select", category: "Associate Member", key: 'parent' },
+    { icon: Wrench, title: "Service Provider", description: "Partner with GNACOPS schools by offering essential educational services.", price: 250, path: "/register/multi-select", category: "Associate Member", key: 'serviceProvider' },
+    { icon: UserCog, title: "Non-Teaching Staff", description: "Recognition and support for vital non-teaching school personnel.", price: 150, path: "/register/multi-select", category: "Associate Member", key: 'nonTeachingStaff' },
+  ];
+
+  const membershipTypes = settings.memberships && Object.keys(settings.memberships).length > 0
+    ? Object.entries(settings.memberships).map(([key, data]: [string, any]) => ({
+        icon: iconMap[key] || Building2,
+        title: data.title || key,
+        description: data.description || "",
+        price: parseFloat(data.price) || 0,
+        path: "/register/multi-select",
+        category: isPrimeMembership(data.title || key) ? "Prime Member" : "Associate Member",
+        key,
+      }))
+    : fallbackMemberships;
+
+  if (isLoading) {
+    return (
+      <section className="py-20 px-4 bg-secondary/30">
+        <div className="container mx-auto text-center">
+          <p className="text-muted-foreground">Loading memberships...</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="membership" className="py-20 px-4 bg-secondary/30">
@@ -88,8 +75,8 @@ const MembershipCards = () => {
             </h3>
             <div className="grid md:grid-cols-2 gap-6">
               {membershipTypes
-                .filter((type) => type.category === "Prime Member")
-                .map((type, index) => {
+                .filter((type: any) => type.category === "Prime Member")
+                .map((type: any, index: number) => {
                   const Icon = type.icon;
                   return (
                     <Card
@@ -136,8 +123,8 @@ const MembershipCards = () => {
             </h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {membershipTypes
-                .filter((type) => type.category === "Associate Member")
-                .map((type, index) => {
+                .filter((type: any) => type.category === "Associate Member")
+                .map((type: any, index: number) => {
                   const Icon = type.icon;
                   return (
                     <Card

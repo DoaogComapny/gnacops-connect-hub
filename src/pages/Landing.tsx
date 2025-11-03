@@ -20,56 +20,42 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { isPrimeMembership } from "@/lib/gnacopsId";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
-const membershipTypes = [
-  {
-    icon: Building2,
-    title: "Institutional Membership",
-    description: "For private schools and educational institutions seeking official registration and support.",
-    price: 500,
-    category: "Prime Member",
-  },
-  {
-    icon: Briefcase,
-    title: "Proprietor",
-    description: "For school owners committed to excellence in private education management.",
-    price: 300,
-    category: "Prime Member",
-  },
-  {
-    icon: GraduationCap,
-    title: "Teacher Council",
-    description: "Professional development and networking opportunities for dedicated educators.",
-    price: 200,
-    category: "Associate Member",
-  },
-  {
-    icon: Users,
-    title: "Parent Council",
-    description: "Active parent involvement in shaping quality education for their children.",
-    price: 150,
-    category: "Associate Member",
-  },
-  {
-    icon: Wrench,
-    title: "Service Provider",
-    description: "Partner with GNACOPS schools by offering essential educational services.",
-    price: 250,
-    category: "Associate Member",
-  },
-  {
-    icon: UserCog,
-    title: "Non-Teaching Staff",
-    description: "Recognition and support for vital non-teaching school personnel.",
-    price: 150,
-    category: "Associate Member",
-  },
-];
+const iconMap: Record<string, any> = {
+  institutional: Building2,
+  proprietor: Briefcase,
+  teacher: GraduationCap,
+  parent: Users,
+  serviceProvider: Wrench,
+  nonTeachingStaff: UserCog,
+};
 
 const Landing = () => {
   const navigate = useNavigate();
   const { user, isAdmin, loading } = useAuth();
+  const { settings, isLoading: settingsLoading } = useSiteSettings();
   const [selectedMemberships, setSelectedMemberships] = useState<string[]>([]);
+
+  const fallbackMemberships = [
+    { icon: Building2, title: "Institutional Membership", description: "For private schools and educational institutions seeking official registration and support.", price: 500, category: "Prime Member", key: 'institutional' },
+    { icon: Briefcase, title: "Proprietor", description: "For school owners committed to excellence in private education management.", price: 300, category: "Prime Member", key: 'proprietor' },
+    { icon: GraduationCap, title: "Teacher Council", description: "Professional development and networking opportunities for dedicated educators.", price: 200, category: "Associate Member", key: 'teacher' },
+    { icon: Users, title: "Parent Council", description: "Active parent involvement in shaping quality education for their children.", price: 150, category: "Associate Member", key: 'parent' },
+    { icon: Wrench, title: "Service Provider", description: "Partner with GNACOPS schools by offering essential educational services.", price: 250, category: "Associate Member", key: 'serviceProvider' },
+    { icon: UserCog, title: "Non-Teaching Staff", description: "Recognition and support for vital non-teaching school personnel.", price: 150, category: "Associate Member", key: 'nonTeachingStaff' },
+  ];
+
+  const membershipTypes = settings.memberships && Object.keys(settings.memberships).length > 0
+    ? Object.entries(settings.memberships).map(([key, data]: [string, any]) => ({
+        icon: iconMap[key] || Building2,
+        title: data.title || key,
+        description: data.description || "",
+        price: parseFloat(data.price) || 0,
+        category: isPrimeMembership(data.title || key) ? "Prime Member" : "Associate Member",
+        key,
+      }))
+    : fallbackMemberships;
 
   useEffect(() => {
     if (!loading && user) {
@@ -81,7 +67,7 @@ const Landing = () => {
     }
   }, [user, isAdmin, loading, navigate]);
 
-  if (loading) {
+  if (loading || settingsLoading) {
     return null;
   }
 
@@ -94,7 +80,7 @@ const Landing = () => {
   };
 
   const totalPrice = selectedMemberships.reduce((sum, title) => {
-    const membership = membershipTypes.find((m) => m.title === title);
+    const membership = membershipTypes.find((m: any) => m.title === title);
     return sum + (membership?.price || 0);
   }, 0);
 
