@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu, MapPin, KeyRound, LayoutDashboard, Globe, HelpCircle } from "lucide-react";
+import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu, MapPin, KeyRound, LayoutDashboard, Globe, HelpCircle, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ const menuItems = [
   { title: "Messages", icon: Mail, path: "/admin/panel/messages" },
   { title: "Support", icon: HelpCircle, path: "/admin/panel/support" },
   { title: "Form Builder", icon: LayoutDashboard, path: "/admin/panel/form-builder" },
+  { title: "Profile", icon: User, path: "/admin/panel/profile" },
   { title: "Settings", icon: Settings, path: "/admin/panel/settings" },
 ];
 

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { CreditCard, CheckCircle, AlertCircle, ExternalLink } from "lucide-react";
+import { useState, useEffect } from "react";
+import { CreditCard, AlertCircle, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,23 +8,71 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const UserPayments = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [membership, setMembership] = useState<any>(null);
+  const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
+  const [user, setUser] = useState<any>(null);
   
-  // This would come from user context/state
-  const membershipInfo = {
-    type: "Institutional Membership",
-    price: 500,
-    status: "Unpaid",
-  };
-
   const [paymentDetails, setPaymentDetails] = useState({
     email: "",
     phone: "",
   });
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    
+    setUser(user);
+    
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+    
+    if (profile) {
+      setPaymentDetails({
+        email: profile.email || user.email || "",
+        phone: profile.phone || "",
+      });
+    }
+
+    const { data: membershipData } = await supabase
+      .from("memberships")
+      .select("*, form_categories(name, price)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+    
+    if (membershipData) {
+      setMembership(membershipData);
+    }
+
+    const { data: paymentsData } = await supabase
+      .from("payments")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+    
+    if (paymentsData) {
+      setPaymentHistory(paymentsData);
+    }
+  };
 
   const handlePayment = async () => {
     if (!paymentDetails.email || !paymentDetails.phone) {
@@ -36,34 +84,62 @@ const UserPayments = () => {
       return;
     }
 
+    if (!membership) {
+      toast({
+        title: "Error",
+        description: "No membership found",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsProcessing(true);
     
-    // Simulate payment processing
-    // In production, this would integrate with Paystack/Flutterwave/Stripe
-    setTimeout(() => {
+    try {
+      // Create payment record
+      const { data: payment, error: paymentError } = await supabase
+        .from("payments")
+        .insert({
+          user_id: user.id,
+          membership_id: membership.id,
+          amount: membership.form_categories?.price || 0,
+          status: "pending",
+          payment_method: "paystack",
+        })
+        .select()
+        .single();
+
+      if (paymentError) throw paymentError;
+
+      // Here you would integrate with Paystack API
+      // For now, we'll simulate the process
       toast({
         title: "Payment Initiated",
-        description: "You will be redirected to the payment gateway...",
+        description: "Redirecting to Paystack payment gateway...",
       });
       
-      // This is where you'd redirect to actual payment gateway
-      // For Paystack: https://paystack.com/pay/[payment_code]
-      // For Flutterwave: https://checkout.flutterwave.com/[payment_link]
+      // In production, redirect to Paystack:
+      // const paystackUrl = `https://paystack.com/pay/${payment.paystack_reference}`;
+      // window.location.href = paystackUrl;
       
       setTimeout(() => {
         setIsProcessing(false);
         setPaymentDialogOpen(false);
         toast({
-          title: "Payment Processing",
-          description: "Your payment is being processed. You'll receive a confirmation shortly.",
+          title: "Payment Pending",
+          description: "Your payment is being processed. You'll receive confirmation shortly.",
         });
+        loadData();
       }, 2000);
-    }, 1500);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+      setIsProcessing(false);
+    }
   };
-
-  const paymentHistory = [
-    { id: 1, date: "2024-01-10", description: "Institutional Membership - Initial", amount: "GHS ₵500", status: "Pending" },
-  ];
 
   return (
     <div className="space-y-6">
@@ -73,44 +149,51 @@ const UserPayments = () => {
       </div>
 
       {/* Payment Status */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card className="p-6 hover-card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Current Balance Due</p>
-              <p className="text-3xl font-bold text-red-600">GHS ₵{membershipInfo.price}</p>
-              <Badge variant="secondary" className="mt-2 bg-red-100 text-red-700">Unpaid</Badge>
+      {membership && (
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card className="p-6 hover-card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Current Balance Due</p>
+                <p className="text-3xl font-bold text-red-600">
+                  GHS ₵{membership.payment_status === 'paid' ? '0' : (membership.form_categories?.price || 0)}
+                </p>
+                <Badge variant="secondary" className={membership.payment_status === 'paid' ? 'mt-2 bg-green-100 text-green-700' : 'mt-2 bg-red-100 text-red-700'}>
+                  {membership.payment_status === 'paid' ? 'Paid' : 'Unpaid'}
+                </Badge>
+              </div>
+              <AlertCircle className={membership.payment_status === 'paid' ? 'h-10 w-10 text-green-500' : 'h-10 w-10 text-red-500'} />
             </div>
-            <AlertCircle className="h-10 w-10 text-red-500" />
-          </div>
-        </Card>
+          </Card>
 
-        <Card className="p-6 hover-card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Membership Type</p>
-              <p className="text-xl font-semibold">{membershipInfo.type}</p>
-              <p className="text-sm text-muted-foreground mt-2">Annual Fee</p>
+          <Card className="p-6 hover-card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Membership Type</p>
+                <p className="text-xl font-semibold">{membership.form_categories?.name || "N/A"}</p>
+                <p className="text-sm text-muted-foreground mt-2">Annual Fee</p>
+              </div>
+              <CreditCard className="h-10 w-10 text-accent/50" />
             </div>
-            <CreditCard className="h-10 w-10 text-accent/50" />
-          </div>
-        </Card>
-      </div>
+          </Card>
+        </div>
+      )}
 
       {/* Make Payment */}
-      <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Complete Your Payment</h2>
-        <div className="space-y-4">
-          <div className="bg-accent/5 p-4 rounded-lg">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-muted-foreground">Membership Fee:</span>
-              <span className="font-semibold">GHS ₵{membershipInfo.price}</span>
+      {membership && membership.payment_status !== 'paid' && (
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Complete Your Payment</h2>
+          <div className="space-y-4">
+            <div className="bg-accent/5 p-4 rounded-lg">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-muted-foreground">Membership Fee:</span>
+                <span className="font-semibold">GHS ₵{membership.form_categories?.price || 0}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-bold">Total Amount Due:</span>
+                <span className="text-2xl font-bold text-accent">GHS ₵{membership.form_categories?.price || 0}</span>
+              </div>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-bold">Total Amount Due:</span>
-              <span className="text-2xl font-bold text-accent">GHS ₵{membershipInfo.price}</span>
-            </div>
-          </div>
           
           <Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
             <DialogTrigger asChild>
@@ -149,7 +232,7 @@ const UserPayments = () => {
                 </div>
                 <div className="bg-primary/5 p-4 rounded-lg">
                   <p className="text-sm font-medium mb-1">Amount to Pay:</p>
-                  <p className="text-2xl font-bold text-primary">GHS ₵{membershipInfo.price}</p>
+                  <p className="text-2xl font-bold text-primary">GHS ₵{membership?.form_categories?.price || 0}</p>
                 </div>
                 <Button 
                   variant="cta" 
@@ -162,50 +245,55 @@ const UserPayments = () => {
                   ) : (
                     <>
                       <ExternalLink className="mr-2 h-4 w-4" />
-                      Pay with Payment Gateway
+                      Pay with Paystack
                     </>
                   )}
                 </Button>
                 <p className="text-xs text-muted-foreground text-center">
-                  You will be redirected to our secure payment gateway
+                  You will be redirected to Paystack secure payment gateway
                 </p>
               </div>
             </DialogContent>
           </Dialog>
 
           <p className="text-sm text-muted-foreground text-center">
-            Secure payment powered by Paystack/Flutterwave
+            Secure payment powered by Paystack
           </p>
         </div>
-      </Card>
+        </Card>
+      )}
 
       {/* Payment History */}
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4">Payment History</h2>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paymentHistory.map((payment) => (
-              <TableRow key={payment.id}>
-                <TableCell>{payment.date}</TableCell>
-                <TableCell className="font-medium">{payment.description}</TableCell>
-                <TableCell className="font-semibold">{payment.amount}</TableCell>
-                <TableCell>
-                  <Badge variant={payment.status === "Completed" ? "default" : "secondary"}>
-                    {payment.status}
-                  </Badge>
-                </TableCell>
+        {paymentHistory.length > 0 ? (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Method</TableHead>
+                <TableHead>Status</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {paymentHistory.map((payment) => (
+                <TableRow key={payment.id}>
+                  <TableCell>{new Date(payment.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell className="font-semibold">GHS ₵{payment.amount}</TableCell>
+                  <TableCell className="capitalize">{payment.payment_method}</TableCell>
+                  <TableCell>
+                    <Badge variant={payment.status === "completed" ? "default" : "secondary"}>
+                      {payment.status}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        ) : (
+          <p className="text-center text-muted-foreground py-8">No payment history yet</p>
+        )}
       </Card>
     </div>
   );

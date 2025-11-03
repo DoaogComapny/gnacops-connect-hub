@@ -397,19 +397,11 @@ const AdminSettings = () => {
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Provider</label>
-                <Select 
-                  value={localSettings.paymentProvider || "paystack"}
-                  onValueChange={(value) => updateSetting('paymentProvider', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="paystack">Paystack</SelectItem>
-                    <SelectItem value="flutterwave">Flutterwave</SelectItem>
-                    <SelectItem value="stripe">Stripe</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Input 
+                  value="Paystack"
+                  disabled
+                  className="bg-muted"
+                />
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">Public Key</label>

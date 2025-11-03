@@ -1,31 +1,151 @@
-import { useState } from "react";
-import { User, Mail, Phone, MapPin, Building, Save } from "lucide-react";
+import { useState, useEffect } from "react";
+import { User, Mail, Phone, MapPin, Building, Save, Upload, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const UserAccount = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [membership, setMembership] = useState<any>(null);
   const [formData, setFormData] = useState({
-    fullName: "John Doe",
-    email: "john@example.com",
-    phone: "+233 50 123 4567",
-    school: "ABC Academy",
-    address: "123 Education Street, Accra",
-    position: "Principal",
-    bio: "Dedicated educator with 15 years of experience in private education management.",
+    fullName: "",
+    email: "",
+    phone: "",
+    address: "",
+  });
+  const [passwordData, setPasswordData] = useState({
+    newPassword: "",
+    confirmPassword: "",
   });
 
-  const handleSubmit = () => {
-    toast({
-      title: "Profile Updated",
-      description: "Your changes have been submitted for review.",
-    });
-    setIsEditing(false);
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  const loadProfile = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    
+    setUser(user);
+    
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+    
+    if (profile) {
+      setFormData({
+        fullName: profile.full_name || "",
+        email: user.email || "",
+        phone: profile.phone || "",
+        address: "",
+      });
+    }
+
+    const { data: membershipData } = await supabase
+      .from("memberships")
+      .select("*, form_categories(name)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+    
+    if (membershipData) {
+      setMembership(membershipData);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          full_name: formData.fullName,
+          phone: formData.phone,
+        })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+      setIsEditing(false);
+      await loadProfile();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePasswordUpdate = async () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: passwordData.newPassword,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Password updated successfully",
+      });
+      
+      setPasswordData({
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (field: string, value: string) => {
@@ -50,13 +170,21 @@ const UserAccount = () => {
       <Card className="p-6 hover-card">
         <div className="flex items-center gap-6 mb-6">
           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-3xl font-bold text-white">
-            {formData.fullName.split(' ').map(n => n[0]).join('')}
+            {formData.fullName ? formData.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}
           </div>
-          <div>
-            <h2 className="text-2xl font-bold">{formData.fullName}</h2>
-            <p className="text-muted-foreground">{formData.position}</p>
-            <Badge variant="default" className="mt-2">Active Member</Badge>
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold">{formData.fullName || "User"}</h2>
+            <p className="text-muted-foreground">{formData.email}</p>
+            {membership && (
+              <Badge variant="default" className="mt-2">
+                {membership.status === 'approved' ? 'Active Member' : membership.status === 'pending' ? 'Pending Approval' : 'Inactive'}
+              </Badge>
+            )}
           </div>
+          <Button variant="outline" disabled>
+            <Upload className="mr-2 h-4 w-4" />
+            Upload Photo (Coming Soon)
+          </Button>
         </div>
       </Card>
 
@@ -101,57 +229,11 @@ const UserAccount = () => {
             />
           </div>
 
-          <div>
-            <label className="text-sm font-medium mb-2 flex items-center gap-2">
-              <Building className="h-4 w-4" />
-              School/Institution
-            </label>
-            <Input 
-              value={formData.school}
-              onChange={(e) => handleChange('school', e.target.value)}
-              disabled={!isEditing}
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium mb-2 flex items-center gap-2">
-              <User className="h-4 w-4" />
-              Position/Role
-            </label>
-            <Input 
-              value={formData.position}
-              onChange={(e) => handleChange('position', e.target.value)}
-              disabled={!isEditing}
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium mb-2 flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
-              Address
-            </label>
-            <Input 
-              value={formData.address}
-              onChange={(e) => handleChange('address', e.target.value)}
-              disabled={!isEditing}
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium mb-2 block">Bio</label>
-            <Textarea 
-              rows={4}
-              value={formData.bio}
-              onChange={(e) => handleChange('bio', e.target.value)}
-              disabled={!isEditing}
-            />
-          </div>
-
           {isEditing && (
             <div className="flex gap-3 pt-4">
-              <Button variant="cta" onClick={handleSubmit}>
+              <Button variant="cta" onClick={handleSubmit} disabled={loading}>
                 <Save className="mr-2 h-4 w-4" />
-                Save Changes
+                {loading ? "Saving..." : "Save Changes"}
               </Button>
               <Button variant="outline" onClick={() => setIsEditing(false)}>
                 Cancel
@@ -161,28 +243,74 @@ const UserAccount = () => {
         </div>
       </Card>
 
-      {/* Membership Details */}
+      {/* Change Password */}
       <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Membership Details</h2>
-        <div className="space-y-3">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">GNACOPS ID:</span>
-            <span className="font-mono font-semibold">GNC/PM/01/0002</span>
+        <h2 className="text-xl font-semibold mb-4">
+          <Lock className="inline h-5 w-5 mr-2" />
+          Change Password
+        </h2>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="new_password">New Password</Label>
+            <Input
+              id="new_password"
+              type="password"
+              value={passwordData.newPassword}
+              onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+              placeholder="Enter new password (min 6 characters)"
+            />
           </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Membership Type:</span>
-            <span className="font-semibold">Institutional Membership</span>
+
+          <div>
+            <Label htmlFor="confirm_password">Confirm New Password</Label>
+            <Input
+              id="confirm_password"
+              type="password"
+              value={passwordData.confirmPassword}
+              onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+              placeholder="Confirm new password"
+            />
           </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Join Date:</span>
-            <span className="font-semibold">January 10, 2025</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Status:</span>
-            <Badge variant="default">Active</Badge>
-          </div>
+
+          <Button variant="cta" onClick={handlePasswordUpdate} disabled={loading}>
+            <Lock className="mr-2 h-4 w-4" />
+            {loading ? "Updating..." : "Update Password"}
+          </Button>
         </div>
       </Card>
+
+      {/* Membership Details */}
+      {membership && (
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Membership Details</h2>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">GNACOPS ID:</span>
+              <span className="font-mono font-semibold">{membership.gnacops_id}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Membership Type:</span>
+              <span className="font-semibold">{membership.form_categories?.name || "N/A"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Join Date:</span>
+              <span className="font-semibold">{new Date(membership.created_at).toLocaleDateString()}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Payment Status:</span>
+              <Badge variant={membership.payment_status === 'paid' ? 'default' : 'secondary'}>
+                {membership.payment_status}
+              </Badge>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Status:</span>
+              <Badge variant={membership.status === 'approved' ? 'default' : 'secondary'}>
+                {membership.status}
+              </Badge>
+            </div>
+          </div>
+        </Card>
+      )}
     </div>
   );
 };

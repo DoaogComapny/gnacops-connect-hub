@@ -34,6 +34,7 @@ import AdminSchoolsView from "./pages/admin/AdminSchoolsView";
 import AdminFormBuilder from "./pages/admin/AdminFormBuilder";
 import AdminSupport from "./pages/admin/AdminSupport";
 import StaffForgotRequests from "./pages/admin/StaffForgotRequests";
+import AdminProfile from "./pages/admin/AdminProfile";
 
 // User Pages
 import UserPayments from "./pages/user/UserPayments";
@@ -80,6 +81,7 @@ const App = () => (
             <Route path="settings" element={<AdminSettings />} />
             <Route path="form-builder" element={<AdminFormBuilder />} />
             <Route path="support" element={<AdminSupport />} />
+            <Route path="profile" element={<AdminProfile />} />
           </Route>
 
           {/* User Routes */}

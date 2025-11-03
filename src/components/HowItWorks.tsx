@@ -10,7 +10,7 @@ const defaultSteps = [
   {
     icon: CreditCard,
     title: "Pay Membership Fee",
-    description: "Securely pay your membership fee through our payment gateway",
+    description: "Securely pay your membership fee through Paystack payment gateway",
   },
   {
     icon: CheckCircle,
