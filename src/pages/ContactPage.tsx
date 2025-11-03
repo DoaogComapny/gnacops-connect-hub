@@ -1,15 +1,32 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Mail, Phone, MapPin } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const ContactPage = () => {
+  const { settings, isLoading } = useSiteSettings();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+        <div className="pt-24 pb-20 px-4 flex items-center justify-center">
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  const contactPage = settings.contactPage;
+
   return (
     <div className="min-h-screen">
       <Navbar />
       <div className="pt-24 pb-20 px-4">
         <div className="container mx-auto max-w-4xl">
           <h1 className="text-5xl font-bold mb-8 text-center">
-            Contact <span className="text-gradient-accent">Us</span>
+            {contactPage.title || "Contact Us"}
           </h1>
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
@@ -18,7 +35,9 @@ const ContactPage = () => {
                 <Mail className="w-6 h-6 text-accent" />
               </div>
               <h3 className="font-semibold mb-2 text-foreground">Email</h3>
-              <p className="text-muted-foreground text-sm">info@gnacops.org</p>
+              <p className="text-muted-foreground text-sm">
+                {contactPage.email || "info@gnacops.org"}
+              </p>
             </div>
 
             <div className="bg-card border border-card-border rounded-lg p-6 text-center">
@@ -26,7 +45,9 @@ const ContactPage = () => {
                 <Phone className="w-6 h-6 text-accent" />
               </div>
               <h3 className="font-semibold mb-2 text-foreground">Phone</h3>
-              <p className="text-muted-foreground text-sm">+233 XX XXX XXXX</p>
+              <p className="text-muted-foreground text-sm">
+                {contactPage.phone || "+233 XX XXX XXXX"}
+              </p>
             </div>
 
             <div className="bg-card border border-card-border rounded-lg p-6 text-center">
@@ -34,7 +55,9 @@ const ContactPage = () => {
                 <MapPin className="w-6 h-6 text-accent" />
               </div>
               <h3 className="font-semibold mb-2 text-foreground">Address</h3>
-              <p className="text-muted-foreground text-sm">Accra, Ghana</p>
+              <p className="text-muted-foreground text-sm">
+                {contactPage.address || "Accra, Ghana"}
+              </p>
             </div>
           </div>
 
