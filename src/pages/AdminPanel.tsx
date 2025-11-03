@@ -1,28 +1,46 @@
-import { useState } from "react";
-import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu, MapPin, KeyRound } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu, MapPin, KeyRound, LayoutDashboard, Globe, HelpCircle } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { NavLink, useNavigate, Outlet, useLocation } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
 const menuItems = [
-  { title: "Dashboard", icon: BarChart, path: "/admin" },
-  { title: "Users", icon: Users, path: "/admin/users" },
-  { title: "Applications", icon: FileText, path: "/admin/applications" },
-  { title: "Staff", icon: Shield, path: "/admin/staff" },
-  { title: "Certificates", icon: Shield, path: "/admin/certificates" },
-  { title: "Schools View", icon: MapPin, path: "/admin/schools-view" },
-  { title: "Forgot Requests", icon: KeyRound, path: "/admin/forgot-requests" },
-  { title: "Messages", icon: Mail, path: "/admin/messages" },
-  { title: "Settings", icon: Settings, path: "/admin/settings" },
+  { title: "Applications", icon: FileText, path: "/admin/panel/applications" },
+  { title: "Users", icon: Users, path: "/admin/panel/users" },
+  { title: "Staff", icon: Shield, path: "/admin/panel/staff" },
+  { title: "Schools", icon: MapPin, path: "/admin/panel/schools-view" },
+  { title: "Certificates", icon: Shield, path: "/admin/panel/certificates" },
+  { title: "Messages", icon: Mail, path: "/admin/panel/messages" },
+  { title: "Support", icon: HelpCircle, path: "/admin/panel/support" },
+  { title: "Form Builder", icon: LayoutDashboard, path: "/admin/panel/form-builder" },
+  { title: "Web Settings", icon: Globe, path: "/admin/panel/web-settings" },
+  { title: "Settings", icon: Settings, path: "/admin/panel/settings" },
 ];
 
 const AdminPanel = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const isDashboard = location.pathname === "/admin";
+  const { user, isAdmin, loading, signOut } = useAuth();
+  const isDashboard = location.pathname === "/admin/panel";
+
+  useEffect(() => {
+    if (!loading && (!user || !isAdmin)) {
+      navigate('/auth');
+    }
+  }, [user, isAdmin, loading, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
   const [stats] = useState({
     totalMembers: 245,
     pendingApplications: 12,
@@ -36,9 +54,6 @@ const AdminPanel = () => {
     { id: 3, name: "Bob Johnson", type: "Proprietor", status: "Pending", date: "2025-01-13" },
   ]);
 
-  const handleLogout = () => {
-    navigate("/login");
-  };
 
   return (
     <SidebarProvider>
@@ -76,7 +91,7 @@ const AdminPanel = () => {
           </SidebarContent>
 
           <div className="p-4 border-t border-card-border mt-auto">
-            <Button variant="outline" onClick={handleLogout} className="w-full">
+            <Button variant="outline" onClick={signOut} className="w-full">
               <LogOut className="mr-2 h-4 w-4" />
               Logout
             </Button>
@@ -140,39 +155,8 @@ const AdminPanel = () => {
               {/* Recent Applications */}
               <Card className="p-6 hover-card">
                 <h2 className="text-xl font-semibold mb-4">Recent Applications</h2>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {recentApplications.map((app) => (
-                      <TableRow key={app.id}>
-                        <TableCell className="font-medium">{app.name}</TableCell>
-                        <TableCell>{app.type}</TableCell>
-                        <TableCell>
-                          <Badge variant={app.status === "Approved" ? "default" : "secondary"}>
-                            {app.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{app.date}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => navigate("/admin/applications")}>View</Button>
-                            {app.status === "Pending" && (
-                              <Button size="sm" variant="cta">Approve</Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                {/* Application table will be populated from database */}
+                <p className="text-muted-foreground">Recent applications will appear here</p>
               </Card>
 
               {/* Quick Actions */}
@@ -180,19 +164,19 @@ const AdminPanel = () => {
                 <Card className="p-6 hover-card">
                   <h3 className="font-semibold mb-2">Manage Users</h3>
                   <p className="text-sm text-muted-foreground mb-4">View and manage all members</p>
-                  <Button variant="outline" className="w-full" onClick={() => navigate("/admin/users")}>View Users</Button>
+                  <Button variant="outline" className="w-full" onClick={() => navigate("/admin/panel/users")}>View Users</Button>
                 </Card>
 
                 <Card className="p-6 hover-card">
                   <h3 className="font-semibold mb-2">Generate Certificates</h3>
                   <p className="text-sm text-muted-foreground mb-4">Create and send certificates</p>
-                  <Button variant="outline" className="w-full" onClick={() => navigate("/admin/certificates")}>Manage</Button>
+                  <Button variant="outline" className="w-full" onClick={() => navigate("/admin/panel/certificates")}>Manage</Button>
                 </Card>
 
                 <Card className="p-6 hover-card">
                   <h3 className="font-semibold mb-2">Site Settings</h3>
                   <p className="text-sm text-muted-foreground mb-4">Update logo, colors, content</p>
-                  <Button variant="outline" className="w-full" onClick={() => navigate("/admin/settings")}>Settings</Button>
+                  <Button variant="outline" className="w-full" onClick={() => navigate("/admin/panel/settings")}>Settings</Button>
                 </Card>
               </div>
             </>

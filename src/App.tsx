@@ -3,11 +3,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import { AuthProvider } from "@/hooks/useAuth";
 import Landing from "./pages/Landing";
 import AboutPage from "./pages/AboutPage";
 import MembershipPage from "./pages/MembershipPage";
 import ContactPage from "./pages/ContactPage";
+import AuthPage from "./pages/AuthPage";
 import LoginPage from "./pages/LoginPage";
 import ForgotPage from "./pages/ForgotPage";
 import InstitutionalForm from "./pages/InstitutionalForm";
@@ -30,6 +31,9 @@ import AdminMessages from "./pages/admin/AdminMessages";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminStaff from "./pages/admin/AdminStaff";
 import AdminSchoolsView from "./pages/admin/AdminSchoolsView";
+import AdminFormBuilder from "./pages/admin/AdminFormBuilder";
+import AdminWebSettings from "./pages/admin/AdminWebSettings";
+import AdminSupport from "./pages/admin/AdminSupport";
 import StaffForgotRequests from "./pages/admin/StaffForgotRequests";
 
 // User Pages
@@ -47,13 +51,13 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <AuthProvider>
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/home" element={<Landing />} />
+          <Route path="/" element={<Landing />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/membership" element={<MembershipPage />} />
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/auth" element={<LoginPage />} />
           <Route path="/forgot" element={<ForgotPage />} />
           <Route path="/register/multi-select" element={<MultiMembershipSelection />} />
           <Route path="/register/multi-form" element={<MultiMembershipForm />} />
@@ -65,7 +69,7 @@ const App = () => (
           <Route path="/register/non-teaching-staff" element={<NonTeachingStaffForm />} />
           
           {/* Admin Routes */}
-          <Route path="/admin" element={<AdminPanel />}>
+          <Route path="/admin/panel" element={<AdminPanel />}>
             <Route path="users" element={<AdminUsers />} />
             <Route path="applications" element={<AdminApplications />} />
             <Route path="staff" element={<AdminStaff />} />
@@ -74,10 +78,13 @@ const App = () => (
             <Route path="messages" element={<AdminMessages />} />
             <Route path="forgot-requests" element={<StaffForgotRequests />} />
             <Route path="settings" element={<AdminSettings />} />
+            <Route path="form-builder" element={<AdminFormBuilder />} />
+            <Route path="web-settings" element={<AdminWebSettings />} />
+            <Route path="support" element={<AdminSupport />} />
           </Route>
 
           {/* User Routes */}
-          <Route path="/dashboard" element={<UserDashboard />}>
+          <Route path="/user/dashboard" element={<UserDashboard />}>
             <Route path="account" element={<UserAccount />} />
             <Route path="payments" element={<UserPayments />} />
             <Route path="certificate" element={<UserCertificate />} />
@@ -88,6 +95,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

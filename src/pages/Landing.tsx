@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import AboutSection from "@/components/AboutSection";
@@ -67,7 +68,22 @@ const membershipTypes = [
 
 const Landing = () => {
   const navigate = useNavigate();
+  const { user, isAdmin, loading } = useAuth();
   const [selectedMemberships, setSelectedMemberships] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!loading && user) {
+      if (isAdmin) {
+        navigate('/admin/panel');
+      } else {
+        navigate('/user/dashboard');
+      }
+    }
+  }, [user, isAdmin, loading, navigate]);
+
+  if (loading) {
+    return null;
+  }
 
   const handleToggleMembership = (title: string) => {
     setSelectedMemberships((prev) =>
