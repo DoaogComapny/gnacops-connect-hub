@@ -27,7 +27,45 @@ const UserPayments = () => {
 
   useEffect(() => {
     loadData();
+    
+    // Check for payment completion from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentId = urlParams.get('payment_id');
+    
+    if (paymentId) {
+      // Verify payment status
+      verifyPayment(paymentId);
+      
+      // Clean URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
   }, []);
+
+  const verifyPayment = async (paymentId: string) => {
+    try {
+      const { data: payment } = await supabase
+        .from("payments")
+        .select("status")
+        .eq("id", paymentId)
+        .single();
+      
+      if (payment?.status === "completed") {
+        toast({
+          title: "Payment Successful",
+          description: "Your membership payment has been confirmed!",
+        });
+      } else {
+        toast({
+          title: "Payment Pending",
+          description: "Your payment is being verified. This may take a few moments.",
+        });
+      }
+      
+      loadData();
+    } catch (error) {
+      console.error("Error verifying payment:", error);
+    }
+  };
 
   const loadData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -103,6 +141,7 @@ const UserPayments = () => {
           user_id: user.id,
           membership_id: membership.id,
           amount: membership.form_categories?.price || 0,
+          currency: "GHS",
           status: "pending",
           payment_method: "paystack",
         })
@@ -111,30 +150,32 @@ const UserPayments = () => {
 
       if (paymentError) throw paymentError;
 
-      // Here you would integrate with Paystack API
-      // For now, we'll simulate the process
-      toast({
-        title: "Payment Initiated",
-        description: "Redirecting to Paystack payment gateway...",
+      // Initialize Paystack payment
+      const { data, error } = await supabase.functions.invoke('initialize-payment', {
+        body: {
+          paymentId: payment.id,
+          email: paymentDetails.email,
+        },
       });
-      
-      // In production, redirect to Paystack:
-      // const paystackUrl = `https://paystack.com/pay/${payment.paystack_reference}`;
-      // window.location.href = paystackUrl;
-      
-      setTimeout(() => {
-        setIsProcessing(false);
-        setPaymentDialogOpen(false);
-        toast({
-          title: "Payment Pending",
-          description: "Your payment is being processed. You'll receive confirmation shortly.",
-        });
-        loadData();
-      }, 2000);
-    } catch (error: any) {
+
+      if (error) throw error;
+
+      if (!data?.authorization_url) {
+        throw new Error("Failed to initialize payment");
+      }
+
       toast({
-        title: "Error",
-        description: error.message,
+        title: "Redirecting to Payment",
+        description: "Opening Paystack secure payment gateway...",
+      });
+
+      // Redirect to Paystack
+      window.location.href = data.authorization_url;
+    } catch (error: any) {
+      console.error("Payment error:", error);
+      toast({
+        title: "Payment Error",
+        description: error.message || "Failed to initialize payment. Please try again.",
         variant: "destructive",
       });
       setIsProcessing(false);
