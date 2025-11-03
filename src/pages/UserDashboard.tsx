@@ -27,7 +27,7 @@ const UserDashboard = () => {
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/auth');
+      navigate('/login');
     }
   }, [user, loading, navigate]);
 
@@ -80,7 +80,7 @@ const UserDashboard = () => {
 
   const handleLogout = async () => {
     await signOut();
-    navigate("/auth");
+    navigate("/login");
   };
 
   return (

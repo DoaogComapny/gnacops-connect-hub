@@ -8,7 +8,6 @@ import Landing from "./pages/Landing";
 import AboutPage from "./pages/AboutPage";
 import MembershipPage from "./pages/MembershipPage";
 import ContactPage from "./pages/ContactPage";
-import AuthPage from "./pages/AuthPage";
 import LoginPage from "./pages/LoginPage";
 import ForgotPage from "./pages/ForgotPage";
 import InstitutionalForm from "./pages/InstitutionalForm";
@@ -57,7 +56,6 @@ const App = () => (
           <Route path="/about" element={<AboutPage />} />
           <Route path="/membership" element={<MembershipPage />} />
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="/auth" element={<AuthPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot" element={<ForgotPage />} />
           <Route path="/register/multi-select" element={<MultiMembershipSelection />} />

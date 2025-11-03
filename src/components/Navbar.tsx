@@ -44,7 +44,7 @@ const Navbar = () => {
 
           {/* Login Button */}
           <div className="hidden md:block">
-            <Link to="/auth">
+            <Link to="/login">
               <Button variant="hero" size="sm">
                 Login
               </Button>
@@ -75,7 +75,7 @@ const Navbar = () => {
                 {item.label}
               </Link>
             ))}
-            <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/login" onClick={() => setIsMenuOpen(false)}>
               <Button variant="hero" size="sm" className="w-full">
                 Login
               </Button>

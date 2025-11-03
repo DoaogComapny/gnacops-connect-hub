@@ -2,16 +2,19 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
+import { useAuth } from "@/hooks/useAuth";
 
 const LoginPage = () => {
-  const [gnacopsId, setGnacopsId] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { signIn } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Login logic will be implemented later
-    console.log("Login attempt:", { gnacopsId, email, password });
+    const { error } = await signIn(email, password);
+    if (error) {
+      console.error("Login error:", error.message);
+    }
   };
 
   return (
@@ -28,20 +31,6 @@ const LoginPage = () => {
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium mb-2 text-foreground">
-                  GNACOPS ID
-                </label>
-                <input
-                  type="text"
-                  value={gnacopsId}
-                  onChange={(e) => setGnacopsId(e.target.value)}
-                  className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-foreground"
-                  placeholder="e.g., GNC/PM/01/0001"
-                  required
-                />
-              </div>
-
               <div>
                 <label className="block text-sm font-medium mb-2 text-foreground">
                   Email
@@ -72,7 +61,7 @@ const LoginPage = () => {
 
               <div className="flex items-center justify-between text-sm">
                 <Link to="/forgot" className="text-accent hover:text-accent-glow transition-colors">
-                  Forgot GNACOPS ID or Password?
+                  Forgot Password?
                 </Link>
               </div>
 
@@ -84,7 +73,7 @@ const LoginPage = () => {
             <div className="mt-6 text-center text-sm text-muted-foreground">
               Don't have an account?{" "}
               <Link to="/membership" className="text-accent hover:text-accent-glow transition-colors font-medium">
-                Register Now
+                Sign Up
               </Link>
             </div>
           </div>

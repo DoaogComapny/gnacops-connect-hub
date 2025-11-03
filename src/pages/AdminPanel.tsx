@@ -44,7 +44,7 @@ const AdminPanel = () => {
 
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) {
-      navigate('/auth');
+      navigate('/login');
     }
   }, [user, isAdmin, loading, navigate]);
 
