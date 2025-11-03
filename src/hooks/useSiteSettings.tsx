@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-
+import { useEffect } from "react";
 export interface SiteSettings {
   siteName?: string;
   tagline?: string;
@@ -99,6 +99,23 @@ export const useSiteSettings = () => {
       });
     },
   });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('site_settings_realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'site_settings' },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['site-settings'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   return {
     settings: settings || {},
