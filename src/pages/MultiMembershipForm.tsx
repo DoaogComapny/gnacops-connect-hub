@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { generateGnacopsId } from "@/lib/gnacopsId";
+import { supabase } from "@/integrations/supabase/client";
 
 const regions = [
   "Greater Accra", "Ashanti", "Western", "Eastern", "Central",
@@ -26,6 +26,8 @@ const regions = [
 
 interface FormData {
   [key: string]: any;
+  password?: string;
+  passwordConfirm?: string;
 }
 
 const MultiMembershipForm = () => {
@@ -74,27 +76,88 @@ const MultiMembershipForm = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    // Validate password on the last form
+    const lastFormData = formsData[currentMembership] || {};
+    if (!lastFormData.password || !lastFormData.passwordConfirm) {
+      toast({
+        title: "Error",
+        description: "Please enter a password",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (lastFormData.password !== lastFormData.passwordConfirm) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (lastFormData.password.length < 8) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 8 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setCompletedForms(prev => [...new Set([...prev, currentMembership])]);
     
-    // Generate GNACOPS IDs for each membership
-    const gnacopsIds = selectedMemberships.map((membership: string, index: number) => {
-      const region = formsData[membership]?.region || "Greater Accra";
-      const serialNumber = 1 + index; // In production, this would come from the database
-      return {
-        membership,
-        id: generateGnacopsId(membership as any, region, serialNumber)
-      };
-    });
+    try {
+      // Use the first form's email and password for account creation
+      const firstMembership = selectedMemberships[0];
+      const firstFormData = formsData[firstMembership];
+      const fullName = `${firstFormData.title || ''} ${firstFormData.firstName || ''} ${firstFormData.middleName || ''} ${firstFormData.surname || ''}`.trim();
+      const email = firstFormData.email;
+      const password = lastFormData.password;
 
-    toast({
-      title: "Registration Successful!",
-      description: `Your GNACOPS IDs: ${gnacopsIds.map(g => g.id).join(", ")}`,
-    });
+      // Get the first membership category
+      const { data: category } = await supabase
+        .from('form_categories')
+        .select('id')
+        .eq('name', firstMembership)
+        .single();
 
-    setTimeout(() => {
-      navigate("/login");
-    }, 2000);
+      if (!category) {
+        throw new Error('Membership category not found');
+      }
+
+      const { registerUser } = await import("@/utils/registrationHelper");
+      
+      const result = await registerUser({
+        fullName,
+        email,
+        password,
+        formData: {
+          ...firstFormData,
+          memberships: selectedMemberships,
+          allFormsData: formsData,
+        },
+        categoryId: category.id,
+        categoryName: firstMembership,
+      });
+
+      if (result.success) {
+        toast({
+          title: "Registration Successful!",
+          description: `Your GNACOPS ID is: ${result.gnacopsId}. You can now login with your email and password.`,
+        });
+        setTimeout(() => navigate("/login"), 2000);
+      } else {
+        throw new Error(result.error || 'Registration failed');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Registration Failed",
+        description: error.message || "Please try again",
+        variant: "destructive",
+      });
+    }
   };
 
   const renderForm = () => {
@@ -371,10 +434,43 @@ const MultiMembershipForm = () => {
       return null;
     };
 
+    // Password fields on last form only
+    const passwordFields = isLastForm && (
+      <div className="space-y-6 mt-6">
+        <h3 className="text-xl font-semibold text-accent">Account Setup</h3>
+        <p className="text-muted-foreground">
+          Create your login credentials. You'll use these to access your account.
+        </p>
+        <div className="space-y-2">
+          <Label>Password *</Label>
+          <Input
+            required
+            type="password"
+            value={currentData.password || ""}
+            onChange={(e) => handleInputChange("password", e.target.value)}
+            placeholder="Enter password (min 8 characters)"
+            minLength={8}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Confirm Password *</Label>
+          <Input
+            required
+            type="password"
+            value={currentData.passwordConfirm || ""}
+            onChange={(e) => handleInputChange("passwordConfirm", e.target.value)}
+            placeholder="Confirm your password"
+            minLength={8}
+          />
+        </div>
+      </div>
+    );
+
     return (
       <>
         {commonFields}
         {membershipSpecificFields()}
+        {passwordFields}
       </>
     );
   };

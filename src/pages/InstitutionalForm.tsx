@@ -1,11 +1,59 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { registerUser } from "@/utils/registrationHelper";
+import { supabase } from "@/integrations/supabase/client";
+
+const regions = [
+  "Greater Accra", "Ashanti", "Western", "Eastern", "Central",
+  "Northern", "Upper East", "Upper West", "Volta", "Brong Ahafo",
+  "Bono East", "Ahafo", "Savannah", "North East", "Oti", "Western North"
+];
 
 const InstitutionalForm = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 3;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const totalSteps = 4;
+
+  const [formData, setFormData] = useState({
+    // Personal Info
+    title: "",
+    firstName: "",
+    middleName: "",
+    surname: "",
+    dob: "",
+    phone: "",
+    email: "",
+    password: "",
+    passwordConfirm: "",
+    // Institution Details
+    institutionName: "",
+    rgdNumber: "",
+    dateEstablished: "",
+    region: "",
+    district: "",
+    address: "",
+    digitalAddress: "",
+    vision: "",
+    mission: "",
+    // Enrollment & Staff
+    enrollmentPreSchool: { boys: 0, girls: 0, total: 0 },
+    enrollmentLowerPrimary: { boys: 0, girls: 0, total: 0 },
+    enrollmentUpperPrimary: { boys: 0, girls: 0, total: 0 },
+    enrollmentJHS: { boys: 0, girls: 0, total: 0 },
+    enrollmentSHS: { boys: 0, girls: 0, total: 0 },
+    teachingStaff: 0,
+    nonTeachingStaff: 0,
+  });
 
   const nextStep = () => {
     if (currentStep < totalSteps) setCurrentStep(currentStep + 1);
@@ -13,6 +61,80 @@ const InstitutionalForm = () => {
 
   const prevStep = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Password validation
+    if (formData.password !== formData.passwordConfirm) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 8 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Get category ID for Institutional Membership
+      const { data: categories } = await supabase
+        .from('form_categories')
+        .select('id')
+        .eq('name', 'Institutional Membership')
+        .single();
+
+      if (!categories) {
+        throw new Error('Membership category not found');
+      }
+
+      const fullName = `${formData.title} ${formData.firstName} ${formData.middleName} ${formData.surname}`.trim();
+
+      const result = await registerUser({
+        fullName,
+        email: formData.email,
+        password: formData.password,
+        formData: {
+          ...formData,
+          fullName,
+        },
+        categoryId: categories.id,
+        categoryName: 'Institutional Membership',
+      });
+
+      if (result.success) {
+        toast({
+          title: "Registration Successful!",
+          description: `Your GNACOPS ID is: ${result.gnacopsId}. You can now login with your email and password.`,
+        });
+        setTimeout(() => navigate("/login"), 2000);
+      } else {
+        throw new Error(result.error || 'Registration failed');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Registration Failed",
+        description: error.message || "Please try again",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const updateFormData = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -30,7 +152,7 @@ const InstitutionalForm = () => {
           {/* Progress Bar */}
           <div className="mb-8">
             <div className="flex justify-between mb-2">
-              {[1, 2, 3].map((step) => (
+              {[1, 2, 3, 4].map((step) => (
                 <div
                   key={step}
                   className={`flex items-center ${
@@ -50,6 +172,7 @@ const InstitutionalForm = () => {
                     {step === 1 && "Personal Info"}
                     {step === 2 && "Institution Details"}
                     {step === 3 && "Enrollment & Staff"}
+                    {step === 4 && "Account Setup"}
                   </span>
                 </div>
               ))}
@@ -64,7 +187,7 @@ const InstitutionalForm = () => {
 
           {/* Form Content */}
           <div className="bg-card border border-card-border rounded-lg p-8">
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
               {/* Step 1: Personal Information */}
               {currentStep === 1 && (
                 <div className="space-y-6 animate-fade-in-up">
@@ -73,67 +196,80 @@ const InstitutionalForm = () => {
                   </h2>
                   
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Title</label>
-                      <select className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
-                        <option>Mr.</option>
-                        <option>Mrs.</option>
-                        <option>Ms.</option>
-                        <option>Dr.</option>
-                      </select>
+                    <div className="space-y-2">
+                      <Label>Title</Label>
+                      <Select value={formData.title} onValueChange={(value) => updateFormData('title', value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select title" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Mr.">Mr.</SelectItem>
+                          <SelectItem value="Mrs.">Mrs.</SelectItem>
+                          <SelectItem value="Ms.">Ms.</SelectItem>
+                          <SelectItem value="Dr.">Dr.</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">First Name</label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                    <div className="space-y-2">
+                      <Label>First Name *</Label>
+                      <Input
+                        required
+                        value={formData.firstName}
+                        onChange={(e) => updateFormData('firstName', e.target.value)}
                         placeholder="Enter first name"
                       />
                     </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Middle Name</label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                    <div className="space-y-2">
+                      <Label>Middle Name</Label>
+                      <Input
+                        value={formData.middleName}
+                        onChange={(e) => updateFormData('middleName', e.target.value)}
                         placeholder="Enter middle name"
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Surname</label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                    <div className="space-y-2">
+                      <Label>Surname *</Label>
+                      <Input
+                        required
+                        value={formData.surname}
+                        onChange={(e) => updateFormData('surname', e.target.value)}
                         placeholder="Enter surname"
                       />
                     </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Date of Birth</label>
-                      <input
+                    <div className="space-y-2">
+                      <Label>Date of Birth *</Label>
+                      <Input
+                        required
                         type="date"
-                        className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                        value={formData.dob}
+                        onChange={(e) => updateFormData('dob', e.target.value)}
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Phone Number</label>
-                      <input
+                    <div className="space-y-2">
+                      <Label>Phone Number *</Label>
+                      <Input
+                        required
                         type="tel"
-                        className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                        value={formData.phone}
+                        onChange={(e) => updateFormData('phone', e.target.value)}
                         placeholder="+233 XX XXX XXXX"
                       />
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Email Address</label>
-                    <input
+                  <div className="space-y-2">
+                    <Label>Email Address *</Label>
+                    <Input
+                      required
                       type="email"
-                      className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                      value={formData.email}
+                      onChange={(e) => updateFormData('email', e.target.value)}
                       placeholder="your@email.com"
                     />
                   </div>
@@ -147,85 +283,97 @@ const InstitutionalForm = () => {
                     Institution Details
                   </h2>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Name of Institution</label>
-                    <input
-                      type="text"
-                      className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                  <div className="space-y-2">
+                    <Label>Name of Institution *</Label>
+                    <Input
+                      required
+                      value={formData.institutionName}
+                      onChange={(e) => updateFormData('institutionName', e.target.value)}
                       placeholder="Enter institution name"
                     />
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">RGD Number</label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                    <div className="space-y-2">
+                      <Label>RGD Number *</Label>
+                      <Input
+                        required
+                        value={formData.rgdNumber}
+                        onChange={(e) => updateFormData('rgdNumber', e.target.value)}
                         placeholder="Registration number"
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Date of Establishment</label>
-                      <input
+                    <div className="space-y-2">
+                      <Label>Date of Establishment *</Label>
+                      <Input
+                        required
                         type="date"
-                        className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                        value={formData.dateEstablished}
+                        onChange={(e) => updateFormData('dateEstablished', e.target.value)}
                       />
                     </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Region</label>
-                      <select className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
-                        <option value="">Select Region</option>
-                        <option>Greater Accra</option>
-                        <option>Ashanti</option>
-                        <option>Western</option>
-                        {/* Add all 16 regions */}
-                      </select>
+                    <div className="space-y-2">
+                      <Label>Region *</Label>
+                      <Select value={formData.region} onValueChange={(value) => updateFormData('region', value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Region" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {regions.map(region => (
+                            <SelectItem key={region} value={region}>{region}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">District</label>
-                      <select className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
-                        <option value="">Select District</option>
-                        {/* Districts will populate based on region */}
-                      </select>
+                    <div className="space-y-2">
+                      <Label>District</Label>
+                      <Input
+                        value={formData.district}
+                        onChange={(e) => updateFormData('district', e.target.value)}
+                        placeholder="Enter district"
+                      />
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Location/Address</label>
-                    <textarea
+                  <div className="space-y-2">
+                    <Label>Location/Address *</Label>
+                    <Textarea
+                      required
                       rows={3}
-                      className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent resize-none"
+                      value={formData.address}
+                      onChange={(e) => updateFormData('address', e.target.value)}
                       placeholder="Enter full address"
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Ghana Post Digital Address</label>
-                    <input
-                      type="text"
-                      className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                  <div className="space-y-2">
+                    <Label>Ghana Post Digital Address</Label>
+                    <Input
+                      value={formData.digitalAddress}
+                      onChange={(e) => updateFormData('digitalAddress', e.target.value)}
                       placeholder="e.g., GA-123-4567"
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Vision Statement</label>
-                    <textarea
+                  <div className="space-y-2">
+                    <Label>Vision Statement</Label>
+                    <Textarea
                       rows={3}
-                      className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent resize-none"
+                      value={formData.vision}
+                      onChange={(e) => updateFormData('vision', e.target.value)}
                       placeholder="Enter vision statement"
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Mission Statement</label>
-                    <textarea
+                  <div className="space-y-2">
+                    <Label>Mission Statement</Label>
+                    <Textarea
                       rows={3}
-                      className="w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent resize-none"
+                      value={formData.mission}
+                      onChange={(e) => updateFormData('mission', e.target.value)}
                       placeholder="Enter mission statement"
                     />
                   </div>
@@ -248,23 +396,43 @@ const InstitutionalForm = () => {
                         <div>Girls</div>
                         <div>Total</div>
                       </div>
-                      {["Pre-school", "Lower Primary", "Upper Primary", "JHS", "SHS"].map((level) => (
-                        <div key={level} className="grid grid-cols-4 gap-2">
-                          <div className="flex items-center text-sm">{level}</div>
-                          <input
+                      {[
+                        { key: 'PreSchool', label: 'Pre-school' },
+                        { key: 'LowerPrimary', label: 'Lower Primary' },
+                        { key: 'UpperPrimary', label: 'Upper Primary' },
+                        { key: 'JHS', label: 'JHS' },
+                        { key: 'SHS', label: 'SHS' }
+                      ].map(({ key, label }) => (
+                        <div key={key} className="grid grid-cols-4 gap-2">
+                          <div className="flex items-center text-sm">{label}</div>
+                          <Input
                             type="number"
-                            className="px-2 py-1 bg-input border border-border rounded text-sm"
+                            min="0"
+                            className="text-sm"
                             placeholder="0"
+                            onChange={(e) => {
+                              const newData = { ...formData[`enrollment${key}`], boys: parseInt(e.target.value) || 0 };
+                              newData.total = newData.boys + newData.girls;
+                              updateFormData(`enrollment${key}`, newData);
+                            }}
                           />
-                          <input
+                          <Input
                             type="number"
-                            className="px-2 py-1 bg-input border border-border rounded text-sm"
+                            min="0"
+                            className="text-sm"
                             placeholder="0"
+                            onChange={(e) => {
+                              const newData = { ...formData[`enrollment${key}`], girls: parseInt(e.target.value) || 0 };
+                              newData.total = newData.boys + newData.girls;
+                              updateFormData(`enrollment${key}`, newData);
+                            }}
                           />
-                          <input
+                          <Input
                             type="number"
-                            className="px-2 py-1 bg-input border border-border rounded text-sm"
-                            placeholder="0"
+                            min="0"
+                            disabled
+                            className="text-sm bg-input/50"
+                            value={formData[`enrollment${key}`].total}
                           />
                         </div>
                       ))}
@@ -274,31 +442,62 @@ const InstitutionalForm = () => {
                   <div className="bg-muted rounded-lg p-4">
                     <h3 className="font-semibold mb-4 text-foreground">Staff Information</h3>
                     <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Teaching Staff</label>
-                        <input
+                      <div className="space-y-2">
+                        <Label>Teaching Staff</Label>
+                        <Input
                           type="number"
-                          className="w-full px-4 py-2 bg-input border border-border rounded-lg"
+                          min="0"
+                          value={formData.teachingStaff}
+                          onChange={(e) => updateFormData('teachingStaff', parseInt(e.target.value) || 0)}
                           placeholder="Number of teachers"
                         />
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Non-Teaching Staff</label>
-                        <input
+                      <div className="space-y-2">
+                        <Label>Non-Teaching Staff</Label>
+                        <Input
                           type="number"
-                          className="w-full px-4 py-2 bg-input border border-border rounded-lg"
+                          min="0"
+                          value={formData.nonTeachingStaff}
+                          onChange={(e) => updateFormData('nonTeachingStaff', parseInt(e.target.value) || 0)}
                           placeholder="Number of staff"
                         />
                       </div>
                     </div>
                   </div>
+                </div>
+              )}
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Upload Photograph</label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="w-full px-4 py-2 bg-input border border-border rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-accent file:text-accent-foreground hover:file:bg-accent-glow"
+              {/* Step 4: Account Setup */}
+              {currentStep === 4 && (
+                <div className="space-y-6 animate-fade-in-up">
+                  <h2 className="text-2xl font-semibold text-accent mb-4">
+                    Account Setup
+                  </h2>
+                  <p className="text-muted-foreground">
+                    Create your login credentials. You'll use these to access your account.
+                  </p>
+                  
+                  <div className="space-y-2">
+                    <Label>Password *</Label>
+                    <Input
+                      required
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) => updateFormData('password', e.target.value)}
+                      placeholder="Enter password (min 8 characters)"
+                      minLength={8}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Confirm Password *</Label>
+                    <Input
+                      required
+                      type="password"
+                      value={formData.passwordConfirm}
+                      onChange={(e) => updateFormData('passwordConfirm', e.target.value)}
+                      placeholder="Confirm your password"
+                      minLength={8}
                     />
                   </div>
                 </div>
@@ -318,8 +517,13 @@ const InstitutionalForm = () => {
                 </Button>
 
                 {currentStep === totalSteps ? (
-                  <Button type="submit" variant="hero" className="flex items-center gap-2">
-                    Submit Application
+                  <Button 
+                    type="submit" 
+                    variant="hero" 
+                    className="flex items-center gap-2"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit Application"}
                   </Button>
                 ) : (
                   <Button

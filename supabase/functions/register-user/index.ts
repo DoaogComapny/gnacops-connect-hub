@@ -197,26 +197,8 @@ serve(async (req) => {
       throw new Error('Form submission failed');
     }
 
-    // Send welcome email
-    try {
-      const { error: emailError } = await supabaseAdmin.functions.invoke('send-welcome-email', {
-        body: {
-          email,
-          fullName,
-          gnacopsId,
-          hasPassword: true,
-        },
-      });
-
-      if (emailError) {
-        console.error('[register-user] Email error:', emailError);
-        // Don't throw - user is created, email failure is non-critical
-      } else {
-        console.log('[register-user] Welcome email sent successfully');
-      }
-    } catch (emailErr) {
-      console.error('[register-user] Email exception:', emailErr);
-    }
+    // Email verification disabled - users can login immediately with their credentials
+    console.log('[register-user] User can now login with email and password');
 
     console.log('[register-user] Registration completed successfully');
 
