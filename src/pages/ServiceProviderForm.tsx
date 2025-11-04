@@ -23,6 +23,8 @@ const ServiceProviderForm = () => {
     position: "",
     phone: "",
     email: "",
+    password: "",
+    passwordConfirm: "",
     registrationNumber: "",
     servicesProvided: "",
     durationInBusiness: "",
@@ -36,17 +38,70 @@ const ServiceProviderForm = () => {
     digitalAddress: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("Service Provider Form Data:", formData);
+    if (formData.password !== formData.passwordConfirm) {
+      toast({
+        title: "Passwords Don't Match",
+        description: "Please make sure passwords match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      toast({
+        title: "Weak Password",
+        description: "Password must be at least 8 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
     
-    toast({
-      title: "Registration Submitted!",
-      description: "Your application is pending admin approval. You'll receive login details via email.",
-    });
-    
-    setTimeout(() => navigate("/"), 2000);
+    try {
+      const { registerUser } = await import("@/utils/registrationHelper");
+      const { supabase } = await import("@/integrations/supabase/client");
+      
+      const { data: category } = await supabase
+        .from('form_categories')
+        .select('id, name')
+        .eq('name', 'Service Provider')
+        .single();
+      
+      if (!category) throw new Error('Service Provider category not found');
+      
+      const result = await registerUser({
+        fullName: formData.contactPerson,
+        email: formData.email,
+        password: formData.password,
+        formData,
+        categoryId: category.id,
+        categoryName: category.name,
+      });
+      
+      if (result.success) {
+        toast({
+          title: "Registration Successful!",
+          description: "Check your email for login confirmation. You can now log in and complete payment.",
+        });
+        setTimeout(() => navigate("/login"), 3000);
+      } else {
+        throw new Error(result.error || 'Registration failed');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Registration Failed",
+        description: error.message || "Please try again later",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -91,6 +146,17 @@ const ServiceProviderForm = () => {
                   <div>
                     <Label>Email Address *</Label>
                     <Input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Password *</Label>
+                    <Input type="password" required minLength={8} value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} placeholder="Min 8 characters" />
+                  </div>
+                  <div>
+                    <Label>Confirm Password *</Label>
+                    <Input type="password" required value={formData.passwordConfirm} onChange={(e) => setFormData({...formData, passwordConfirm: e.target.value})} placeholder="Re-enter password" />
                   </div>
                 </div>
 
@@ -187,8 +253,8 @@ const ServiceProviderForm = () => {
                 </div>
               </div>
 
-              <Button type="submit" variant="cta" className="w-full" size="lg">
-                Submit Application
+              <Button type="submit" variant="cta" className="w-full" size="lg" disabled={loading}>
+                {loading ? "Submitting..." : "Submit Application"}
               </Button>
             </form>
           </div>

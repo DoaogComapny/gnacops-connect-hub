@@ -28,6 +28,8 @@ const TeacherCouncilForm = () => {
     residentialAddress: "",
     phone: "",
     email: "",
+    password: "",
+    passwordConfirm: "",
     schoolName: "",
     schoolAddress: "",
     teachingSubjects: "",
@@ -56,6 +58,24 @@ const TeacherCouncilForm = () => {
       return;
     }
 
+    if (formData.password !== formData.passwordConfirm) {
+      toast({
+        title: "Passwords Don't Match",
+        description: "Please make sure passwords match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      toast({
+        title: "Weak Password",
+        description: "Password must be at least 8 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     
     try {
@@ -74,6 +94,7 @@ const TeacherCouncilForm = () => {
       const result = await registerUser({
         fullName: formData.fullName,
         email: formData.email,
+        password: formData.password,
         formData,
         categoryId: category.id,
         categoryName: category.name,
@@ -181,6 +202,17 @@ const TeacherCouncilForm = () => {
                   <div>
                     <Label>Email *</Label>
                     <Input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Password *</Label>
+                    <Input type="password" required minLength={8} value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} placeholder="Min 8 characters" />
+                  </div>
+                  <div>
+                    <Label>Confirm Password *</Label>
+                    <Input type="password" required value={formData.passwordConfirm} onChange={(e) => setFormData({...formData, passwordConfirm: e.target.value})} placeholder="Re-enter password" />
                   </div>
                 </div>
               </div>

@@ -9,8 +9,9 @@ const corsHeaders = {
 interface WelcomeEmailRequest {
   email: string;
   fullName: string;
-  tempPassword: string;
+  tempPassword?: string;
   gnacopsId: string;
+  hasPassword?: boolean;
 }
 
 serve(async (req) => {
@@ -24,7 +25,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { email, fullName, tempPassword, gnacopsId }: WelcomeEmailRequest = await req.json();
+    const { email, fullName, tempPassword, gnacopsId, hasPassword }: WelcomeEmailRequest = await req.json();
 
     // Get SMTP settings
     const { data: smtpSettings, error: smtpError } = await supabaseClient
@@ -74,16 +75,20 @@ serve(async (req) => {
                   <span class="label">Email:</span>
                   <span class="value">${email}</span>
                 </div>
+                ${!hasPassword && tempPassword ? `
                 <div class="credential-row">
                   <span class="label">Temporary Password:</span>
                   <span class="value">${tempPassword}</span>
                 </div>
+                ` : ''}
               </div>
               
+              ${!hasPassword && tempPassword ? `
               <div class="warning">
                 <strong>⚠️ Important Security Notice:</strong><br>
                 For your security, please change your password immediately after your first login.
               </div>
+              ` : ''}
               
               <p>You can log in to your account using the link below:</p>
               
@@ -94,7 +99,7 @@ serve(async (req) => {
               <p><strong>Next Steps:</strong></p>
               <ol>
                 <li>Log in using your credentials above</li>
-                <li>Change your password in Account Settings</li>
+                ${!hasPassword && tempPassword ? '<li>Change your password in Account Settings</li>' : ''}
                 <li>Complete your payment to activate your membership</li>
                 <li>Wait for admin approval</li>
               </ol>
