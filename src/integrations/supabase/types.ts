@@ -460,6 +460,24 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_expiry_checks: {
+        Row: {
+          checked_at: string | null
+          expired_count: number | null
+          id: string
+        }
+        Insert: {
+          checked_at?: string | null
+          expired_count?: number | null
+          id?: string
+        }
+        Update: {
+          checked_at?: string | null
+          expired_count?: number | null
+          id?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
@@ -470,6 +488,7 @@ export type Database = {
           paid_at: string | null
           payment_method: string | null
           paystack_reference: string | null
+          plan_id: string | null
           status: string
           user_id: string
         }
@@ -482,6 +501,7 @@ export type Database = {
           paid_at?: string | null
           payment_method?: string | null
           paystack_reference?: string | null
+          plan_id?: string | null
           status?: string
           user_id: string
         }
@@ -494,6 +514,7 @@ export type Database = {
           paid_at?: string | null
           payment_method?: string | null
           paystack_reference?: string | null
+          plan_id?: string | null
           status?: string
           user_id?: string
         }
@@ -503,6 +524,13 @@ export type Database = {
             columns: ["membership_id"]
             isOneToOne: false
             referencedRelation: "memberships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "form_categories"
             referencedColumns: ["id"]
           },
           {
@@ -522,7 +550,10 @@ export type Database = {
           email_verified: boolean | null
           full_name: string | null
           id: string
+          last_payment_at: string | null
+          paid_until: string | null
           phone: string | null
+          status: string | null
           updated_at: string | null
         }
         Insert: {
@@ -532,7 +563,10 @@ export type Database = {
           email_verified?: boolean | null
           full_name?: string | null
           id: string
+          last_payment_at?: string | null
+          paid_until?: string | null
           phone?: string | null
+          status?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -542,7 +576,10 @@ export type Database = {
           email_verified?: boolean | null
           full_name?: string | null
           id?: string
+          last_payment_at?: string | null
+          paid_until?: string | null
           phone?: string | null
+          status?: string | null
           updated_at?: string | null
         }
         Relationships: []
