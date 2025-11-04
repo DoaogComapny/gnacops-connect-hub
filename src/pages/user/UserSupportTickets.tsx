@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, MessageSquare, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,33 +9,70 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Ticket {
   id: string;
   subject: string;
-  category: string;
-  status: "open" | "in-progress" | "resolved" | "closed";
-  priority: "low" | "medium" | "high";
-  description: string;
-  createdDate: string;
-  lastUpdate: string;
-  replies?: number;
+  status: string;
+  priority: string;
+  created_at: string;
+  updated_at: string;
 }
 
 const UserSupportTickets = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<{ name: string; email: string } | null>(null);
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newTicket, setNewTicket] = useState({
     subject: "",
-    category: "",
-    priority: "medium" as "low" | "medium" | "high",
-    description: "",
+    priority: "normal" as "low" | "normal" | "high",
   });
 
-  const handleCreateTicket = () => {
-    if (!newTicket.subject || !newTicket.category || !newTicket.description) {
+  useEffect(() => {
+    if (user) {
+      fetchUserProfile();
+      fetchTickets();
+    }
+  }, [user]);
+
+  const fetchUserProfile = async () => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('full_name, email')
+      .eq('id', user.id)
+      .single();
+    
+    if (!error && data) {
+      setUserProfile({ name: data.full_name || '', email: data.email || '' });
+    }
+  };
+
+  const fetchTickets = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('support_tickets')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+    
+    if (!error && data) {
+      setTickets(data);
+    }
+    setLoading(false);
+  };
+
+  const handleCreateTicket = async () => {
+    if (!newTicket.subject || !user || !userProfile) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields",
@@ -44,22 +81,35 @@ const UserSupportTickets = () => {
       return;
     }
 
-    const ticket: Ticket = {
-      id: `TICKET-${String(tickets.length + 1).padStart(3, "0")}`,
-      ...newTicket,
-      status: "open",
-      createdDate: new Date().toISOString().split("T")[0],
-      lastUpdate: new Date().toISOString().split("T")[0],
-      replies: 0,
-    };
+    const { data, error } = await supabase
+      .from('support_tickets')
+      .insert({
+        user_id: user.id,
+        name: userProfile.name,
+        email: userProfile.email,
+        subject: newTicket.subject,
+        priority: newTicket.priority,
+        status: 'open'
+      })
+      .select()
+      .single();
 
-    setTickets([ticket, ...tickets]);
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create ticket. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setTickets([data, ...tickets]);
     setIsCreateDialogOpen(false);
-    setNewTicket({ subject: "", category: "", priority: "medium", description: "" });
+    setNewTicket({ subject: "", priority: "normal" });
     
     toast({
       title: "Ticket Created",
-      description: `Your support ticket ${ticket.id} has been created successfully`,
+      description: "Your support ticket has been created successfully",
     });
   };
 
@@ -132,54 +182,23 @@ const UserSupportTickets = () => {
                   placeholder="Brief description of your issue"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="category">Category *</Label>
-                  <Select
-                    value={newTicket.category}
-                    onValueChange={(value) => setNewTicket({ ...newTicket, category: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="technical">Technical Issue</SelectItem>
-                      <SelectItem value="billing">Billing & Payments</SelectItem>
-                      <SelectItem value="account">Account Management</SelectItem>
-                      <SelectItem value="certificate">Certificate Issues</SelectItem>
-                      <SelectItem value="general">General Inquiry</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="priority">Priority *</Label>
-                  <Select
-                    value={newTicket.priority}
-                    onValueChange={(value: "low" | "medium" | "high") =>
-                      setNewTicket({ ...newTicket, priority: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
               <div>
-                <Label htmlFor="description">Description *</Label>
-                <Textarea
-                  id="description"
-                  value={newTicket.description}
-                  onChange={(e) => setNewTicket({ ...newTicket, description: e.target.value })}
-                  placeholder="Please provide detailed information about your issue..."
-                  rows={6}
-                />
+                <Label htmlFor="priority">Priority</Label>
+                <Select
+                  value={newTicket.priority}
+                  onValueChange={(value: "low" | "normal" | "high") =>
+                    setNewTicket({ ...newTicket, priority: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="normal">Normal</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex justify-end gap-3 pt-4">
                 <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
@@ -234,7 +253,11 @@ const UserSupportTickets = () => {
 
       {/* Tickets List */}
       <div className="space-y-4">
-        {tickets.length === 0 ? (
+        {loading ? (
+          <Card className="p-12 text-center">
+            <p className="text-muted-foreground">Loading tickets...</p>
+          </Card>
+        ) : tickets.length === 0 ? (
           <Card className="p-12 text-center">
             <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">No Support Tickets</h3>
@@ -259,19 +282,10 @@ const UserSupportTickets = () => {
                       {ticket.priority.toUpperCase()}
                     </Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground mb-3">{ticket.description}</p>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span>ID: {ticket.id}</span>
+                    <span>Created: {new Date(ticket.created_at).toLocaleDateString()}</span>
                     <span>•</span>
-                    <span>Created: {ticket.createdDate}</span>
-                    <span>•</span>
-                    <span>Updated: {ticket.lastUpdate}</span>
-                    {ticket.replies && ticket.replies > 0 && (
-                      <>
-                        <span>•</span>
-                        <span>{ticket.replies} replies</span>
-                      </>
-                    )}
+                    <span>Updated: {new Date(ticket.updated_at).toLocaleDateString()}</span>
                   </div>
                 </div>
                 <Button variant="outline" size="sm">
