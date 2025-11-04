@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useMemberships } from "@/hooks/useMemberships";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import AboutSection from "@/components/AboutSection";
@@ -10,52 +11,14 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import {
-  Building2,
-  GraduationCap,
-  Users,
-  Briefcase,
-  Wrench,
-  UserCog,
-  ArrowRight,
-} from "lucide-react";
-import { isPrimeMembership } from "@/lib/gnacopsId";
-import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { ArrowRight } from "lucide-react";
 
-const iconMap: Record<string, any> = {
-  institutional: Building2,
-  proprietor: Briefcase,
-  teacher: GraduationCap,
-  parent: Users,
-  serviceProvider: Wrench,
-  nonTeachingStaff: UserCog,
-};
 
 const Landing = () => {
   const navigate = useNavigate();
   const { user, isAdmin, loading } = useAuth();
-  const { settings, isLoading: settingsLoading } = useSiteSettings();
+  const { memberships, isLoading: membershipsLoading } = useMemberships();
   const [selectedMemberships, setSelectedMemberships] = useState<string[]>([]);
-
-  const fallbackMemberships = [
-    { icon: Building2, title: "Institutional Membership", description: "For private schools and educational institutions seeking official registration and support.", price: 500, category: "Prime Member", key: 'institutional' },
-    { icon: Briefcase, title: "Proprietor", description: "For school owners committed to excellence in private education management.", price: 300, category: "Prime Member", key: 'proprietor' },
-    { icon: GraduationCap, title: "Teacher Council", description: "Professional development and networking opportunities for dedicated educators.", price: 200, category: "Associate Member", key: 'teacher' },
-    { icon: Users, title: "Parent Council", description: "Active parent involvement in shaping quality education for their children.", price: 150, category: "Associate Member", key: 'parent' },
-    { icon: Wrench, title: "Service Provider", description: "Partner with GNACOPS schools by offering essential educational services.", price: 250, category: "Associate Member", key: 'serviceProvider' },
-    { icon: UserCog, title: "Non-Teaching Staff", description: "Recognition and support for vital non-teaching school personnel.", price: 150, category: "Associate Member", key: 'nonTeachingStaff' },
-  ];
-
-  const membershipTypes = settings.memberships && Object.keys(settings.memberships).length > 0
-    ? Object.entries(settings.memberships).map(([key, data]: [string, any]) => ({
-        icon: iconMap[key] || Building2,
-        title: data.title || key,
-        description: data.description || "",
-        price: parseFloat(data.price) || 0,
-        category: isPrimeMembership(data.title || key) ? "Prime Member" : "Associate Member",
-        key,
-      }))
-    : fallbackMemberships;
 
   useEffect(() => {
     if (!loading && user) {
@@ -67,20 +30,20 @@ const Landing = () => {
     }
   }, [user, isAdmin, loading, navigate]);
 
-  if (loading || settingsLoading) {
+  if (loading || membershipsLoading) {
     return null;
   }
 
-  const handleToggleMembership = (title: string) => {
+  const handleToggleMembership = (name: string) => {
     setSelectedMemberships((prev) =>
-      prev.includes(title)
-        ? prev.filter((m) => m !== title)
-        : [...prev, title]
+      prev.includes(name)
+        ? prev.filter((m) => m !== name)
+        : [...prev, name]
     );
   };
 
-  const totalPrice = selectedMemberships.reduce((sum, title) => {
-    const membership = membershipTypes.find((m: any) => m.title === title);
+  const totalPrice = selectedMemberships.reduce((sum, name) => {
+    const membership = memberships.find((m) => m.name === name);
     return sum + (membership?.price || 0);
   }, 0);
 
@@ -117,25 +80,25 @@ const Landing = () => {
             </h3>
             <div className="overflow-x-auto pb-4 -mx-4 px-4">
               <div className="flex md:grid md:grid-cols-2 gap-6 min-w-max md:min-w-0">
-                {membershipTypes
-                  .filter((type) => isPrimeMembership(type.title))
+                {memberships
+                  .filter((type) => type.category === "Prime Member")
                   .map((type) => {
                     const Icon = type.icon;
-                    const isSelected = selectedMemberships.includes(type.title);
+                    const isSelected = selectedMemberships.includes(type.name);
                     return (
                       <Card
-                        key={type.title}
+                        key={type.id}
                         className={`flex-shrink-0 w-[320px] md:w-auto p-6 cursor-pointer transition-all duration-300 hover-lift ${
                           isSelected
                             ? "border-accent bg-accent/10"
                             : "bg-card border-card-border hover:border-accent/50"
                         }`}
-                        onClick={() => handleToggleMembership(type.title)}
+                        onClick={() => handleToggleMembership(type.name)}
                       >
                         <div className="flex gap-4">
                           <Checkbox
                             checked={isSelected}
-                            onCheckedChange={() => handleToggleMembership(type.title)}
+                            onCheckedChange={() => handleToggleMembership(type.name)}
                             className="mt-1"
                           />
                           <div className="flex-1">
@@ -144,7 +107,7 @@ const Landing = () => {
                                 <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
                                   <Icon className="w-5 h-5 text-accent" />
                                 </div>
-                                <h4 className="text-lg font-semibold">{type.title}</h4>
+                                <h4 className="text-lg font-semibold">{type.name}</h4>
                               </div>
                               <div className="text-right">
                                 <span className="text-xl font-bold text-accent">GHS ₵{type.price}</span>
@@ -170,25 +133,25 @@ const Landing = () => {
             </h3>
             <div className="overflow-x-auto pb-4 -mx-4 px-4">
               <div className="flex md:grid md:grid-cols-2 gap-6 min-w-max md:min-w-0">
-                {membershipTypes
-                  .filter((type) => !isPrimeMembership(type.title))
+                {memberships
+                  .filter((type) => type.category === "Associate Member")
                   .map((type) => {
                     const Icon = type.icon;
-                    const isSelected = selectedMemberships.includes(type.title);
+                    const isSelected = selectedMemberships.includes(type.name);
                     return (
                       <Card
-                        key={type.title}
+                        key={type.id}
                         className={`flex-shrink-0 w-[320px] md:w-auto p-6 cursor-pointer transition-all duration-300 hover-lift ${
                           isSelected
                             ? "border-accent bg-accent/10"
                             : "bg-card border-card-border hover:border-accent/50"
                         }`}
-                        onClick={() => handleToggleMembership(type.title)}
+                        onClick={() => handleToggleMembership(type.name)}
                       >
                         <div className="flex gap-4">
                           <Checkbox
                             checked={isSelected}
-                            onCheckedChange={() => handleToggleMembership(type.title)}
+                            onCheckedChange={() => handleToggleMembership(type.name)}
                             className="mt-1"
                           />
                           <div className="flex-1">
@@ -197,7 +160,7 @@ const Landing = () => {
                                 <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
                                   <Icon className="w-5 h-5 text-accent" />
                                 </div>
-                                <h4 className="text-lg font-semibold">{type.title}</h4>
+                                <h4 className="text-lg font-semibold">{type.name}</h4>
                               </div>
                               <div className="text-right">
                                 <span className="text-xl font-bold text-accent">GHS ₵{type.price}</span>
