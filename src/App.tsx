@@ -37,6 +37,7 @@ import AdminSupport from "./pages/admin/AdminSupport";
 import StaffForgotRequests from "./pages/admin/StaffForgotRequests";
 import AdminProfile from "./pages/admin/AdminProfile";
 import AdminAwardedCertificates from "./pages/admin/AdminAwardedCertificates";
+import AdminPricingSettings from "./pages/admin/AdminPricingSettings";
 
 // User Pages
 import UserPayments from "./pages/user/UserPayments";
@@ -82,6 +83,7 @@ const App = () => (
             <Route path="schools-view" element={<AdminSchoolsView />} />
             <Route path="messages" element={<AdminMessages />} />
             <Route path="forgot-requests" element={<StaffForgotRequests />} />
+            <Route path="pricing" element={<AdminPricingSettings />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="form-builder" element={<AdminFormBuilder />} />
             <Route path="support" element={<AdminSupport />} />

@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { AdminSidebarHeader } from "@/components/admin/AdminSidebarHeader";
 
 const menuItems = [
+  { title: "Dashboard", icon: LayoutDashboard, path: "/admin/panel" },
   { title: "Applications", icon: FileText, path: "/admin/panel/applications" },
   { title: "Users", icon: Users, path: "/admin/panel/users" },
   { title: "Staff", icon: Shield, path: "/admin/panel/staff" },
@@ -20,6 +21,7 @@ const menuItems = [
   { title: "Messages", icon: Mail, path: "/admin/panel/messages" },
   { title: "Support", icon: HelpCircle, path: "/admin/panel/support" },
   { title: "Form Builder", icon: LayoutDashboard, path: "/admin/panel/form-builder" },
+  { title: "Pricing", icon: BarChart, path: "/admin/panel/pricing" },
   { title: "Profile", icon: User, path: "/admin/panel/profile" },
   { title: "Settings", icon: Settings, path: "/admin/panel/settings" },
 ];

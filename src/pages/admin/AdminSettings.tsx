@@ -112,10 +112,9 @@ const AdminSettings = () => {
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="landing">Landing</TabsTrigger>
-          <TabsTrigger value="membership">Membership</TabsTrigger>
           <TabsTrigger value="pages">Pages</TabsTrigger>
           <TabsTrigger value="quicklinks">Quick Links</TabsTrigger>
           <TabsTrigger value="payment">Payment</TabsTrigger>
@@ -140,6 +139,20 @@ const AdminSettings = () => {
                   value={localSettings.tagline || ""}
                   onChange={(e) => updateSetting('tagline', e.target.value)}
                 />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Founding Year</label>
+                <Input 
+                  type="number"
+                  min="1900"
+                  max={new Date().getFullYear()}
+                  value={localSettings.foundingYear || ""}
+                  onChange={(e) => updateSetting('foundingYear', parseInt(e.target.value) || undefined)}
+                  placeholder="e.g., 2010"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Used to calculate company age in footer (© {new Date().getFullYear()} | Company Age: X Years)
+                </p>
               </div>
               <Button variant="cta" onClick={handleSave}>
                 <Save className="mr-2 h-4 w-4" />
@@ -304,64 +317,6 @@ const AdminSettings = () => {
               <Button variant="cta" onClick={handleSave}>
                 <Save className="mr-2 h-4 w-4" />
                 Save How It Works
-              </Button>
-            </div>
-          </Card>
-        </TabsContent>
-
-        {/* Membership Tab */}
-        <TabsContent value="membership" className="space-y-6">
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Membership Types</h2>
-            <div className="space-y-8">
-              {['institutional', 'teacher', 'parent', 'proprietor', 'serviceProvider', 'nonTeachingStaff'].map((key) => (
-                <div key={key} className="border-b border-border pb-6">
-                  <h3 className="font-semibold mb-4 capitalize">{key.replace(/([A-Z])/g, ' $1')}</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Title</label>
-                      <Input 
-                        value={localSettings.memberships?.[key]?.title || ""}
-                        onChange={(e) => {
-                          const newMemberships = { ...(localSettings.memberships || {}) };
-                          if (!newMemberships[key]) newMemberships[key] = { title: "", description: "", price: "" };
-                          newMemberships[key].title = e.target.value;
-                          updateSetting('memberships', newMemberships);
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Description</label>
-                      <Textarea 
-                        rows={2}
-                        value={localSettings.memberships?.[key]?.description || ""}
-                        onChange={(e) => {
-                          const newMemberships = { ...(localSettings.memberships || {}) };
-                          if (!newMemberships[key]) newMemberships[key] = { title: "", description: "", price: "" };
-                          newMemberships[key].description = e.target.value;
-                          updateSetting('memberships', newMemberships);
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Price (GHS)</label>
-                      <Input 
-                        type="number"
-                        value={localSettings.memberships?.[key]?.price || ""}
-                        onChange={(e) => {
-                          const newMemberships = { ...(localSettings.memberships || {}) };
-                          if (!newMemberships[key]) newMemberships[key] = { title: "", description: "", price: "" };
-                          newMemberships[key].price = e.target.value;
-                          updateSetting('memberships', newMemberships);
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-              <Button variant="cta" onClick={handleSave}>
-                <Save className="mr-2 h-4 w-4" />
-                Save Membership Settings
               </Button>
             </div>
           </Card>
