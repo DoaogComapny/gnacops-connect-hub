@@ -156,6 +156,7 @@ serve(async (req) => {
         email,
         phone: formData.phone || '',
         email_verified: true,
+        status: 'pending_payment', // New users start with pending payment status
       }, { onConflict: 'id' });
 
     if (profileError) {

@@ -11,9 +11,17 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           {/* Brand */}
           <div>
-            <h3 className="text-2xl font-bold text-gradient-accent mb-4">
-              {settings.siteName || "GNACOPS"}
-            </h3>
+            {settings.logoUrl ? (
+              <img 
+                src={settings.logoUrl} 
+                alt={settings.siteName || "GNACOPS"} 
+                className="h-12 w-auto object-contain mb-4" 
+              />
+            ) : (
+              <h3 className="text-2xl font-bold text-gradient-accent mb-4">
+                {settings.siteName || "GNACOPS"}
+              </h3>
+            )}
             <p className="text-muted-foreground text-sm">
               {settings.tagline || "Ghana National Council of Private Schools - Empowering Excellence in Education"}
             </p>

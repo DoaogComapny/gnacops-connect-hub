@@ -70,11 +70,43 @@ serve(async (req) => {
         .single();
 
       if (payment?.membership_id) {
-        // Update membership payment status
-        await supabaseClient
+        // Get membership details to verify amount
+        const { data: membership } = await supabaseClient
           .from("memberships")
-          .update({ payment_status: "paid" })
-          .eq("id", payment.membership_id);
+          .select("user_id, category_id, form_categories(price)")
+          .eq("id", payment.membership_id)
+          .single();
+
+        if (membership) {
+          // Verify payment amount matches expected price
+          const categoryData = membership.form_categories as any;
+          const expectedPrice = categoryData?.price || 0;
+          const paidAmount = event.data.amount / 100; // Paystack amounts are in kobo (cents)
+          
+          if (Math.abs(paidAmount - expectedPrice) > 0.01) {
+            console.error(`Payment amount mismatch: expected ${expectedPrice}, got ${paidAmount}`);
+            throw new Error("Payment amount does not match membership price");
+          }
+
+          // Update membership payment status
+          await supabaseClient
+            .from("memberships")
+            .update({ payment_status: "paid" })
+            .eq("id", payment.membership_id);
+
+          // Activate user account with 1-year validity
+          const oneYearFromNow = new Date();
+          oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+
+          await supabaseClient
+            .from("profiles")
+            .update({
+              status: "active",
+              paid_until: oneYearFromNow.toISOString(),
+              last_payment_at: new Date().toISOString(),
+            })
+            .eq("id", membership.user_id);
+        }
       }
     }
 

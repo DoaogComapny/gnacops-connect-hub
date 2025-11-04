@@ -25,7 +25,11 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             {settings.logoUrl ? (
-              <img src={settings.logoUrl} alt={settings.siteName || "GNACOPS"} className="h-8" />
+              <img 
+                src={settings.logoUrl} 
+                alt={settings.siteName || "GNACOPS"} 
+                className="h-10 w-auto object-contain" 
+              />
             ) : (
               <div className="text-2xl font-bold text-gradient-accent">
                 {settings.siteName || "GNACOPS"}

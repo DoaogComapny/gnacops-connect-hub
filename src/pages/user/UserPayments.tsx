@@ -134,16 +134,28 @@ const UserPayments = () => {
     setIsProcessing(true);
     
     try {
-      // Create payment record
+      // Fetch fresh price from database at payment time
+      const { data: freshCategory, error: categoryError } = await supabase
+        .from("form_categories")
+        .select("price")
+        .eq("id", membership.category_id)
+        .single();
+
+      if (categoryError) throw categoryError;
+
+      const currentPrice = freshCategory.price;
+
+      // Create payment record with current price
       const { data: payment, error: paymentError } = await supabase
         .from("payments")
         .insert({
           user_id: user.id,
           membership_id: membership.id,
-          amount: membership.form_categories?.price || 0,
+          amount: currentPrice,
           currency: "GHS",
           status: "pending",
           payment_method: "paystack",
+          plan_id: membership.category_id,
         })
         .select()
         .single();

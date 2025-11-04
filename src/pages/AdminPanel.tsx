@@ -9,6 +9,7 @@ import { NavLink, useNavigate, Outlet, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { AdminSidebarHeader } from "@/components/admin/AdminSidebarHeader";
 
 const menuItems = [
   { title: "Applications", icon: FileText, path: "/admin/panel/applications" },
@@ -96,10 +97,7 @@ const AdminPanel = () => {
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
         <Sidebar className="border-r border-card-border">
-          <div className="p-4 border-b border-card-border">
-            <h2 className="text-xl font-bold text-gradient-accent">GNACOPS Admin</h2>
-            <p className="text-sm text-muted-foreground">Control Panel</p>
-          </div>
+          <AdminSidebarHeader />
           
           <SidebarContent>
             <SidebarGroup>

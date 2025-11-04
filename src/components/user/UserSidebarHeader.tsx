@@ -1,0 +1,32 @@
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+
+interface UserSidebarHeaderProps {
+  gnacopsIds: Array<{ id: string; membershipType: string; price: number }>;
+}
+
+export const UserSidebarHeader = ({ gnacopsIds }: UserSidebarHeaderProps) => {
+  const { settings } = useSiteSettings();
+
+  return (
+    <div className="p-4 border-b border-card-border">
+      {settings.logoUrl ? (
+        <img 
+          src={settings.logoUrl} 
+          alt={settings.siteName || "GNACOPS"} 
+          className="h-10 w-auto object-contain mb-2" 
+        />
+      ) : (
+        <h2 className="text-xl font-bold text-gradient-accent">
+          {settings.siteName || "GNACOPS"}
+        </h2>
+      )}
+      <div className="space-y-1 mt-2">
+        {gnacopsIds.map((membership) => (
+          <p key={membership.id} className="text-xs text-muted-foreground">
+            {membership.id}
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+};

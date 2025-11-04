@@ -23,15 +23,32 @@ serve(async (req) => {
       throw new Error("Missing required fields");
     }
 
-    // Get payment details
+    // Fetch payment details with dynamic pricing from form categories
     const { data: payment, error: paymentError } = await supabaseClient
-      .from("payments")
-      .select("*, memberships(*, form_categories(name, price))")
-      .eq("id", paymentId)
+      .from('payments')
+      .select(`
+        *,
+        memberships!inner(
+          *,
+          form_categories!inner(
+            name,
+            price
+          )
+        )
+      `)
+      .eq('id', paymentId)
       .single();
 
     if (paymentError || !payment) {
       throw new Error("Payment not found");
+    }
+
+    // Use dynamic price from form categories (freshly fetched)
+    const dynamicPrice = payment.memberships?.form_categories?.price || payment.amount;
+    
+    // Verify payment amount matches current plan price
+    if (Math.abs(payment.amount - dynamicPrice) > 0.01) {
+      console.warn(`Payment amount (${payment.amount}) differs from current price (${dynamicPrice}). Using current price.`);
     }
 
     // Get Paystack API key from settings
@@ -45,7 +62,7 @@ serve(async (req) => {
       throw new Error("Paystack API key not configured");
     }
 
-    // Initialize Paystack transaction
+    // Initialize Paystack transaction using dynamic price
     const paystackResponse = await fetch("https://api.paystack.co/transaction/initialize", {
       method: "POST",
       headers: {
@@ -54,7 +71,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         email: email,
-        amount: payment.amount * 100, // Paystack expects amount in kobo/pesewas
+        amount: Math.round(dynamicPrice * 100), // Paystack expects amount in kobo/pesewas, using current price
         currency: payment.currency || "GHS",
         reference: payment.id,
         callback_url: `${req.headers.get("origin")}/user/dashboard/payments?payment_id=${payment.id}`,
@@ -62,6 +79,7 @@ serve(async (req) => {
           payment_id: payment.id,
           membership_id: payment.membership_id,
           user_id: payment.user_id,
+          plan_name: payment.memberships?.form_categories?.name,
         },
       }),
     });

@@ -7,6 +7,7 @@ import { NavLink, useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { UserSidebarHeader } from "@/components/user/UserSidebarHeader";
 
 const menuItems = [
   { title: "Overview", icon: User, path: "/user/dashboard" },
@@ -91,16 +92,7 @@ const UserDashboard = () => {
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
         <Sidebar className="border-r border-card-border">
-          <div className="p-4 border-b border-card-border">
-            <h2 className="text-xl font-bold text-gradient-accent">GNACOPS</h2>
-            <div className="space-y-1">
-              {userData.gnacopsIds.map((membership) => (
-                <p key={membership.id} className="text-xs text-muted-foreground">
-                  {membership.id}
-                </p>
-              ))}
-            </div>
-          </div>
+          <UserSidebarHeader gnacopsIds={userData.gnacopsIds} />
           
           <SidebarContent>
             <SidebarGroup>
