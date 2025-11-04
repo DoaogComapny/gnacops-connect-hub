@@ -78,11 +78,20 @@ const NonTeachingStaffForm = () => {
       });
       
       if (result.success) {
+        const message = result.autoLoginFailed
+          ? `Your GNACOPS ID is: ${result.gnacopsId}. Please login with your credentials.`
+          : `Your GNACOPS ID is: ${result.gnacopsId}. Redirecting to payment...`;
+        
         toast({
           title: "Registration Successful!",
-          description: "Check your email for login confirmation. You can now log in and complete payment.",
+          description: message,
         });
-        setTimeout(() => navigate("/login"), 3000);
+        
+        if (result.autoLoginFailed) {
+          setTimeout(() => navigate("/login"), 2000);
+        } else {
+          setTimeout(() => navigate("/user/payments"), 2000);
+        }
       } else {
         throw new Error(result.error || 'Registration failed');
       }

@@ -24,19 +24,7 @@ interface Ticket {
 
 const UserSupportTickets = () => {
   const { toast } = useToast();
-  const [tickets, setTickets] = useState<Ticket[]>([
-    {
-      id: "TICKET-001",
-      subject: "Certificate Download Issue",
-      category: "technical",
-      status: "in-progress",
-      priority: "high",
-      description: "Unable to download my membership certificate",
-      createdDate: "2025-01-15",
-      lastUpdate: "2025-01-16",
-      replies: 2,
-    },
-  ]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newTicket, setNewTicket] = useState({
@@ -246,41 +234,53 @@ const UserSupportTickets = () => {
 
       {/* Tickets List */}
       <div className="space-y-4">
-        {tickets.map((ticket) => (
-          <Card key={ticket.id} className="p-6 hover-card cursor-pointer transition-all">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h3 className="text-lg font-semibold">{ticket.subject}</h3>
-                  <Badge variant={getStatusVariant(ticket.status)}>
-                    {getStatusIcon(ticket.status)}
-                    <span className="ml-1 capitalize">{ticket.status.replace("-", " ")}</span>
-                  </Badge>
-                  <Badge variant="outline" className={getPriorityColor(ticket.priority)}>
-                    {ticket.priority.toUpperCase()}
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground mb-3">{ticket.description}</p>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span>ID: {ticket.id}</span>
-                  <span>•</span>
-                  <span>Created: {ticket.createdDate}</span>
-                  <span>•</span>
-                  <span>Updated: {ticket.lastUpdate}</span>
-                  {ticket.replies && ticket.replies > 0 && (
-                    <>
-                      <span>•</span>
-                      <span>{ticket.replies} replies</span>
-                    </>
-                  )}
-                </div>
-              </div>
-              <Button variant="outline" size="sm">
-                View Details
-              </Button>
-            </div>
+        {tickets.length === 0 ? (
+          <Card className="p-12 text-center">
+            <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No Support Tickets</h3>
+            <p className="text-muted-foreground mb-4">You haven't created any support tickets yet.</p>
+            <Button variant="cta" onClick={() => setIsCreateDialogOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Create Your First Ticket
+            </Button>
           </Card>
-        ))}
+        ) : (
+          tickets.map((ticket) => (
+            <Card key={ticket.id} className="p-6 hover-card cursor-pointer transition-all">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="text-lg font-semibold">{ticket.subject}</h3>
+                    <Badge variant={getStatusVariant(ticket.status)}>
+                      {getStatusIcon(ticket.status)}
+                      <span className="ml-1 capitalize">{ticket.status.replace("-", " ")}</span>
+                    </Badge>
+                    <Badge variant="outline" className={getPriorityColor(ticket.priority)}>
+                      {ticket.priority.toUpperCase()}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">{ticket.description}</p>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <span>ID: {ticket.id}</span>
+                    <span>•</span>
+                    <span>Created: {ticket.createdDate}</span>
+                    <span>•</span>
+                    <span>Updated: {ticket.lastUpdate}</span>
+                    {ticket.replies && ticket.replies > 0 && (
+                      <>
+                        <span>•</span>
+                        <span>{ticket.replies} replies</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <Button variant="outline" size="sm">
+                  View Details
+                </Button>
+              </div>
+            </Card>
+          ))
+        )}
       </div>
     </div>
   );

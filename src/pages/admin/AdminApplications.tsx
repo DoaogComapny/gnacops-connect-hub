@@ -10,12 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 const AdminApplications = () => {
   const { toast } = useToast();
   const [selectedApp, setSelectedApp] = useState<any>(null);
-  const [applications, setApplications] = useState([
-    { id: 1, name: "John Doe", type: "Institutional", status: "Pending", date: "2025-01-15", school: "ABC Academy", email: "john@example.com" },
-    { id: 2, name: "Jane Smith", type: "Teacher Council", status: "Pending", date: "2025-01-14", school: "XYZ School", email: "jane@example.com" },
-    { id: 3, name: "Bob Johnson", type: "Proprietor", status: "Approved", date: "2025-01-13", school: "Elite School", email: "bob@example.com" },
-    { id: 4, name: "Alice Brown", type: "Parent Council", status: "Rejected", date: "2025-01-12", school: "Smart Kids", email: "alice@example.com" },
-  ]);
+  const [applications, setApplications] = useState<any[]>([]);
 
   const handleApprove = (id: number) => {
     setApplications(applications.map(app => 
@@ -90,45 +85,53 @@ const AdminApplications = () => {
 
       {/* Applications Table */}
       <Card className="p-6">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>School/Institution</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {applications.map((app) => (
-              <TableRow key={app.id}>
-                <TableCell className="font-medium">{app.name}</TableCell>
-                <TableCell>{app.type}</TableCell>
-                <TableCell>{app.school}</TableCell>
-                <TableCell>
-                  <Badge 
-                    variant={
-                      app.status === "Approved" ? "default" : 
-                      app.status === "Rejected" ? "destructive" : 
-                      "secondary"
-                    }
-                  >
-                    {app.status}
-                  </Badge>
-                </TableCell>
-                <TableCell>{app.date}</TableCell>
-                <TableCell>
-                  <Button size="sm" variant="outline" onClick={() => setSelectedApp(app)}>
-                    <Eye className="h-4 w-4 mr-2" />
-                    View
-                  </Button>
-                </TableCell>
+        {applications.length === 0 ? (
+          <div className="text-center py-12">
+            <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No Applications Yet</h3>
+            <p className="text-muted-foreground">Membership applications will appear here once users register.</p>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>School/Institution</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {applications.map((app) => (
+                <TableRow key={app.id}>
+                  <TableCell className="font-medium">{app.name}</TableCell>
+                  <TableCell>{app.type}</TableCell>
+                  <TableCell>{app.school}</TableCell>
+                  <TableCell>
+                    <Badge 
+                      variant={
+                        app.status === "Approved" ? "default" : 
+                        app.status === "Rejected" ? "destructive" : 
+                        "secondary"
+                      }
+                    >
+                      {app.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{app.date}</TableCell>
+                  <TableCell>
+                    <Button size="sm" variant="outline" onClick={() => setSelectedApp(app)}>
+                      <Eye className="h-4 w-4 mr-2" />
+                      View
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </Card>
 
       {/* View Application Dialog */}

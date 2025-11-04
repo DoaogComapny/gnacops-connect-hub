@@ -103,7 +103,14 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="border-t border-border pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} {settings.siteName || "GNACOPS"}. All rights reserved.</p>
+          <p>
+            &copy; {new Date().getFullYear()} {settings.siteName || "GNACOPS"}. All rights reserved.
+            {settings.foundingYear && (
+              <span className="ml-2">
+                | Company Age: {new Date().getFullYear() - settings.foundingYear} {new Date().getFullYear() - settings.foundingYear === 1 ? 'Year' : 'Years'}
+              </span>
+            )}
+          </p>
         </div>
       </div>
     </footer>

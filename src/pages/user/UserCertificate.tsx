@@ -16,31 +16,29 @@ const UserCertificate = () => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-xl font-semibold">Certificate Status</h2>
-            <Badge variant="default" className="mt-2">Available</Badge>
+            <Badge variant="secondary" className="mt-2">Not Available</Badge>
           </div>
-          <Shield className="h-12 w-12 text-primary" />
+          <Shield className="h-12 w-12 text-muted-foreground" />
         </div>
         <p className="text-muted-foreground mb-6">
-          Your membership certificate is ready for download. This certificate verifies your membership with GNACOPS.
+          Your certificate will be available once your membership application is approved and payment is completed.
         </p>
-        <Button variant="cta" size="lg">
+        <Button variant="outline" size="lg" disabled>
           <Download className="mr-2 h-5 w-5" />
-          Download Certificate
+          Certificate Not Ready
         </Button>
       </Card>
 
       {/* Certificate Preview */}
       <Card className="p-8 hover-card">
-        <div className="aspect-[8.5/11] border-4 border-primary/20 rounded-lg bg-gradient-to-br from-primary/5 to-accent/5 flex items-center justify-center">
+        <div className="aspect-[8.5/11] border-4 border-border rounded-lg bg-muted/30 flex items-center justify-center">
           <div className="text-center space-y-4">
-            <Shield className="h-20 w-20 text-primary mx-auto" />
+            <Shield className="h-20 w-20 text-muted-foreground mx-auto" />
             <div>
-              <h3 className="text-2xl font-bold text-gradient-primary">GNACOPS</h3>
-              <p className="text-lg font-semibold mt-2">Certificate of Membership</p>
-              <p className="text-muted-foreground mt-4">This certificate belongs to</p>
-              <p className="text-xl font-bold mt-2">John Doe</p>
-              <p className="text-muted-foreground mt-4">Member ID: GNACOPS251002</p>
-              <p className="text-sm text-muted-foreground mt-6">Valid from: January 2025</p>
+              <h3 className="text-2xl font-bold text-muted-foreground">Certificate Preview</h3>
+              <p className="text-muted-foreground mt-4 max-w-md">
+                Your certificate will appear here once your membership is approved and payment is confirmed.
+              </p>
             </div>
           </div>
         </div>

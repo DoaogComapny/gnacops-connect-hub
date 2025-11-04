@@ -468,6 +468,18 @@ const AdminSettings = () => {
             <h2 className="text-xl font-semibold mb-4">Footer</h2>
             <div className="space-y-4">
               <div>
+                <label className="text-sm font-medium mb-2 block">Founding Year</label>
+                <Input 
+                  type="number"
+                  value={localSettings.foundingYear || ""}
+                  onChange={(e) => updateSetting('foundingYear', parseInt(e.target.value) || undefined)}
+                  placeholder="e.g., 2020"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Year the organization was established. Used to calculate company age in copyright.
+                </p>
+              </div>
+              <div>
                 <label className="text-sm font-medium mb-2 block">Email</label>
                 <Input 
                   type="email"

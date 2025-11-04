@@ -39,9 +39,26 @@ export const registerUser = async ({
       throw new Error(data.error || 'Registration failed');
     }
 
+    // Auto-login the user after successful registration
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (signInError) {
+      console.error('Auto-login error:', signInError);
+      // Registration succeeded but login failed - user can manually login
+      return {
+        success: true,
+        gnacopsId: data.gnacopsId,
+        autoLoginFailed: true,
+      };
+    }
+
     return {
       success: true,
       gnacopsId: data.gnacopsId,
+      autoLoginFailed: false,
     };
   } catch (error: any) {
     console.error('Registration error:', error);

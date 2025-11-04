@@ -15,6 +15,7 @@ export interface SiteSettings {
   heroSubtitle?: string;
   aboutSectionTitle?: string;
   aboutSectionText?: string;
+  foundingYear?: number;
   memberships?: {
     institutional?: { title: string; description: string; price: string };
     teacher?: { title: string; description: string; price: string };

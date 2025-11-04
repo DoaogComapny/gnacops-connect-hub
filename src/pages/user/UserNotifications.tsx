@@ -4,11 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 const UserNotifications = () => {
-  const notifications = [
-    { id: 1, type: "success", icon: CheckCircle, title: "Application Approved", message: "Your membership application has been approved. You can now make payment.", time: "2 hours ago", read: false },
-    { id: 2, type: "info", icon: Mail, title: "Welcome to GNACOPS", message: "Welcome to Ghana National Association of Council of Private Schools.", time: "1 day ago", read: true },
-    { id: 3, type: "warning", icon: AlertCircle, title: "Payment Reminder", message: "Please complete your membership fee payment to access all benefits.", time: "2 days ago", read: true },
-  ];
+  const notifications: any[] = [];
 
   return (
     <div className="space-y-6">
@@ -49,35 +45,43 @@ const UserNotifications = () => {
 
       {/* Notifications List */}
       <div className="space-y-4">
-        {notifications.map((notification) => (
-          <Card key={notification.id} className={`p-6 hover-card ${!notification.read ? 'border-primary/50' : ''}`}>
-            <div className="flex items-start gap-4">
-              <div className={`p-2 rounded-lg ${
-                notification.type === 'success' ? 'bg-green-500/10' :
-                notification.type === 'warning' ? 'bg-yellow-500/10' :
-                'bg-blue-500/10'
-              }`}>
-                <notification.icon className={`h-6 w-6 ${
-                  notification.type === 'success' ? 'text-green-500' :
-                  notification.type === 'warning' ? 'text-yellow-500' :
-                  'text-blue-500'
-                }`} />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <h3 className="font-semibold">{notification.title}</h3>
-                    {!notification.read && (
-                      <Badge variant="default" className="mt-1">New</Badge>
-                    )}
-                  </div>
-                  <span className="text-sm text-muted-foreground">{notification.time}</span>
-                </div>
-                <p className="text-muted-foreground">{notification.message}</p>
-              </div>
-            </div>
+        {notifications.length === 0 ? (
+          <Card className="p-12 text-center">
+            <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No Notifications</h3>
+            <p className="text-muted-foreground">You don't have any notifications yet.</p>
           </Card>
-        ))}
+        ) : (
+          notifications.map((notification) => (
+            <Card key={notification.id} className={`p-6 hover-card ${!notification.read ? 'border-primary/50' : ''}`}>
+              <div className="flex items-start gap-4">
+                <div className={`p-2 rounded-lg ${
+                  notification.type === 'success' ? 'bg-green-500/10' :
+                  notification.type === 'warning' ? 'bg-yellow-500/10' :
+                  'bg-blue-500/10'
+                }`}>
+                  <notification.icon className={`h-6 w-6 ${
+                    notification.type === 'success' ? 'text-green-500' :
+                    notification.type === 'warning' ? 'text-yellow-500' :
+                    'text-blue-500'
+                  }`} />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <h3 className="font-semibold">{notification.title}</h3>
+                      {!notification.read && (
+                        <Badge variant="default" className="mt-1">New</Badge>
+                      )}
+                    </div>
+                    <span className="text-sm text-muted-foreground">{notification.time}</span>
+                  </div>
+                  <p className="text-muted-foreground">{notification.message}</p>
+                </div>
+              </div>
+            </Card>
+          ))
+        )}
       </div>
     </div>
   );

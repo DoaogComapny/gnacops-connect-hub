@@ -114,11 +114,20 @@ const InstitutionalForm = () => {
       });
 
       if (result.success) {
+        const message = result.autoLoginFailed
+          ? `Your GNACOPS ID is: ${result.gnacopsId}. Please login with your credentials.`
+          : `Your GNACOPS ID is: ${result.gnacopsId}. Redirecting to payment...`;
+        
         toast({
           title: "Registration Successful!",
-          description: `Your GNACOPS ID is: ${result.gnacopsId}. You can now login with your email and password.`,
+          description: message,
         });
-        setTimeout(() => navigate("/login"), 2000);
+        
+        if (result.autoLoginFailed) {
+          setTimeout(() => navigate("/login"), 2000);
+        } else {
+          setTimeout(() => navigate("/user/payments"), 2000);
+        }
       } else {
         throw new Error(result.error || 'Registration failed');
       }
