@@ -36,6 +36,7 @@ import AdminFormBuilder from "./pages/admin/AdminFormBuilder";
 import AdminSupport from "./pages/admin/AdminSupport";
 import StaffForgotRequests from "./pages/admin/StaffForgotRequests";
 import AdminProfile from "./pages/admin/AdminProfile";
+import AdminAwardedCertificates from "./pages/admin/AdminAwardedCertificates";
 
 // User Pages
 import UserPayments from "./pages/user/UserPayments";
@@ -77,6 +78,7 @@ const App = () => (
             <Route path="applications" element={<AdminApplications />} />
             <Route path="staff" element={<AdminStaff />} />
             <Route path="certificates" element={<AdminCertificates />} />
+            <Route path="awarded-certificates" element={<AdminAwardedCertificates />} />
             <Route path="schools-view" element={<AdminSchoolsView />} />
             <Route path="messages" element={<AdminMessages />} />
             <Route path="forgot-requests" element={<StaffForgotRequests />} />

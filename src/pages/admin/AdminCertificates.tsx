@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Award } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { CertificateBuilder } from '@/components/CertificateBuilder';
+import { useNavigate } from 'react-router-dom';
 
 interface CertificateTemplate {
   id: string;
@@ -28,6 +29,7 @@ interface FormCategory {
 }
 
 const AdminCertificates = () => {
+  const navigate = useNavigate();
   const [templates, setTemplates] = useState<CertificateTemplate[]>([]);
   const [categories, setCategories] = useState<FormCategory[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
@@ -131,9 +133,15 @@ const AdminCertificates = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Certificate Builder</h1>
-        <p className="text-muted-foreground">Design and manage certificate templates</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Certificate Builder</h1>
+          <p className="text-muted-foreground">Design and manage certificate templates</p>
+        </div>
+        <Button variant="outline" onClick={() => navigate('/admin/panel/awarded-certificates')}>
+          <Award className="h-4 w-4 mr-2" />
+          View Awarded Certificates
+        </Button>
       </div>
 
       <Tabs defaultValue="create" className="space-y-6">

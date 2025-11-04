@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FileText, Eye, CheckCircle, XCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -11,6 +12,48 @@ const AdminApplications = () => {
   const { toast } = useToast();
   const [selectedApp, setSelectedApp] = useState<any>(null);
   const [applications, setApplications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchApplications();
+  }, []);
+
+  const fetchApplications = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('form_submissions')
+        .select(`
+          *,
+          profiles:user_id(full_name, email),
+          form_categories:category_id(name, type)
+        `)
+        .order('submitted_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedApps = data?.map((submission: any) => ({
+        id: submission.id,
+        name: submission.profiles?.full_name || 'Unknown',
+        email: submission.profiles?.email || 'N/A',
+        type: submission.form_categories?.name || 'N/A',
+        school: submission.submission_data?.schoolName || submission.submission_data?.institution || 'N/A',
+        status: 'Pending',
+        date: new Date(submission.submitted_at).toLocaleDateString(),
+        raw_data: submission.submission_data
+      })) || [];
+
+      setApplications(formattedApps);
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load applications",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleApprove = (id: number) => {
     setApplications(applications.map(app => 
@@ -85,7 +128,11 @@ const AdminApplications = () => {
 
       {/* Applications Table */}
       <Card className="p-6">
-        {applications.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Loading applications...</p>
+          </div>
+        ) : applications.length === 0 ? (
           <div className="text-center py-12">
             <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">No Applications Yet</h3>
