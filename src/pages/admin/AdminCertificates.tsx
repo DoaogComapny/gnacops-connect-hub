@@ -78,9 +78,11 @@ const AdminCertificates = () => {
       return;
     }
 
+    const catId = formData.category_id === 'all' ? null : formData.category_id;
+
     const templateData = {
       name: formData.name,
-      category_id: formData.category_id,
+      category_id: catId,
       template_html: jsonData,
       template_config: { preview_url: previewUrl },
       background_url: null,
