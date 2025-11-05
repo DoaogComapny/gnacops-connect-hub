@@ -130,7 +130,31 @@ const AdminCertificates = () => {
     fetchTemplates();
   };
 
+  const setActiveTemplate = async (template: CertificateTemplate) => {
+    // Deactivate others in same category (including null/global)
+    const { error: deactivateError } = await supabase
+      .from('certificate_templates')
+      .update({ is_active: false })
+      .match({ category_id: template.category_id });
 
+    if (deactivateError) {
+      toast.error('Failed to deactivate other templates');
+      return;
+    }
+
+    const { error } = await supabase
+      .from('certificate_templates')
+      .update({ is_active: true })
+      .eq('id', template.id);
+
+    if (error) {
+      toast.error('Failed to set active');
+      return;
+    }
+
+    toast.success('Template set as active');
+    fetchTemplates();
+  };
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -180,6 +204,7 @@ const AdminCertificates = () => {
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="all">All Categories</SelectItem>
                       {categories.map((cat) => (
                         <SelectItem key={cat.id} value={cat.id}>
                           {cat.name} ({cat.type})
@@ -219,7 +244,7 @@ const AdminCertificates = () => {
                           {template.is_active && <Badge variant="default">Active</Badge>}
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          Category: {categories.find(c => c.id === template.category_id)?.name}
+                          Category: {template.category_id ? (categories.find(c => c.id === template.category_id)?.name) : 'All Categories'}
                         </p>
                       </div>
                       <Button
@@ -228,6 +253,13 @@ const AdminCertificates = () => {
                         onClick={() => editTemplate(template)}
                       >
                         Edit
+                      </Button>
+                      <Button
+                        variant={template.is_active ? "default" : "secondary"}
+                        size="sm"
+                        onClick={() => setActiveTemplate(template)}
+                      >
+                        {template.is_active ? 'Active' : 'Set Active'}
                       </Button>
                       <Button
                         variant="destructive"

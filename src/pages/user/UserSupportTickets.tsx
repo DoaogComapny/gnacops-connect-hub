@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 interface Ticket {
   id: string;
@@ -24,6 +25,7 @@ interface Ticket {
 const UserSupportTickets = () => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<{ name: string; email: string } | null>(null);
@@ -269,7 +271,7 @@ const UserSupportTickets = () => {
           </Card>
         ) : (
           tickets.map((ticket) => (
-            <Card key={ticket.id} className="p-6 hover-card cursor-pointer transition-all">
+            <Card key={ticket.id} className="p-6 hover-card cursor-pointer transition-all" onClick={() => navigate(`/user/dashboard/support/${ticket.id}`)}>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
@@ -288,7 +290,7 @@ const UserSupportTickets = () => {
                     <span>Updated: {new Date(ticket.updated_at).toLocaleDateString()}</span>
                   </div>
                 </div>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); navigate(`/user/dashboard/support/${ticket.id}`); }}>
                   View Details
                 </Button>
               </div>

@@ -45,6 +45,7 @@ import UserCertificate from "./pages/user/UserCertificate";
 import UserNotifications from "./pages/user/UserNotifications";
 import UserAccount from "./pages/user/UserAccount";
 import UserSupportTickets from "./pages/user/UserSupportTickets";
+import UserSupportTicketDetail from "./pages/user/UserSupportTicketDetail";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +97,7 @@ const App = () => (
             <Route path="payments" element={<UserPayments />} />
             <Route path="certificate" element={<UserCertificate />} />
             <Route path="support" element={<UserSupportTickets />} />
+            <Route path="support/:id" element={<UserSupportTicketDetail />} />
             <Route path="notifications" element={<UserNotifications />} />
           </Route>
           

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus, Download, Trash2, Type, Image as ImageIcon, Square } from 'lucide-react';
 import { toast } from 'sonner';
+import sampleCertificate from '@/assets/certificates/gnacops-sample.jpg';
 
 interface CertificateBuilderProps {
   onSave?: (jsonData: string, previewUrl: string) => void;
@@ -99,30 +100,33 @@ export const CertificateBuilder = ({ onSave, initialData }: CertificateBuilderPr
 
     reader.onload = (event) => {
       const imgUrl = event.target?.result as string;
-      
-      FabricImage.fromURL(imgUrl).then((img) => {
-        // Scale to fit canvas
-        const scale = Math.min(
-          fabricCanvas.width! / (img.width || 1),
-          fabricCanvas.height! / (img.height || 1)
-        );
-        
-        img.set({
-          scaleX: scale,
-          scaleY: scale,
-          left: 0,
-          top: 0,
-          selectable: true,
-        });
-
-        fabricCanvas.add(img);
-        fabricCanvas.sendObjectToBack(img);
-        fabricCanvas.renderAll();
-        toast.success('Background image added');
-      });
+      addBackgroundFromUrl(imgUrl);
     };
 
     reader.readAsDataURL(file);
+  };
+
+  const addBackgroundFromUrl = (imgUrl: string) => {
+    if (!fabricCanvas) return;
+    FabricImage.fromURL(imgUrl).then((img) => {
+      const scale = Math.min(
+        fabricCanvas.width! / (img.width || 1),
+        fabricCanvas.height! / (img.height || 1)
+      );
+
+      img.set({
+        scaleX: scale,
+        scaleY: scale,
+        left: 0,
+        top: 0,
+        selectable: true,
+      });
+
+      fabricCanvas.add(img);
+      fabricCanvas.sendObjectToBack(img);
+      fabricCanvas.renderAll();
+      toast.success('Background image added');
+    });
   };
 
   const addLogoImage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -259,23 +263,10 @@ export const CertificateBuilder = ({ onSave, initialData }: CertificateBuilderPr
               />
             </div>
 
-            <div>
-              <Label htmlFor="logo-upload" className="cursor-pointer">
-                <Button variant="outline" size="sm" asChild>
-                  <span>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Logo
-                  </span>
-                </Button>
-              </Label>
-              <input
-                id="logo-upload"
-                type="file"
-                accept="image/*"
-                onChange={addLogoImage}
-                className="hidden"
-              />
-            </div>
+            <Button onClick={() => addBackgroundFromUrl(sampleCertificate)} variant="outline" size="sm">
+              <ImageIcon className="mr-2 h-4 w-4" />
+              Sample Background
+            </Button>
 
             <Button onClick={deleteSelected} variant="destructive" size="sm" disabled={!selectedObject}>
               <Trash2 className="mr-2 h-4 w-4" />

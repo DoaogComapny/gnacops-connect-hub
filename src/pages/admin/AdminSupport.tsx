@@ -186,7 +186,7 @@ const AdminSupport = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => updateTicketStatus(selectedTicketData.id, 'in_progress')}
+                      onClick={() => updateTicketStatus(selectedTicketData.id, 'in-progress')}
                     >
                       In Progress
                     </Button>
