@@ -372,6 +372,114 @@ const AdminSettings = () => {
                   onChange={(e) => updateSetting('aboutPage.vision.text', e.target.value)}
                 />
               </div>
+              <div className="border-t pt-4">
+                <h3 className="font-semibold mb-3">Director Section</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Director Name</label>
+                    <Input 
+                      placeholder="e.g., Dr. John Smith"
+                      value={localSettings.aboutPage?.director?.name || ""}
+                      onChange={(e) => updateSetting('aboutPage.director.name', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Director Title/Position</label>
+                    <Input 
+                      placeholder="e.g., Executive Director"
+                      value={localSettings.aboutPage?.director?.title || ""}
+                      onChange={(e) => updateSetting('aboutPage.director.title', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Director Bio/Message</label>
+                    <Textarea 
+                      rows={4}
+                      placeholder="Director's message or biography"
+                      value={localSettings.aboutPage?.director?.bio || ""}
+                      onChange={(e) => updateSetting('aboutPage.director.bio', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Director Image</label>
+                    <div className="flex items-center gap-4">
+                      <div className="w-32 h-32 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-muted overflow-hidden">
+                        {localSettings.aboutPage?.director?.imageUrl ? (
+                          <img src={localSettings.aboutPage?.director?.imageUrl} alt="Director" className="w-full h-full object-cover" />
+                        ) : (
+                          <Upload className="h-8 w-8 text-muted-foreground" />
+                        )}
+                      </div>
+                      <div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            if (!e.target.files || e.target.files.length === 0) return;
+                            const file = e.target.files[0];
+                            const fileExt = file.name.split('.').pop();
+                            const fileName = `director-${Date.now()}.${fileExt}`;
+                            
+                            setUploading(true);
+                            try {
+                              const { error: uploadError } = await supabase.storage
+                                .from('site-assets')
+                                .upload(fileName, file, { upsert: true });
+
+                              if (uploadError) throw uploadError;
+
+                              const { data: { publicUrl } } = supabase.storage
+                                .from('site-assets')
+                                .getPublicUrl(fileName);
+
+                              const newSettings = { ...localSettings };
+                              if (!newSettings.aboutPage) {
+                                newSettings.aboutPage = {
+                                  title: '',
+                                  intro: '',
+                                  mission: { title: '', text: '' },
+                                  vision: { title: '', text: '' },
+                                  values: { title: '', items: [] }
+                                };
+                              }
+                              if (!newSettings.aboutPage.director) newSettings.aboutPage.director = {};
+                              newSettings.aboutPage.director.imageUrl = publicUrl;
+                              setLocalSettings(newSettings);
+                              updateSettings(newSettings);
+
+                              toast({
+                                title: "Success",
+                                description: "Director image uploaded successfully",
+                              });
+                            } catch (error: any) {
+                              toast({
+                                title: "Error",
+                                description: error.message,
+                                variant: "destructive",
+                              });
+                            } finally {
+                              setUploading(false);
+                            }
+                          }}
+                          className="hidden"
+                          id="director-upload"
+                        />
+                        <Button 
+                          variant="outline" 
+                          onClick={() => document.getElementById('director-upload')?.click()}
+                          disabled={uploading}
+                        >
+                          <Upload className="mr-2 h-4 w-4" />
+                          {uploading ? "Uploading..." : "Upload Image"}
+                        </Button>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Professional photo recommended
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <Button variant="cta" onClick={handleSave}>
                 <Save className="mr-2 h-4 w-4" />
                 Save About Page

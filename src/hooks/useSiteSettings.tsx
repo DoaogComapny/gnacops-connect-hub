@@ -32,6 +32,12 @@ export interface SiteSettings {
     mission: { title: string; text: string };
     vision: { title: string; text: string };
     values: { title: string; items: string[] };
+    director?: { 
+      name?: string; 
+      title?: string; 
+      bio?: string; 
+      imageUrl?: string; 
+    };
   };
   contactPage?: { title: string; email: string; phone: string; address: string };
   smtp?: {
