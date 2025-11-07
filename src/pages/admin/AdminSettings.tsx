@@ -378,7 +378,7 @@ const AdminSettings = () => {
                   <div>
                     <label className="text-sm font-medium mb-2 block">Director Name</label>
                     <Input 
-                      placeholder="e.g., Dr. John Smith"
+                      placeholder="e.g., Obenfo Nana Kwasi Gyetuah"
                       value={localSettings.aboutPage?.director?.name || ""}
                       onChange={(e) => updateSetting('aboutPage.director.name', e.target.value)}
                     />
@@ -386,7 +386,7 @@ const AdminSettings = () => {
                   <div>
                     <label className="text-sm font-medium mb-2 block">Director Title/Position</label>
                     <Input 
-                      placeholder="e.g., Executive Director"
+                      placeholder="e.g., National Executive Director"
                       value={localSettings.aboutPage?.director?.title || ""}
                       onChange={(e) => updateSetting('aboutPage.director.title', e.target.value)}
                     />
@@ -394,7 +394,7 @@ const AdminSettings = () => {
                   <div>
                     <label className="text-sm font-medium mb-2 block">Director Bio/Message</label>
                     <Textarea 
-                      rows={4}
+                      rows={12}
                       placeholder="Director's message or biography"
                       value={localSettings.aboutPage?.director?.bio || ""}
                       onChange={(e) => updateSetting('aboutPage.director.bio', e.target.value)}
