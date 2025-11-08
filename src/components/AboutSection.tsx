@@ -1,4 +1,11 @@
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const AboutSection = () => {
   const { settings } = useSiteSettings();
@@ -23,8 +30,8 @@ const AboutSection = () => {
           </p>
         </div>
 
-        <div className="overflow-x-auto pb-8 -mx-4 px-4">
-          <div className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 min-w-max md:min-w-0">
+        <Carousel className="w-full max-w-5xl mx-auto" opts={{ loop: true }}>
+          <CarouselContent>
             {[
               {
                 title: "Our Mission",
@@ -39,21 +46,23 @@ const AboutSection = () => {
                 description: content.values,
               },
             ].map((item, index) => (
-              <div
-                key={index}
-                className="flex-shrink-0 w-[300px] md:w-auto bg-card border border-card-border rounded-lg p-8 hover:border-primary transition-all duration-300 animate-fade-in-up hover-lift"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <h3 className="text-2xl font-semibold mb-4 text-accent">
-                  {item.title}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {item.description}
-                </p>
-              </div>
+              <CarouselItem key={index} className="md:basis-1/3">
+                <div className="h-full p-2">
+                  <div className="bg-card border border-card-border rounded-lg p-8 hover:border-primary transition-all duration-300 hover-glow h-full">
+                    <h3 className="text-2xl font-semibold mb-4 text-accent">
+                      {item.title}
+                    </h3>
+                    <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
+              </CarouselItem>
             ))}
-          </div>
-        </div>
+          </CarouselContent>
+          <CarouselPrevious className="hover-glow" />
+          <CarouselNext className="hover-glow" />
+        </Carousel>
       </div>
     </section>
   );
