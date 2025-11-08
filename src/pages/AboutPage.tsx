@@ -185,7 +185,7 @@ In fulfilling this mandate, GNACOPS bridges the gap between regulation and innov
 
                       <AccordionItem value="e" className="border border-card-border rounded-lg px-4 hover-glow">
                         <AccordionTrigger className="text-lg font-semibold text-accent hover:no-underline">
-                          E. Brief Profile
+                          E. Brief Profile & Our Purpose
                         </AccordionTrigger>
                         <AccordionContent className="text-muted-foreground leading-relaxed whitespace-pre-line">
                           {`The Ghana National Council of Private Schools (GNACOPS) is a legally incorporated, nationwide coordinating agency serving as the formal representation of the private education sector in Ghana.
@@ -197,17 +197,11 @@ Our Ecosystem at a Glance:
 • 14,516+ School Owners & Proprietors – Entrepreneurs who invest private resources in public education outcomes.
 • 300,000+ Teachers – The second-largest teaching workforce in Ghana, trained and licensed under national standards.
 • 3.9 Million Learners – Nearly half of Ghana's school-going children enrolled in GNACOPS member institutions.
-• 567,000+ Parents – Active participants and accountability partners in the private education community.`}
-                        </AccordionContent>
-                      </AccordionItem>
+• 567,000+ Parents – Active participants and accountability partners in the private education community.
 
-                      <AccordionItem value="f" className="border border-card-border rounded-lg px-4 hover-glow">
-                        <AccordionTrigger className="text-lg font-semibold text-accent hover:no-underline">
-                          F. Our Purpose
-                        </AccordionTrigger>
-                        <AccordionContent className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                          {`GNACOPS was established to:
+Our Purpose:
 
+GNACOPS was established to:
 • Coordinate private school operations for effective policy alignment and educational outcomes.
 • Represent the interests of the private sector in national and international education dialogues.
 • Build a unified, transparent, and accountable education ecosystem that complements the public system.
@@ -216,9 +210,9 @@ Through policy engagement, innovation, and stakeholder collaboration, GNACOPS st
                         </AccordionContent>
                       </AccordionItem>
 
-                      <AccordionItem value="g" className="border border-card-border rounded-lg px-4 hover-glow">
+                      <AccordionItem value="f" className="border border-card-border rounded-lg px-4 hover-glow">
                         <AccordionTrigger className="text-lg font-semibold text-accent hover:no-underline">
-                          G. Objectives of the Council
+                          F. Objectives of the Council
                         </AccordionTrigger>
                         <AccordionContent className="text-muted-foreground leading-relaxed whitespace-pre-line">
                           {`GNACOPS's objectives are guided by its commitment to equity, quality, and accountability in private education.
@@ -258,9 +252,9 @@ Through these objectives, GNACOPS seeks to transform private education into a mo
                         </AccordionContent>
                       </AccordionItem>
 
-                      <AccordionItem value="h" className="border border-card-border rounded-lg px-4 hover-glow">
+                      <AccordionItem value="g" className="border border-card-border rounded-lg px-4 hover-glow">
                         <AccordionTrigger className="text-lg font-semibold text-accent hover:no-underline">
-                          H. Departments and Their Focus
+                          G. Departments and Their Focus
                         </AccordionTrigger>
                         <AccordionContent className="text-muted-foreground leading-relaxed whitespace-pre-line">
                           {`To deliver on its mandate effectively, GNACOPS operates through seven specialized departments, each designed to serve a vital function within the private education framework:
@@ -297,9 +291,9 @@ Together, these departments form the backbone of GNACOPS' internal governance �
                         </AccordionContent>
                       </AccordionItem>
 
-                      <AccordionItem value="i" className="border border-card-border rounded-lg px-4 hover-glow">
+                      <AccordionItem value="h" className="border border-card-border rounded-lg px-4 hover-glow">
                         <AccordionTrigger className="text-lg font-semibold text-accent hover:no-underline">
-                          I. Benefits of Membership
+                          H. Benefits of Membership
                         </AccordionTrigger>
                         <AccordionContent className="text-muted-foreground leading-relaxed whitespace-pre-line">
                           {`Membership with GNACOPS opens the door to growth, credibility, and support for every private education stakeholder.
@@ -336,9 +330,9 @@ GNACOPS membership is more than affiliation — it is a partnership for progress
                         </AccordionContent>
                       </AccordionItem>
 
-                      <AccordionItem value="j" className="border border-card-border rounded-lg px-4 hover-glow">
+                      <AccordionItem value="i" className="border border-card-border rounded-lg px-4 hover-glow">
                         <AccordionTrigger className="text-lg font-semibold text-accent hover:no-underline">
-                          J. Jurisdiction of the Council
+                          I. Jurisdiction of the Council
                         </AccordionTrigger>
                         <AccordionContent className="text-muted-foreground leading-relaxed whitespace-pre-line">
                           {`The Ghana National Council of Private Schools (GNACOPS) exercises national coordinating authority over all private pre-tertiary education institutions in Ghana.
@@ -350,31 +344,63 @@ GNACOPS functions as the internal coordinating agency for the private education 
 Its jurisdiction extends across every dimension of the private pre-tertiary education ecosystem, encompassing policy coordination, compliance monitoring, stakeholder engagement, and institutional development.
 
 1. Private Pre-Tertiary Schools
+
 GNACOPS's authority covers all registered and accredited private institutions within the pre-tertiary level, including:
 • Private Kindergarten, Primary, and Junior High Schools.
 • Private Senior High Schools, Technical, and Vocational Institutions.
 • Faith-based, community-based, and corporate-owned schools.
 • Educational institutions operating under special models such as international curricula, STEM, or alternative learning systems that fall under Ghana's pre-tertiary category.
 
+Through coordination and monitoring, GNACOPS ensures that these institutions operate ethically, deliver quality learning outcomes, and comply with all national educational requirements.
+
 2. School Proprietors and Governing Bodies
+
 GNACOPS represents and supports:
 • School owners, directors, and boards of governors who manage private pre-tertiary schools.
 • Associations, federations, and networks of private school owners operating at district, regional, or national levels.
 • Faith-based and mission institutions that contribute to private education delivery in Ghana.
 
+The Council provides policy guidance, capacity building, and advisory services to strengthen governance and institutional management across these bodies.
+
 3. Teachers and Educational Staff
+
 The jurisdiction of GNACOPS includes:
 • All teachers, administrators, and support staff within registered private pre-tertiary institutions.
 • Licensed and certified educators operating under the supervision of the National Teaching Council (NTC).
 • Non-teaching professionals contributing to school operations such as guidance counselors, bursars, and ICT coordinators.
 
+GNACOPS works closely with NTC and MoE to promote teacher professionalism, continuous professional development (CPD), and adherence to ethical and performance standards.
+
 4. Students and Parent Associations
+
 The Council also extends its coordination to:
 • All learners enrolled in private pre-tertiary schools.
 • Parent-Teacher Associations (PTAs) and School Management Committees (SMCs) functioning within the private education sector.
 
+Through these partnerships, GNACOPS fosters accountability, learner protection, and community participation in the governance and quality assurance processes of private education.
+
 5. Regulatory and Supervisory Partnerships
+
 GNACOPS collaborates with all major education oversight agencies to harmonize standards and enhance quality in private education delivery.
+
+Key partnerships include:
+• Ministry of Education (MoE) – for national policy alignment and strategic direction.
+• Ghana Education Service (GES) – for teacher management, supervision, and curriculum implementation.
+• National Schools Inspectorate Authority (NaSIA) – for school inspection, accreditation, and compliance.
+• National Teaching Council (NTC) – for teacher licensing and professional development.
+• National Council for Curriculum and Assessment (NaCCA) – for curriculum design and evaluation.
+• Commission for Technical and Vocational Education and Training (CTVET) – for technical and vocational school coordination.
+
+Through these partnerships, GNACOPS functions as the bridge between private education stakeholders and public regulatory bodies, ensuring effective coordination, compliance, and mutual accountability.
+
+6. Sectoral Scope and Coordination Function
+
+GNACOPS's jurisdiction empowers it to:
+• Maintain a national database of private schools, teachers, and learners.
+• Monitor compliance and operational standards across all categories of private schools.
+• Coordinate communication between private education actors and government regulators.
+• Represent the private sector in national and international educational forums.
+• Provide technical and professional support to ensure that private schools remain aligned with Ghana's education reform agenda.
 
 Through this broad jurisdiction, GNACOPS ensures that every private education stakeholder — from the smallest rural kindergarten to the largest corporate school network — operates under a unified, accountable, and forward-looking national system.`}
                         </AccordionContent>
