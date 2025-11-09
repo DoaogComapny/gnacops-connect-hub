@@ -1,5 +1,3 @@
-"use client";
-
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
@@ -26,8 +24,8 @@ const AboutPage = () => {
     );
   }
 
-  const aboutPage = settings?.aboutPage || {};
-  const siteName = settings?.siteName || "GNACOPS";
+  const aboutPage = settings.aboutPage;
+  const siteName = settings.siteName || "GNACOPS";
 
   return (
     <div className="min-h-screen">
@@ -60,10 +58,10 @@ const AboutPage = () => {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    {aboutPage.director?.name && (
+                    {aboutPage.director.name && (
                       <div className="text-center mt-4">
                         <h3 className="text-xl font-bold text-foreground">{aboutPage.director.name}</h3>
-                        {aboutPage.director?.title && (
+                        {aboutPage.director.title && (
                           <p className="text-sm font-semibold text-accent mt-1">{aboutPage.director.title}</p>
                         )}
                       </div>
@@ -74,23 +72,6 @@ const AboutPage = () => {
                 {/* Director Message with Read More */}
                 <div className="space-y-6">
                   <Collapsible open={isDirectorMessageOpen} onOpenChange={setIsDirectorMessageOpen}>
-                    {/* Trigger first so it behaves reliably with most Collapsible implementations */}
-                    <CollapsibleTrigger asChild>
-                      <div className="flex justify-end">
-                        <Button variant="ghost" className="mt-0 w-full sm:w-auto cursor-pointer" type="button">
-                          {isDirectorMessageOpen ? (
-                            <>
-                              Read Less <ChevronUp className="ml-2 h-4 w-4" />
-                            </>
-                          ) : (
-                            <>
-                              Read More <ChevronDown className="ml-2 h-4 w-4" />
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </CollapsibleTrigger>
-
                     <div className="prose prose-invert max-w-none">
                       <div className="text-muted-foreground leading-relaxed whitespace-pre-line text-justify">
                         <p>
@@ -99,10 +80,9 @@ const AboutPage = () => {
                           the years, GNACOPS has evolved into the central coordinating and representative body that
                           unites thousands of school proprietors, teachers, parents, and learners under one shared
                           vision — to deliver quality, equitable, and sustainable education for all.
-                          {!isDirectorMessageOpen && " ..."}
+                          {!isDirectorMessageOpen && "..."}
                         </p>
                       </div>
-
                       <CollapsibleContent className="mt-4">
                         <div className="text-muted-foreground leading-relaxed whitespace-pre-line text-justify">
                           <p>
@@ -136,6 +116,19 @@ const AboutPage = () => {
                         </div>
                       </CollapsibleContent>
                     </div>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" className="mt-4 w-full sm:w-auto cursor-pointer" type="button">
+                        {isDirectorMessageOpen ? (
+                          <>
+                            Read Less <ChevronUp className="ml-2 h-4 w-4" />
+                          </>
+                        ) : (
+                          <>
+                            Read More <ChevronDown className="ml-2 h-4 w-4" />
+                          </>
+                        )}
+                      </Button>
+                    </CollapsibleTrigger>
                   </Collapsible>
                 </div>
               </div>
@@ -171,9 +164,187 @@ const AboutPage = () => {
                   </AccordionContent>
                 </AccordionItem>
 
-                {/* ... keep all other AccordionItems (B-J) unchanged ... */}
+                <AccordionItem value="b" className="border border-card-border rounded-lg px-4 hover-glow mb-4">
+                  <AccordionTrigger className="text-lg font-semibold text-accent hover:no-underline py-4">
+                    🌟 B. Vision
+                  </AccordionTrigger>
+                  <AccordionContent className="text-base text-muted-foreground leading-relaxed">
+                    <div className="whitespace-pre-line pt-2">
+                      To build a globally competitive, inclusive, and self-sustaining private education system that
+                      complements Ghana's national education agenda, empowers communities, and ensures that every child
+                      regardless of location or background enjoys access to quality learning opportunities.
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
 
-                <AccordionItem value="j" className="border border-card-border rounded-lg px-4 hover-glow mb-4">
+                <AccordionItem value="c" className="border border-card-border rounded-lg px-4 hover-glow mb-4">
+                  <AccordionTrigger className="text-lg font-semibold text-accent hover:no-underline py-4">
+                    🎯 C. Mission
+                  </AccordionTrigger>
+                  <AccordionContent className="text-base text-muted-foreground leading-relaxed">
+                    <div className="whitespace-pre-line pt-2">
+                      To coordinate, regulate, strengthen, and represent private pre-tertiary schools in Ghana by: •
+                      Promoting quality and compliance in all private education institutions. • Building capacity and
+                      professionalism among teachers, administrators, and proprietors. • Facilitating innovation,
+                      research, and digital transformation in education delivery. • Establishing financially sustainable
+                      models that empower private schools to thrive. • Advocating for inclusive education policies that
+                      protect the interests of learners, parents, and private education providers. Our mission is to
+                      ensure that private education remains a trusted, respected, and sustainable pillar of Ghana's
+                      national development.
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="d" className="border border-card-border rounded-lg px-4 hover-glow mb-4">
+                  <AccordionTrigger className="text-lg font-semibold text-accent hover:no-underline py-4">
+                    ⚖️ D. Mandate of the Council
+                  </AccordionTrigger>
+                  <AccordionContent className="text-base text-muted-foreground leading-relaxed">
+                    <div className="whitespace-pre-line pt-2">
+                      The Ghana National Council of Private Schools (GNACOPS) is a legally incorporated national
+                      coordinating agency mandated to serve as the official representative and internal coordinating
+                      authority for all private pre-tertiary schools in Ghana. GNACOPS operates under the broad policy
+                      supervision of the Ministry of Education (MoE) and collaborates with the Ghana Education Service
+                      (GES), National Schools Inspectorate Authority (NaSIA), National Teaching Council (NTC), National
+                      Council for Curriculum and Assessment (NaCCA), and other relevant stakeholders to ensure alignment
+                      between private education and national education standards. Our Core Mandate Includes: 1.
+                      Coordination of Private Education: Harmonize the operations of all private pre-tertiary schools in
+                      Ghana to ensure consistency with national educational policies and standards. 2. Representation
+                      and Advocacy: Serve as the unified national voice for the private education sector — representing
+                      school owners, teachers, parents, and learners in national policy discussions and international
+                      engagements. 3. Quality Assurance and Compliance Oversight: Work with NaSIA, NTC, and GES to
+                      promote quality education delivery, teacher licensing, and adherence to approved curriculum and
+                      infrastructure standards. 4. Policy Formulation and Advisory Role: Develop and recommend education
+                      policies that strengthen private schools while supporting government's broader education
+                      objectives. 5. Research and Innovation Promotion: Conduct sectoral research, promote EduTech
+                      integration, and encourage innovative teaching and management practices across private schools. 6.
+                      Financial and Institutional Support: Facilitate access to funding, grants, and partnerships that
+                      enhance the sustainability of private education institutions. 7. Conflict Resolution and Support
+                      Services: Provide mediation, legal guidance, and welfare services for school owners, teachers, and
+                      students to maintain stability and harmony in the education ecosystem. 8. Monitoring and
+                      Reporting: Track private school compliance with educational policies, ethics, and operational
+                      standards, and report findings to relevant authorities for action. In fulfilling this mandate,
+                      GNACOPS bridges the gap between regulation and innovation — ensuring that private schools not only
+                      comply but also excel.
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="e" className="border border-card-border rounded-lg px-4 hover-glow mb-4">
+                  <AccordionTrigger className="text-lg font-semibold text-accent hover:no-underline py-4">
+                    🏫 E. Brief Profile & Our Purpose
+                  </AccordionTrigger>
+                  <AccordionContent className="text-base text-muted-foreground leading-relaxed">
+                    <div className="whitespace-pre-line pt-2">
+                      The Ghana National Council of Private Schools (GNACOPS) is a legally incorporated, nationwide
+                      coordinating agency serving as the formal representation of the private education sector in Ghana.
+                      GNACOPS operates under the educational policy framework of the Ministry of Education (MoE) and in
+                      collaboration with national regulatory bodies — NaSIA, NTC, NaCCA, to ensure that private schools
+                      meet quality standards while addressing their unique operational challenges. Our Ecosystem at a
+                      Glance • 14,516+ School Owners & Proprietors – Entrepreneurs who invest private resources in
+                      public education outcomes. • 300,000+ Teachers – The second-largest teaching workforce in Ghana,
+                      trained and licensed under national standards. • 3.9 Million Learners – Nearly half of Ghana's
+                      school-going children enrolled in GNACOPS member institutions. • 567,000+ Parents – Active
+                      participants and accountability partners in the private education community. Our Purpose GNACOPS
+                      was established to: • Coordinate private school operations for effective policy alignment and
+                      educational outcomes. • Represent the interests of the private sector in national and
+                      international education dialogues. • Build a unified, transparent, and accountable education
+                      ecosystem that complements the public system. Through policy engagement, innovation, and
+                      stakeholder collaboration, GNACOPS strengthens private education as a key driver of equitable
+                      learning and national growth.
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="f" className="border border-card-border rounded-lg px-4 hover-glow mb-4">
+                  <AccordionTrigger className="text-lg font-semibold text-accent hover:no-underline py-4">
+                    🎯 G. Objectives of the Council
+                  </AccordionTrigger>
+                  <AccordionContent className="text-base text-muted-foreground leading-relaxed">
+                    <div className="whitespace-pre-line pt-2">
+                      GNACOPS's objectives are guided by its commitment to equity, quality, and accountability in
+                      private education. The Council's objectives are both strategic and operational, designed to
+                      position private education as a reliable partner in achieving Ghana's Education Strategic Plan
+                      (ESP) and the UN Sustainable Development Goal 4 (SDG 4): Quality Education for All. Strategic
+                      Objectives 1. Policy and Governance: Establish a robust framework for policy development,
+                      governance, and accountability in private education institutions. 2. Quality Assurance: Set and
+                      enforce quality benchmarks for teaching, learning, school infrastructure, and management
+                      practices. 3. Capacity Building: Provide continuous professional development for teachers,
+                      administrators, and proprietors to ensure excellence and professionalism. 4. Innovation and
+                      Technology Advancement: Encourage the use of ICT, digital learning tools, and innovative teaching
+                      methodologies to enhance learning outcomes. 5. Financial Sustainability: Develop sustainable
+                      financing models, funding schemes, and partnerships that empower private schools to grow and
+                      remain resilient. 6. Advocacy and Support Services: Represent private schools at all policy
+                      levels, mediate disputes, and offer legal and operational guidance for schools in distress. 7.
+                      Compliance and Accountability: Monitor and report on ethical, operational, and financial practices
+                      across private schools, ensuring transparency and good governance. 8. Partnership and
+                      Collaboration: Work with government agencies, NGOs, development partners, and the private sector
+                      to strengthen educational access and quality nationwide. 9. Equity and Access: Promote inclusive
+                      education by supporting private schools serving disadvantaged and rural communities. Through these
+                      objectives, GNACOPS seeks to transform private education into a model of excellence — empowering
+                      learners, uplifting educators, and contributing to Ghana's socio-economic growth.
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="g" className="border border-card-border rounded-lg px-4 hover-glow mb-4">
+                  <AccordionTrigger className="text-lg font-semibold text-accent hover:no-underline py-4">
+                    ⚙️ H. Departments and Their Focus
+                  </AccordionTrigger>
+                  <AccordionContent className="text-base text-muted-foreground leading-relaxed">
+                    <div className="whitespace-pre-line pt-2">
+                      To deliver on its mandate effectively, GNACOPS operates through seven specialized departments,
+                      each designed to serve a vital function within the private education framework: 1. Coordination
+                      and Policy Development Unit (CPDU) Develops, reviews, and harmonizes policies for private schools.
+                      Serves as the liaison between GNACOPS and national education authorities to ensure all private
+                      schools align with MoE, NaSIA, and GES regulations. 2. Educational Standards and Compliance Unit
+                      (ESCU) Oversees accreditation, quality assurance, and teacher licensing in collaboration with
+                      NaSIA and NTC. Conducts compliance audits, school inspections, and professional development for
+                      educators. 3. Financial Sustainability and Developmental Support Unit (FSDSU) Designs and
+                      implements financial support mechanisms, including grants, revolving funds, and credit schemes to
+                      strengthen the financial resilience of private schools. Promotes financial literacy and
+                      sustainable business models for school proprietors. 4. Curriculum Standardization and Educational
+                      Development Unit (CSEDU) Works closely with NaCCA and GES to align private school curricula with
+                      national learning standards. Develops teaching resources, promotes STEM and competency-based
+                      education, and delivers teacher training. 5. Research, Innovation and Stakeholder Engagement Unit
+                      (RISEU) Drives evidence-based decision-making through research and data analytics. Promotes
+                      digital transformation, stakeholder partnerships, and the adoption of innovative educational
+                      technologies. 6. Support Services and Advocacy Unit (SSAU) Provides legal, counseling, and health
+                      support to private schools. Handles dispute resolution, promotes school safety, and advocates for
+                      teacher and student welfare. 7. Private Education Compliance Unit (PECU) Monitors ethical,
+                      operational, and financial integrity across private schools. Investigates malpractice, fraud, and
+                      compliance breaches while promoting accountability and transparency. Together, these departments
+                      form the backbone of GNACOPS' internal governance — ensuring structure, accountability, and
+                      excellence across the private education landscape.
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="h" className="border border-card-border rounded-lg px-4 hover-glow mb-4">
+                  <AccordionTrigger className="text-lg font-semibold text-accent hover:no-underline py-4">
+                    💼 I. Benefits of Membership
+                  </AccordionTrigger>
+                  <AccordionContent className="text-base text-muted-foreground leading-relaxed">
+                    <div className="whitespace-pre-line pt-2">
+                      Membership with GNACOPS opens the door to growth, credibility, and support for every private
+                      education stakeholder. For School Owners & Proprietors • Representation at the Ministry of
+                      Education and national policy platforms. • Access to GNACOPS financial support programs and donor
+                      partnerships. • Business advisory, governance, and sustainability support. For Teachers • Access
+                      to continuous professional development (CPD) and certification programs. • Inclusion in the
+                      national teacher licensing system under NTC supervision. • Networking and exchange programs with
+                      other private educators nationwide. For Parents • A platform to ensure accountability,
+                      transparency, and welfare in private schools. • Opportunities to participate in school improvement
+                      and scholarship initiatives. For Learners • Access to safe, compliant, and quality learning
+                      environments. • Opportunities for scholarship, digital learning, and skills-based education.
+                      Institutional & Systemic Benefits • Integration into Ghana's official education policy framework.
+                      • Support for data-driven decision-making and school improvement. • Advocacy and protection of
+                      private education rights. GNACOPS membership is more than affiliation — it is a partnership for
+                      progress, integrity, and transformation in Ghana's education system.
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="i" className="border border-card-border rounded-lg px-4 hover-glow mb-4">
                   <AccordionTrigger className="text-lg font-semibold text-accent hover:no-underline py-4">
                     ⚖️ J. Jurisdiction of the Council
                   </AccordionTrigger>
@@ -188,8 +359,49 @@ const AboutPage = () => {
                       the Ghana Education Service (GES), and the National Schools Inspectorate Authority (NaSIA). Its
                       jurisdiction extends across every dimension of the private pre-tertiary education ecosystem,
                       encompassing policy coordination, compliance monitoring, stakeholder engagement, and institutional
-                      development.
-                      {/* (content truncated for brevity) */}
+                      development. 1. Private Pre-Tertiary Schools GNACOPS's authority covers all registered and
+                      accredited private institutions within the pre-tertiary level, including: • Private Kindergarten,
+                      Primary, and Junior High Schools. • Private Senior High Schools, Technical, and Vocational
+                      Institutions. • Faith-based, community-based, and corporate-owned schools. • Educational
+                      institutions operating under special models such as international curricula, STEM, or alternative
+                      learning systems that fall under Ghana's pre-tertiary category. Through coordination and
+                      monitoring, GNACOPS ensures that these institutions operate ethically, deliver quality learning
+                      outcomes, and comply with all national educational requirements. 2. School Proprietors and
+                      Governing Bodies GNACOPS represents and supports: • School owners, directors, and boards of
+                      governors who manage private pre-tertiary schools. • Associations, federations, and networks of
+                      private school owners operating at district, regional, or national levels. • Faith-based and
+                      mission institutions that contribute to private education delivery in Ghana. The Council provides
+                      policy guidance, capacity building, and advisory services to strengthen governance and
+                      institutional management across these bodies. 3. Teachers and Educational Staff The jurisdiction
+                      of GNACOPS includes: • All teachers, administrators, and support staff within registered private
+                      pre-tertiary institutions. • Licensed and certified educators operating under the supervision of
+                      the National Teaching Council (NTC). • Non-teaching professionals contributing to school
+                      operations such as guidance counselors, bursars, and ICT coordinators. GNACOPS works closely with
+                      NTC and MoE to promote teacher professionalism, continuous professional development (CPD), and
+                      adherence to ethical and performance standards. 4. Students and Parent Associations The Council
+                      also extends its coordination to: • All learners enrolled in private pre-tertiary schools. •
+                      Parent-Teacher Associations (PTAs) and School Management Committees (SMCs) functioning within the
+                      private education sector. Through these partnerships, GNACOPS fosters accountability, learner
+                      protection, and community participation in the governance and quality assurance processes of
+                      private education. 5. Regulatory and Supervisory Partnerships GNACOPS collaborates with all major
+                      education oversight agencies to harmonize standards and enhance quality in private education
+                      delivery. Key partnerships include: • Ministry of Education (MoE) – for national policy alignment
+                      and strategic direction. • Ghana Education Service (GES) – for teacher management, supervision,
+                      and curriculum implementation. • National Schools Inspectorate Authority (NaSIA) – for school
+                      inspection, accreditation, and compliance. • National Teaching Council (NTC) – for teacher
+                      licensing and professional development. • National Council for Curriculum and Assessment (NaCCA) –
+                      for curriculum design and evaluation. • Commission for Technical and Vocational Education and
+                      Training (CTVET) – for technical and vocational school coordination. Through these partnerships,
+                      GNACOPS functions as the bridge between private education stakeholders and public regulatory
+                      bodies, ensuring effective coordination, compliance, and mutual accountability. 6. Sectoral Scope
+                      and Coordination Function GNACOPS's jurisdiction empowers it to: • Maintain a national database of
+                      private schools, teachers, and learners. • Monitor compliance and operational standards across all
+                      categories of private schools. • Coordinate communication between private education actors and
+                      government regulators. • Represent the private sector in national and international educational
+                      forums. • Provide technical and professional support to ensure that private schools remain aligned
+                      with Ghana's education reform agenda. Through this broad jurisdiction, GNACOPS ensures that every
+                      private education stakeholder — from the smallest rural kindergarten to the largest corporate
+                      school network — operates under a unified, accountable, and forward-looking national system.
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -199,7 +411,7 @@ const AboutPage = () => {
             {/* Mission & Vision Carousel */}
             <Carousel className="w-full" opts={{ loop: true }}>
               <CarouselContent>
-                {aboutPage.mission?.text && (
+                {aboutPage.mission && aboutPage.mission.text && (
                   <CarouselItem className="md:basis-1/2">
                     <div className="h-full p-2">
                       <div className="bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover-glow h-full">
@@ -224,7 +436,7 @@ const AboutPage = () => {
                   </CarouselItem>
                 )}
 
-                {aboutPage.vision?.text && (
+                {aboutPage.vision && aboutPage.vision.text && (
                   <CarouselItem className="md:basis-1/2">
                     <div className="h-full p-2">
                       <div className="bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover-glow h-full">
@@ -260,7 +472,7 @@ const AboutPage = () => {
             </Carousel>
 
             {/* Values Section */}
-            {aboutPage.values?.items && aboutPage.values.items.length > 0 && (
+            {aboutPage.values && aboutPage.values.items && aboutPage.values.items.length > 0 && (
               <section className="bg-card border border-card-border rounded-2xl p-8 md:p-12 hover-glow">
                 <div className="flex items-center gap-3 mb-8">
                   <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
