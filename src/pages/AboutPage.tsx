@@ -83,49 +83,6 @@ const AboutPage = () => {
                           {!isDirectorMessageOpen && "..."}
                         </p>
                       </div>
-                      <CollapsibleContent className="overflow-hidden transition-all duration-300 ease-in-out data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-                        <div className="text-muted-foreground leading-relaxed text-justify mt-4 space-y-4">
-                          <p>
-                            Our role goes beyond coordination. We serve as a bridge between the private sector and the
-                            state, ensuring that private schools operate within national policy frameworks while
-                            enjoying the support, guidance, and representation they need to flourish.
-                          </p>
-                          <p>
-                            Through structured collaboration with the Ministry of Education, NaSIA, GES, NaCCA, NTC, and other key
-                            partners, GNACOPS has established a trusted ecosystem that enhances school quality,
-                            professional capacity, and institutional compliance across the country.
-                          </p>
-                          <p>
-                            We recognize the immense contributions of private schools — who today account for over 40% of Ghana's
-                            educational access — and we are committed to supporting them with innovative policies,
-                            financial partnerships, training, and technology that make them sustainable, credible, and
-                            globally competitive.
-                          </p>
-                          <p>
-                            The future of education demands transformation. It calls for
-                            innovation that bridges learning gaps, leadership that inspires accountability, and
-                            collaboration that drives results. That is why GNACOPS continues to invest in research,
-                            digital transformation, and policy advocacy — ensuring that private education not only
-                            complements the national system but leads the way in redefining excellence.
-                          </p>
-                          <p>
-                            To every school owner, teacher, and partner in this great mission — GNACOPS is your home. Together, we form
-                            one united body, one shared voice, and one enduring purpose: to make quality education
-                            accessible, relevant, and transformative for every Ghanaian child.
-                          </p>
-                          <p>
-                            Education is our nation's greatest investment. Private education is our strongest ally in making it inclusive,
-                            innovative, and future-ready.
-                          </p>
-                          <div className="mt-6 pt-4 border-t border-card-border">
-                            <p className="font-semibold text-foreground">Obenfo Nana Kwasi Gyetuah</p>
-                            <p className="text-sm text-muted-foreground">National Executive Director</p>
-                            <p className="text-sm text-muted-foreground">
-                              Ghana National Council of Private Schools (GNACOPS)
-                            </p>
-                          </div>
-                        </div>
-                      </CollapsibleContent>
                     </div>
                     <CollapsibleTrigger asChild>
                       <Button variant="ghost" className="mt-4 w-full sm:w-auto hover:bg-muted transition-colors" type="button">
@@ -140,6 +97,49 @@ const AboutPage = () => {
                         )}
                       </Button>
                     </CollapsibleTrigger>
+                    <CollapsibleContent className="overflow-hidden transition-all duration-300 ease-in-out data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+                      <div className="text-muted-foreground leading-relaxed text-justify mt-4 space-y-4">
+                        <p>
+                          Our role goes beyond coordination. We serve as a bridge between the private sector and the
+                          state, ensuring that private schools operate within national policy frameworks while
+                          enjoying the support, guidance, and representation they need to flourish.
+                        </p>
+                        <p>
+                          Through structured collaboration with the Ministry of Education, NaSIA, GES, NaCCA, NTC, and other key
+                          partners, GNACOPS has established a trusted ecosystem that enhances school quality,
+                          professional capacity, and institutional compliance across the country.
+                        </p>
+                        <p>
+                          We recognize the immense contributions of private schools — who today account for over 40% of Ghana's
+                          educational access — and we are committed to supporting them with innovative policies,
+                          financial partnerships, training, and technology that make them sustainable, credible, and
+                          globally competitive.
+                        </p>
+                        <p>
+                          The future of education demands transformation. It calls for
+                          innovation that bridges learning gaps, leadership that inspires accountability, and
+                          collaboration that drives results. That is why GNACOPS continues to invest in research,
+                          digital transformation, and policy advocacy — ensuring that private education not only
+                          complements the national system but leads the way in redefining excellence.
+                        </p>
+                        <p>
+                          To every school owner, teacher, and partner in this great mission — GNACOPS is your home. Together, we form
+                          one united body, one shared voice, and one enduring purpose: to make quality education
+                          accessible, relevant, and transformative for every Ghanaian child.
+                        </p>
+                        <p>
+                          Education is our nation's greatest investment. Private education is our strongest ally in making it inclusive,
+                          innovative, and future-ready.
+                        </p>
+                        <div className="mt-6 pt-4 border-t border-card-border">
+                          <p className="font-semibold text-foreground">Obenfo Nana Kwasi Gyetuah</p>
+                          <p className="text-sm text-muted-foreground">National Executive Director</p>
+                          <p className="text-sm text-muted-foreground">
+                            Ghana National Council of Private Schools (GNACOPS)
+                          </p>
+                        </div>
+                      </div>
+                    </CollapsibleContent>
                   </Collapsible>
                 </div>
               </div>
