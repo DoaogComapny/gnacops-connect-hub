@@ -32,11 +32,11 @@ const AboutPage = () => {
       <Navbar />
       <div className="pt-24 pb-20 px-4">
         <div className="container mx-auto max-w-4xl">
-          <h1 className="text-5xl font-bold mb-8 text-center">{aboutPage.title || `About ${siteName}`}</h1>
+          <h1 className="text-5xl font-bold mb-8 text-center">{aboutPage?.title || `About ${siteName}`}</h1>
 
           <div className="space-y-16">
             {/* Introduction Section */}
-            {aboutPage.intro && (
+            {aboutPage?.intro && (
               <section className="text-center max-w-4xl mx-auto">
                 <p className="text-xl leading-relaxed text-muted-foreground">{aboutPage.intro}</p>
               </section>
@@ -152,10 +152,10 @@ const AboutPage = () => {
             </section>
 
             {/* Mission & Vision Carousel */}
-            {((aboutPage.mission && aboutPage.mission.text) || (aboutPage.vision && aboutPage.vision.text)) && (
+            {((aboutPage?.mission?.text) || (aboutPage?.vision?.text)) && (
               <Carousel className="w-full" opts={{ loop: true }}>
                 <CarouselContent>
-                  {aboutPage.mission && aboutPage.mission.text && (
+                  {aboutPage?.mission?.text && (
                     <CarouselItem className="md:basis-1/2">
                       <div className="h-full p-2">
                         <div className="bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover-glow h-full">
@@ -180,7 +180,7 @@ const AboutPage = () => {
                     </CarouselItem>
                   )}
 
-                  {aboutPage.vision && aboutPage.vision.text && (
+                  {aboutPage?.vision?.text && (
                     <CarouselItem className="md:basis-1/2">
                       <div className="h-full p-2">
                         <div className="bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover-glow h-full">
@@ -217,7 +217,7 @@ const AboutPage = () => {
             )}
 
             {/* Values Section */}
-            {aboutPage.values && aboutPage.values.items && aboutPage.values.items.length > 0 && (
+            {(aboutPage?.values?.items?.length ?? 0) > 0 && (
               <section className="bg-card border border-card-border rounded-2xl p-8 md:p-12 hover-glow">
                 <div className="flex items-center gap-3 mb-8">
                   <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
@@ -231,11 +231,11 @@ const AboutPage = () => {
                     </svg>
                   </div>
                   <h2 className="text-3xl font-bold text-foreground">
-                    {aboutPage.values.title || "Our Values"}
+                    {aboutPage?.values?.title || "Our Values"}
                   </h2>
                 </div>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {aboutPage.values.items.map((value: string, index: number) => (
+                  {aboutPage?.values?.items?.map((value: string, index: number) => (
                     <div
                       key={index}
                       className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors hover-glow"
