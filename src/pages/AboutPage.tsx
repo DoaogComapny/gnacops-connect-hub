@@ -126,7 +126,6 @@ const AboutPage = () => {
                     </Collapsible>
                   </div>
                 </div>
-              </div>
             </section>
 
             <section className="bg-gradient-to-br from-card/80 to-card border border-card-border rounded-2xl p-8 md:p-12 shadow-xl hover-glow">
