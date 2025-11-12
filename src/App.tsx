@@ -31,6 +31,18 @@ import AdminCertificates from "./pages/admin/AdminCertificates";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminStaff from "./pages/admin/AdminStaff";
+import AdminEditablePages from "./pages/admin/AdminEditablePages";
+import AdminPageEditor from "./pages/admin/AdminPageEditor";
+
+// New Public Pages
+import TeamPage from "./pages/TeamPage";
+import ServicesPage from "./pages/ServicesPage";
+import ServiceDetailPage from "./pages/ServiceDetailPage";
+import NewsPage from "./pages/NewsPage";
+import GalleryPage from "./pages/GalleryPage";
+import EventsPage from "./pages/EventsPage";
+import EducationTVPage from "./pages/EducationTVPage";
+import EditablePageView from "./pages/EditablePageView";
 import AdminSchoolsView from "./pages/admin/AdminSchoolsView";
 import AdminFormBuilder from "./pages/admin/AdminFormBuilder";
 import AdminSupport from "./pages/admin/AdminSupport";
@@ -60,6 +72,14 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/team" element={<TeamPage />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/services/:slug" element={<ServiceDetailPage />} />
+          <Route path="/news" element={<NewsPage />} />
+          <Route path="/gallery" element={<GalleryPage />} />
+          <Route path="/events" element={<EventsPage />} />
+          <Route path="/education-tv" element={<EducationTVPage />} />
+          <Route path="/page/:pageKey" element={<EditablePageView />} />
           <Route path="/membership" element={<MembershipPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -85,7 +105,9 @@ const App = () => (
             <Route path="messages" element={<AdminMessages />} />
             <Route path="forgot-requests" element={<StaffForgotRequests />} />
             <Route path="pricing" element={<AdminPricingSettings />} />
-            <Route path="settings" element={<AdminSettings />} />
+              <Route path="settings" element={<AdminSettings />} />
+              <Route path="editable-pages" element={<AdminEditablePages />} />
+              <Route path="editable-pages/:pageKey" element={<AdminPageEditor />} />
             <Route path="form-builder" element={<AdminFormBuilder />} />
             <Route path="support" element={<AdminSupport />} />
             <Route path="profile" element={<AdminProfile />} />

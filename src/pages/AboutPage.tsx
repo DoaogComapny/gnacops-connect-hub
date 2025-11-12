@@ -92,19 +92,6 @@ const AboutPage = () => {
                           })()}
                         </div>
                       </div>
-                      <CollapsibleTrigger asChild>
-                        <Button variant="ghost" className="mt-4 w-full sm:w-auto hover:bg-muted transition-colors" type="button">
-                          {isDirectorMessageOpen ? (
-                            <>
-                              Read Less <ChevronUp className="ml-2 h-4 w-4 transition-transform" />
-                            </>
-                          ) : (
-                            <>
-                              Read More <ChevronDown className="ml-2 h-4 w-4 transition-transform" />
-                            </>
-                          )}
-                        </Button>
-                      </CollapsibleTrigger>
                       <CollapsibleContent className="overflow-hidden transition-all duration-300 ease-in-out data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
                         {aboutPage?.director?.bio && (
                           <div className="text-muted-foreground leading-relaxed text-justify mt-4 space-y-4 whitespace-pre-line">
@@ -123,6 +110,19 @@ const AboutPage = () => {
                           </div>
                         )}
                       </CollapsibleContent>
+                      <CollapsibleTrigger asChild>
+                        <Button variant="ghost" className="mt-4 w-full sm:w-auto hover:bg-muted transition-colors" type="button">
+                          {isDirectorMessageOpen ? (
+                            <>
+                              Read Less <ChevronUp className="ml-2 h-4 w-4 transition-transform" />
+                            </>
+                          ) : (
+                            <>
+                              Read More <ChevronDown className="ml-2 h-4 w-4 transition-transform" />
+                            </>
+                          )}
+                        </Button>
+                      </CollapsibleTrigger>
                     </Collapsible>
                   </div>
                 </div>
