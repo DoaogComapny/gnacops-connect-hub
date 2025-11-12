@@ -38,6 +38,7 @@ export interface SiteSettings {
       bio?: string; 
       imageUrl?: string; 
     };
+    detailedSections?: Array<{ key: string; title: string; content: string }>;
   };
   contactPage?: { title: string; email: string; phone: string; address: string };
   smtp?: {

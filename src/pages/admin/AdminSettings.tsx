@@ -480,6 +480,48 @@ const AdminSettings = () => {
                   </div>
                 </div>
               </div>
+              <div className="border-t pt-4">
+                <h3 className="font-semibold mb-3">Detailed Sections (A–J)</h3>
+                <p className="text-sm text-muted-foreground mb-4">Configure dropdown sections A–J for the About page.</p>
+                <div className="space-y-6">
+                  {Array.from({ length: 10 }).map((_, idx) => {
+                    const L = String.fromCharCode(65 + idx);
+                    const existing = localSettings.aboutPage?.detailedSections?.[idx] || { key: L, title: "", content: "" };
+                    return (
+                      <div key={L} className="border-b border-border pb-4">
+                        <h4 className="font-semibold mb-2">{L}. Section</h4>
+                        <div className="space-y-3">
+                          <div>
+                            <label className="text-sm font-medium mb-2 block">Title</label>
+                            <Input 
+                              value={existing.title}
+                              onChange={(e) => {
+                                const base = (localSettings.aboutPage?.detailedSections || Array(10).fill(null)).slice();
+                                const current = base[idx] || { key: L, title: "", content: "" };
+                                base[idx] = { ...current, key: L, title: e.target.value };
+                                updateSetting('aboutPage.detailedSections', base);
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium mb-2 block">Content</label>
+                            <Textarea 
+                              rows={4}
+                              value={existing.content}
+                              onChange={(e) => {
+                                const base = (localSettings.aboutPage?.detailedSections || Array(10).fill(null)).slice();
+                                const current = base[idx] || { key: L, title: "", content: "" };
+                                base[idx] = { ...current, key: L, content: e.target.value };
+                                updateSetting('aboutPage.detailedSections', base);
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
               <Button variant="cta" onClick={handleSave}>
                 <Save className="mr-2 h-4 w-4" />
                 Save About Page
