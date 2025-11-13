@@ -1,22 +1,11 @@
 import { useState, useEffect } from "react";
-import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu, MapPin, KeyRound, LayoutDashboard, Globe, HelpCircle, User } from "lucide-react";
+import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu, MapPin, LayoutDashboard, HelpCircle, User, Loader2, FileEdit } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { NavLink, useNavigate, Outlet, useLocation } from "react-router-dom";
-import { Loader2 } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { AdminSidebarHeader } from "@/components/admin/AdminSidebarHeader";
-
-import { LayoutDashboard, Users, FileText, Award, MessageSquare, Settings, LogOut, Menu, Loader2, TrendingUp, Clock, Shield, MapPin, Mail, HelpCircle, FileEdit, BarChart, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { NavLink, useNavigate, Outlet, useLocation } from "react-router-dom";
-import { Loader2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { AdminSidebarHeader } from "@/components/admin/AdminSidebarHeader";
@@ -33,16 +22,6 @@ const menuItems = [
   { title: "Form Builder", icon: LayoutDashboard, path: "/admin/panel/form-builder" },
   { title: "Pricing", icon: BarChart, path: "/admin/panel/pricing" },
   { title: "Editable Pages", icon: FileEdit, path: "/admin/panel/editable-pages" },
-  { title: "Profile", icon: User, path: "/admin/panel/profile" },
-  { title: "Settings", icon: Settings, path: "/admin/panel/settings" },
-];
-  { title: "Staff", icon: Shield, path: "/admin/panel/staff" },
-  { title: "Schools", icon: MapPin, path: "/admin/panel/schools-view" },
-  { title: "Certificates", icon: Shield, path: "/admin/panel/certificates" },
-  { title: "Messages", icon: Mail, path: "/admin/panel/messages" },
-  { title: "Support", icon: HelpCircle, path: "/admin/panel/support" },
-  { title: "Form Builder", icon: LayoutDashboard, path: "/admin/panel/form-builder" },
-  { title: "Pricing", icon: BarChart, path: "/admin/panel/pricing" },
   { title: "Profile", icon: User, path: "/admin/panel/profile" },
   { title: "Settings", icon: Settings, path: "/admin/panel/settings" },
 ];
