@@ -35,6 +35,10 @@ import AdminEditablePages from "./pages/admin/AdminEditablePages";
 import AdminPageEditor from "./pages/admin/AdminPageEditor";
 import AdminRolesManagement from "./pages/admin/AdminRolesManagement";
 import AdminAuditLogs from "./pages/admin/AdminAuditLogs";
+import OfficeDashboard from "./pages/office/OfficeDashboard";
+import DepartmentsPage from "./pages/office/DepartmentsPage";
+import TasksPage from "./pages/office/TasksPage";
+import DocumentsPage from "./pages/office/DocumentsPage";
 
 // New Public Pages
 import TeamPage from "./pages/TeamPage";
@@ -113,6 +117,10 @@ const App = () => (
             <Route path="roles" element={<AdminRolesManagement />} />
             <Route path="audit-logs" element={<AdminAuditLogs />} />
             <Route path="form-builder" element={<AdminFormBuilder />} />
+            <Route path="office-management" element={<OfficeDashboard />} />
+            <Route path="office-management/departments" element={<DepartmentsPage />} />
+            <Route path="office-management/tasks" element={<TasksPage />} />
+            <Route path="office-management/documents" element={<DocumentsPage />} />
             <Route path="support" element={<AdminSupport />} />
             <Route path="profile" element={<AdminProfile />} />
           </Route>
