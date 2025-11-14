@@ -33,6 +33,8 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminStaff from "./pages/admin/AdminStaff";
 import AdminEditablePages from "./pages/admin/AdminEditablePages";
 import AdminPageEditor from "./pages/admin/AdminPageEditor";
+import AdminRolesManagement from "./pages/admin/AdminRolesManagement";
+import AdminAuditLogs from "./pages/admin/AdminAuditLogs";
 
 // New Public Pages
 import TeamPage from "./pages/TeamPage";
@@ -106,8 +108,10 @@ const App = () => (
             <Route path="forgot-requests" element={<StaffForgotRequests />} />
             <Route path="pricing" element={<AdminPricingSettings />} />
               <Route path="settings" element={<AdminSettings />} />
-              <Route path="editable-pages" element={<AdminEditablePages />} />
-              <Route path="editable-pages/:pageKey" element={<AdminPageEditor />} />
+            <Route path="editable-pages" element={<AdminEditablePages />} />
+            <Route path="editable-pages/:pageKey" element={<AdminPageEditor />} />
+            <Route path="roles" element={<AdminRolesManagement />} />
+            <Route path="audit-logs" element={<AdminAuditLogs />} />
             <Route path="form-builder" element={<AdminFormBuilder />} />
             <Route path="support" element={<AdminSupport />} />
             <Route path="profile" element={<AdminProfile />} />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu, MapPin, LayoutDashboard, HelpCircle, User, Loader2, FileEdit } from "lucide-react";
+import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu, MapPin, LayoutDashboard, HelpCircle, User, Loader2, FileEdit, Award } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { NavLink, useNavigate, Outlet, useLocation } from "react-router-dom";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { AdminSidebarHeader } from "@/components/admin/AdminSidebarHeader";
+import { ModuleSelector } from "@/components/admin/ModuleSelector";
 
 const menuItems = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/admin/panel" },
@@ -22,6 +23,8 @@ const menuItems = [
   { title: "Form Builder", icon: LayoutDashboard, path: "/admin/panel/form-builder" },
   { title: "Pricing", icon: BarChart, path: "/admin/panel/pricing" },
   { title: "Editable Pages", icon: FileEdit, path: "/admin/panel/editable-pages" },
+  { title: "Roles & Permissions", icon: Shield, path: "/admin/panel/roles" },
+  { title: "Audit Logs", icon: FileText, path: "/admin/panel/audit-logs" },
   { title: "Profile", icon: User, path: "/admin/panel/profile" },
   { title: "Settings", icon: Settings, path: "/admin/panel/settings" },
 ];
@@ -100,6 +103,7 @@ const AdminPanel = () => {
       <div className="min-h-screen flex w-full bg-background">
         <Sidebar className="border-r border-card-border">
           <AdminSidebarHeader />
+          <ModuleSelector />
           
           <SidebarContent>
             <SidebarGroup>
