@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          appointment_date: string
+          appointment_type: string
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string | null
+          duration_minutes: number
+          google_calendar_event_id: string | null
+          id: string
+          meeting_link: string | null
+          purpose: string
+          secretary_notes: string | null
+          status: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          appointment_date: string
+          appointment_type: string
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          duration_minutes?: number
+          google_calendar_event_id?: string | null
+          id?: string
+          meeting_link?: string | null
+          purpose: string
+          secretary_notes?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          appointment_date?: string
+          appointment_type?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          duration_minutes?: number
+          google_calendar_event_id?: string | null
+          id?: string
+          meeting_link?: string | null
+          purpose?: string
+          secretary_notes?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string

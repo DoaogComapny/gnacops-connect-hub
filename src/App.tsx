@@ -39,6 +39,8 @@ import OfficeDashboard from "./pages/office/OfficeDashboard";
 import DepartmentsPage from "./pages/office/DepartmentsPage";
 import TasksPage from "./pages/office/TasksPage";
 import DocumentsPage from "./pages/office/DocumentsPage";
+import AppointmentsPage from "./pages/office/AppointmentsPage";
+import BookAppointment from "./pages/user/BookAppointment";
 
 // New Public Pages
 import TeamPage from "./pages/TeamPage";
@@ -121,6 +123,7 @@ const App = () => (
             <Route path="office-management/departments" element={<DepartmentsPage />} />
             <Route path="office-management/tasks" element={<TasksPage />} />
             <Route path="office-management/documents" element={<DocumentsPage />} />
+            <Route path="office-management/appointments" element={<AppointmentsPage />} />
             <Route path="support" element={<AdminSupport />} />
             <Route path="profile" element={<AdminProfile />} />
           </Route>
@@ -134,6 +137,7 @@ const App = () => (
             <Route path="support/:id" element={<UserSupportTicketDetail />} />
             <Route path="notifications" element={<UserNotifications />} />
           </Route>
+          <Route path="/book-appointment" element={<BookAppointment />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
