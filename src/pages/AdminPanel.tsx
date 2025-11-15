@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu, MapPin, LayoutDashboard, HelpCircle, User, Loader2, FileEdit, Award, Building2, CheckSquare } from "lucide-react";
+import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu, MapPin, LayoutDashboard, HelpCircle, User, Loader2, FileEdit, Award, Building2, CheckSquare, Calendar as CalendarIcon } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,7 @@ const membershipMenuItems = [
 
 const officeMenuItems = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/admin/panel/office-management" },
+  { title: "Appointments", icon: CalendarIcon, path: "/admin/panel/office-management/appointments" },
   { title: "Departments", icon: Building2, path: "/admin/panel/office-management/departments" },
   { title: "Tasks", icon: CheckSquare, path: "/admin/panel/office-management/tasks" },
   { title: "Documents", icon: FileText, path: "/admin/panel/office-management/documents" },
