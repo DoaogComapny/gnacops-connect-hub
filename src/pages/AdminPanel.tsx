@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu, MapPin, LayoutDashboard, HelpCircle, User, Loader2, FileEdit, Award } from "lucide-react";
+import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu, MapPin, LayoutDashboard, HelpCircle, User, Loader2, FileEdit, Award, Building2, CheckSquare } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,13 +11,13 @@ import { Badge } from "@/components/ui/badge";
 import { AdminSidebarHeader } from "@/components/admin/AdminSidebarHeader";
 import { ModuleSelector } from "@/components/admin/ModuleSelector";
 
-const menuItems = [
+const membershipMenuItems = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/admin/panel" },
   { title: "Applications", icon: FileText, path: "/admin/panel/applications" },
   { title: "Users", icon: Users, path: "/admin/panel/users" },
   { title: "Staff", icon: Shield, path: "/admin/panel/staff" },
   { title: "Schools", icon: MapPin, path: "/admin/panel/schools-view" },
-  { title: "Certificates", icon: Shield, path: "/admin/panel/certificates" },
+  { title: "Certificates", icon: Award, path: "/admin/panel/certificates" },
   { title: "Messages", icon: Mail, path: "/admin/panel/messages" },
   { title: "Support", icon: HelpCircle, path: "/admin/panel/support" },
   { title: "Form Builder", icon: LayoutDashboard, path: "/admin/panel/form-builder" },
@@ -29,11 +29,26 @@ const menuItems = [
   { title: "Settings", icon: Settings, path: "/admin/panel/settings" },
 ];
 
+const officeMenuItems = [
+  { title: "Dashboard", icon: LayoutDashboard, path: "/admin/panel/office-management" },
+  { title: "Departments", icon: Building2, path: "/admin/panel/office-management/departments" },
+  { title: "Tasks", icon: CheckSquare, path: "/admin/panel/office-management/tasks" },
+  { title: "Documents", icon: FileText, path: "/admin/panel/office-management/documents" },
+  { title: "Roles & Permissions", icon: Shield, path: "/admin/panel/roles" },
+  { title: "Audit Logs", icon: FileText, path: "/admin/panel/audit-logs" },
+  { title: "Profile", icon: User, path: "/admin/panel/profile" },
+  { title: "Settings", icon: Settings, path: "/admin/panel/settings" },
+];
+
 const AdminPanel = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAdmin, loading, signOut } = useAuth();
   const isDashboard = location.pathname === "/admin/panel";
+  
+  // Determine which menu to show based on route
+  const isOfficeManagement = location.pathname.includes('/office-management');
+  const menuItems = isOfficeManagement ? officeMenuItems : membershipMenuItems;
   
   // Real-time stats from database
   const [stats, setStats] = useState({
