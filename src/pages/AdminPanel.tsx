@@ -44,11 +44,11 @@ const AdminPanel = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAdmin, loading, signOut } = useAuth();
-  const isDashboard = location.pathname === "/admin/panel";
   
   // Determine which menu to show based on route
   const isOfficeManagement = location.pathname.includes('/office-management');
-  const menuItems = isOfficeManagement ? officeMenuItems : membershipMenuItems;
+  const currentMenuItems = isOfficeManagement ? officeMenuItems : membershipMenuItems;
+  const isDashboard = location.pathname === "/admin/panel";
   
   // Real-time stats from database
   const [stats, setStats] = useState({
@@ -125,7 +125,7 @@ const AdminPanel = () => {
               <SidebarGroupLabel>Menu</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {menuItems.map((item) => (
+                  {currentMenuItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild>
                         <NavLink 
