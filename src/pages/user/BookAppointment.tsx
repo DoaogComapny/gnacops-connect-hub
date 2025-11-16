@@ -97,23 +97,26 @@ const BookAppointment = () => {
                   <CardDescription>Choose your preferred appointment date and time</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    disabled={(date) => date < new Date() || date.getDay() === 0 || date.getDay() === 6}
-                    className="rounded-md border"
-                  />
+                  <div className="space-y-2">
+                    <Label>Select Date</Label>
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={setSelectedDate}
+                      disabled={(date) => date < new Date() || date.getDay() === 0 || date.getDay() === 6}
+                      className="rounded-md border mx-auto"
+                    />
+                  </div>
 
                   <div className="space-y-2">
-                    <Label>Time Slot</Label>
+                    <Label htmlFor="time-slot">Time Slot *</Label>
                     <Select value={timeSlot} onValueChange={setTimeSlot}>
-                      <SelectTrigger>
+                      <SelectTrigger id="time-slot" className="pointer-events-auto">
                         <SelectValue placeholder="Select time" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="pointer-events-auto">
                         {timeSlots.map((slot) => (
-                          <SelectItem key={slot} value={slot}>
+                          <SelectItem key={slot} value={slot} className="cursor-pointer">
                             {slot}
                           </SelectItem>
                         ))}
@@ -122,16 +125,16 @@ const BookAppointment = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Duration</Label>
+                    <Label htmlFor="duration">Duration *</Label>
                     <Select value={duration} onValueChange={setDuration}>
-                      <SelectTrigger>
+                      <SelectTrigger id="duration" className="pointer-events-auto">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="30">30 minutes</SelectItem>
-                        <SelectItem value="60">1 hour</SelectItem>
-                        <SelectItem value="90">1.5 hours</SelectItem>
-                        <SelectItem value="120">2 hours</SelectItem>
+                      <SelectContent className="pointer-events-auto">
+                        <SelectItem value="30" className="cursor-pointer">30 minutes</SelectItem>
+                        <SelectItem value="60" className="cursor-pointer">1 hour</SelectItem>
+                        <SelectItem value="90" className="cursor-pointer">1.5 hours</SelectItem>
+                        <SelectItem value="120" className="cursor-pointer">2 hours</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -146,16 +149,26 @@ const BookAppointment = () => {
                     <CardDescription>How would you like to meet?</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <RadioGroup value={appointmentType} onValueChange={(value: any) => setAppointmentType(value)}>
-                      <div className="flex items-center space-x-2 p-4 rounded-lg border hover:bg-accent cursor-pointer">
-                        <RadioGroupItem value="in-person" id="in-person" />
+                    <RadioGroup 
+                      value={appointmentType} 
+                      onValueChange={(value: any) => setAppointmentType(value)}
+                      className="pointer-events-auto"
+                    >
+                      <div 
+                        className="flex items-center space-x-2 p-4 rounded-lg border hover:bg-accent cursor-pointer transition-colors"
+                        onClick={() => setAppointmentType("in-person")}
+                      >
+                        <RadioGroupItem value="in-person" id="in-person" className="pointer-events-auto" />
                         <Label htmlFor="in-person" className="flex items-center gap-2 cursor-pointer flex-1">
                           <MapPin className="h-4 w-4" />
                           In-Person Meeting
                         </Label>
                       </div>
-                      <div className="flex items-center space-x-2 p-4 rounded-lg border hover:bg-accent cursor-pointer">
-                        <RadioGroupItem value="virtual" id="virtual" />
+                      <div 
+                        className="flex items-center space-x-2 p-4 rounded-lg border hover:bg-accent cursor-pointer transition-colors"
+                        onClick={() => setAppointmentType("virtual")}
+                      >
+                        <RadioGroupItem value="virtual" id="virtual" className="pointer-events-auto" />
                         <Label htmlFor="virtual" className="flex items-center gap-2 cursor-pointer flex-1">
                           <Video className="h-4 w-4" />
                           Virtual Meeting
@@ -167,7 +180,7 @@ const BookAppointment = () => {
 
                 <Card className="hover-glow">
                   <CardHeader>
-                    <CardTitle>Purpose of Meeting</CardTitle>
+                    <CardTitle>Purpose of Meeting *</CardTitle>
                     <CardDescription>Tell us what you'd like to discuss</CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -177,6 +190,7 @@ const BookAppointment = () => {
                       onChange={(e) => setPurpose(e.target.value)}
                       rows={6}
                       required
+                      className="pointer-events-auto"
                     />
                   </CardContent>
                 </Card>
