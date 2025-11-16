@@ -95,8 +95,13 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Login Button */}
-          <div className="hidden md:block">
+          {/* Action Buttons */}
+          <div className="hidden md:flex items-center gap-2">
+            <Link to="/book-appointment">
+              <Button variant="outline" size="sm">
+                Book Appointment
+              </Button>
+            </Link>
             <Link to="/login">
               <Button variant="hero" size="sm">
                 Login
@@ -157,6 +162,11 @@ const Navbar = () => {
                 {item.label}
               </Link>
             ))}
+            <Link to="/book-appointment" onClick={() => setIsMenuOpen(false)}>
+              <Button variant="outline" size="sm" className="w-full">
+                Book Appointment
+              </Button>
+            </Link>
             <Link to="/login" onClick={() => setIsMenuOpen(false)}>
               <Button variant="hero" size="sm" className="w-full">
                 Login
