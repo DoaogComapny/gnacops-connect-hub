@@ -78,9 +78,29 @@ const AboutPage = () => {
                             if (directorBio) {
                               const preview = directorBio.slice(0, 500);
                               return (
-                                <p>
-                                  {isDirectorMessageOpen ? directorBio : `${preview}${directorBio.length > 500 ? '...' : ''}`}
-                                </p>
+                                <>
+                                  <p className="mb-4">
+                                    {isDirectorMessageOpen ? directorBio : `${preview}${directorBio.length > 500 ? '...' : ''}`}
+                                  </p>
+                                  {directorBio.length > 500 && (
+                                    <CollapsibleTrigger asChild>
+                                      <Button 
+                                        variant="ghost" 
+                                        className="w-full justify-center gap-2 hover-glow transition-all duration-300"
+                                      >
+                                        {isDirectorMessageOpen ? (
+                                          <>
+                                            Read Less <ChevronUp className="h-4 w-4" />
+                                          </>
+                                        ) : (
+                                          <>
+                                            Read More <ChevronDown className="h-4 w-4" />
+                                          </>
+                                        )}
+                                      </Button>
+                                    </CollapsibleTrigger>
+                                  )}
+                                </>
                               );
                             }
                             return (
