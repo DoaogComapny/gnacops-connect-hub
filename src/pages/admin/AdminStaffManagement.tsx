@@ -153,59 +153,20 @@ const AdminStaffManagement = () => {
     setIsSaving(true);
 
     try {
-      // Create user account
-      const tempPassword = `Temp${Math.random().toString(36).slice(-8)}!`;
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password: tempPassword,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-        },
-      });
-
-      if (authError) throw authError;
-
-      if (!authData.user) {
-        throw new Error("User creation failed");
-      }
-
-      // Assign role
-      const { error: roleError } = await supabase.from("user_roles").insert([{
-        user_id: authData.user.id,
-        role: selectedRole as any,
-      }]);
-
-      if (roleError) throw roleError;
-
-      // If coordinator, save assignment
-      if (
-        selectedRole === "district_coordinator" ||
-        selectedRole === "regional_coordinator"
-      ) {
-        const { error: assignmentError } = await supabase
-          .from("staff_assignments")
-          .insert({
-            user_id: authData.user.id,
-            role: selectedRole,
-            region: selectedRegion,
-            district: selectedRole === "district_coordinator" ? selectedDistrict : null,
-          });
-
-        if (assignmentError) throw assignmentError;
-      }
-
-      // Send welcome email with temp password
-      await supabase.functions.invoke("send-email", {
+      // Call secure edge function to create staff account
+      const { data, error: functionError } = await supabase.functions.invoke("create-staff", {
         body: {
-          to: email,
-          subject: "Welcome to GNACOPS Staff Portal",
-          html: `<p>Welcome ${fullName},</p><p>Your account has been created. Your temporary password is: <strong>${tempPassword}</strong></p><p>Please login and change your password immediately.</p>`,
+          email,
+          fullName,
+          role: selectedRole,
+          region: selectedRegion || null,
+          district: selectedDistrict || null,
         },
       });
 
-      toast.success("Staff member added successfully");
+      if (functionError) throw functionError;
+
+      toast.success("Staff member added successfully. Temporary password sent via email.");
       setIsAddDialogOpen(false);
       resetForm();
       fetchStaff();

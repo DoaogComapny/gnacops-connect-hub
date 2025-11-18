@@ -101,7 +101,7 @@ serve(async (req) => {
       .maybeSingle();
 
     if (existingUser) {
-      throw new Error('Email already registered');
+      throw new Error('Registration failed. Please contact support if you need assistance.');
     }
 
     // Create user account
