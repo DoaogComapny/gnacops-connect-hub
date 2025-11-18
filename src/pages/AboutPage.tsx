@@ -9,10 +9,10 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const AboutPage = () => {
-  const { settings, isLoading } = useSiteSettings();
+  const { settings, loading } = useSiteSettings();
   const [isDirectorMessageOpen, setIsDirectorMessageOpen] = useState(false);
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -24,12 +24,13 @@ const AboutPage = () => {
     );
   }
 
-  const aboutPage = settings?.aboutPage;
+  const aboutPage = settings?.about_page;
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container mx-auto px-4 py-24 space-y-12">
+        {/* Director's Message */}
         {aboutPage?.director && (
           <Card className="hover-glow">
             <CardHeader>
@@ -37,9 +38,9 @@ const AboutPage = () => {
             </CardHeader>
             <CardContent>
               <div className="flex flex-col md:flex-row gap-6">
-                {aboutPage.director.imageUrl && (
+                {aboutPage.director.image && (
                   <img
-                    src={aboutPage.director.imageUrl}
+                    src={aboutPage.director.image}
                     alt={aboutPage.director.name}
                     className="w-48 h-48 rounded-lg object-cover"
                   />
@@ -96,17 +97,21 @@ const AboutPage = () => {
           </Card>
         )}
 
-        {aboutPage?.detailedSections && (
+        {/* Accordion Sections */}
+        {aboutPage?.sections && (
           <Card className="hover-glow">
             <CardHeader>
               <CardTitle className="text-2xl text-gradient-accent">More About GNACOPS</CardTitle>
             </CardHeader>
             <CardContent>
               <Accordion type="single" collapsible className="w-full">
-                {aboutPage.detailedSections.map((section) => (
-                  <AccordionItem key={section.key} value={section.key} className="border-b border-card-border">
+                {Object.entries(aboutPage.sections).map(([key, section]: [string, any]) => (
+                  <AccordionItem key={key} value={key} className="border-b border-card-border">
                     <AccordionTrigger className="hover:text-accent transition-colors py-4">
-                      <span className="font-semibold">{section.title}</span>
+                      <span className="flex items-center gap-2">
+                        {section.emoji && <span className="text-xl">{section.emoji}</span>}
+                        <span className="font-semibold">{section.title}</span>
+                      </span>
                     </AccordionTrigger>
                     <AccordionContent className="pt-4 pb-6">
                       <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{section.content}</p>
