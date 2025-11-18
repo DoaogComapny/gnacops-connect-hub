@@ -38,10 +38,10 @@ const AboutPage = () => {
             </CardHeader>
             <CardContent>
               <div className="flex flex-col md:flex-row gap-6">
-                {aboutPage.director.image && (
+                {aboutPage.director.imageUrl && (
                   <img
-                    src={aboutPage.director.image}
-                    alt={aboutPage.director.name}
+                    src={aboutPage.director.imageUrl}
+                    alt={aboutPage.director.name || "Director"}
                     className="w-48 h-48 rounded-lg object-cover"
                   />
                 )}
@@ -98,15 +98,15 @@ const AboutPage = () => {
         )}
 
         {/* Accordion Sections */}
-        {aboutPage?.sections && (
+        {aboutPage?.detailedSections && (
           <Card className="hover-glow">
             <CardHeader>
               <CardTitle className="text-2xl text-gradient-accent">More About GNACOPS</CardTitle>
             </CardHeader>
             <CardContent>
               <Accordion type="single" collapsible className="w-full">
-                {Object.entries(aboutPage.sections).map(([key, section]: [string, any]) => (
-                  <AccordionItem key={key} value={key} className="border-b border-card-border">
+                {aboutPage.detailedSections.map((section: any, index: number) => (
+                  <AccordionItem key={index} value={`section-${index}`} className="border-b border-card-border">
                     <AccordionTrigger className="hover:text-accent transition-colors py-4">
                       <span className="flex items-center gap-2">
                         {section.emoji && <span className="text-xl">{section.emoji}</span>}
