@@ -9,7 +9,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const AboutPage = () => {
-  const { settings, loading } = useSiteSettings();
+  const { settings, isLoading: loading } = useSiteSettings();
   const [isDirectorMessageOpen, setIsDirectorMessageOpen] = useState(false);
 
   if (loading) {
@@ -24,7 +24,7 @@ const AboutPage = () => {
     );
   }
 
-  const aboutPage = settings?.about_page;
+  const aboutPage = settings?.aboutPage;
 
   return (
     <div className="min-h-screen bg-background">
