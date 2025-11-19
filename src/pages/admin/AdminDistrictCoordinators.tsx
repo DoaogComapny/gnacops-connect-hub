@@ -31,6 +31,8 @@ const AdminDistrictCoordinators = () => {
   // Form state
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -92,8 +94,18 @@ const AdminDistrictCoordinators = () => {
   };
 
   const handleAddCoordinator = async () => {
-    if (!email || !fullName || !selectedRegion || !selectedDistrict) {
+    if (!email || !fullName || !selectedRegion || !selectedDistrict || !password || !confirmPassword) {
       toast.error("Please fill in all required fields");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters long");
       return;
     }
 
@@ -104,6 +116,7 @@ const AdminDistrictCoordinators = () => {
           email,
           fullName,
           role: "district_coordinator",
+          password: password,
           region: selectedRegion,
           district: selectedDistrict,
         },
@@ -152,6 +165,8 @@ const AdminDistrictCoordinators = () => {
   const resetForm = () => {
     setEmail("");
     setFullName("");
+    setPassword("");
+    setConfirmPassword("");
     setSelectedRegion("");
     setSelectedDistrict("");
   };
@@ -274,6 +289,35 @@ const AdminDistrictCoordinators = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter email address"
                 />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold">Credentials</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password *</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter password"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Minimum 6 characters
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm Password *</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm password"
+                  />
+                </div>
               </div>
             </div>
 
