@@ -10,6 +10,7 @@ import { Loader2, Save, Eye } from "lucide-react";
 import { useSecretaryAuth } from "@/hooks/useSecretaryAuth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import DOMPurify from "dompurify";
 
 interface EmailTemplate {
   id: string;
@@ -207,7 +208,15 @@ const SecretaryEmailTemplates = () => {
                 <p className="font-medium">{selectedTemplate.subject}</p>
               </div>
               <div className="border rounded-lg p-4 bg-background">
-                <div dangerouslySetInnerHTML={{ __html: selectedTemplate.html_body }} />
+                <div 
+                  dangerouslySetInnerHTML={{ 
+                    __html: DOMPurify.sanitize(selectedTemplate.html_body, {
+                      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'span', 'table', 'tr', 'td', 'th', 'thead', 'tbody'],
+                      ALLOWED_ATTR: ['href', 'target', 'style', 'class'],
+                      ALLOW_DATA_ATTR: false
+                    })
+                  }} 
+                />
               </div>
             </div>
           )}
