@@ -30,6 +30,52 @@ const AboutPage = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container mx-auto px-4 py-24 space-y-12">
+        {/* Hero Section */}
+        <div className="text-center mb-12 animate-fade-in-up">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-gradient-accent">
+            About GNACOPS
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            The Ghana National Council of Private Schools (GNACOPS) is the leading organization dedicated to promoting excellence and standards in private education across Ghana.
+          </p>
+        </div>
+
+        {/* Mission, Vision, Values Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+          <Card className="hover-glow">
+            <CardHeader>
+              <CardTitle className="text-2xl text-accent">Our Mission</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                {aboutPage?.mission?.text || "To support, regulate, and elevate the standards of private educational institutions throughout Ghana."}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover-glow">
+            <CardHeader>
+              <CardTitle className="text-2xl text-accent">Our Vision</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                {aboutPage?.vision?.text || "A thriving private education sector that contributes significantly to Ghana's educational excellence and national development."}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover-glow">
+            <CardHeader>
+              <CardTitle className="text-2xl text-accent">Our Values</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                {aboutPage?.values?.items?.join(", ") || "Quality, Integrity, Innovation, and Collaboration in fostering exceptional learning environments."}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Director's Message */}
         {aboutPage?.director && (
           <Card className="hover-glow">
@@ -97,24 +143,30 @@ const AboutPage = () => {
           </Card>
         )}
 
-        {/* Accordion Sections */}
-        {aboutPage?.detailedSections && (
+        {/* More About GNACOPS Accordion Sections */}
+        {aboutPage?.detailedSections && aboutPage.detailedSections.length > 0 && (
           <Card className="hover-glow">
             <CardHeader>
               <CardTitle className="text-2xl text-gradient-accent">More About GNACOPS</CardTitle>
             </CardHeader>
             <CardContent>
-              <Accordion type="single" collapsible className="w-full">
+              <Accordion type="single" collapsible className="w-full space-y-2">
                 {aboutPage.detailedSections.map((section: any, index: number) => (
-                  <AccordionItem key={index} value={`section-${index}`} className="border-b border-card-border">
-                    <AccordionTrigger className="hover:text-accent transition-colors py-4">
-                      <span className="flex items-center gap-2">
-                        {section.emoji && <span className="text-xl">{section.emoji}</span>}
-                        <span className="font-semibold">{section.title}</span>
+                  <AccordionItem 
+                    key={index} 
+                    value={`section-${index}`} 
+                    className="border border-card-border rounded-lg px-4 hover-glow"
+                  >
+                    <AccordionTrigger className="hover:text-accent transition-colors py-4 hover:no-underline">
+                      <span className="flex items-center gap-3 text-left">
+                        {section.emoji && <span className="text-2xl">{section.emoji}</span>}
+                        <span className="font-semibold text-lg">{section.title}</span>
                       </span>
                     </AccordionTrigger>
-                    <AccordionContent className="pt-4 pb-6">
-                      <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{section.content}</p>
+                    <AccordionContent className="pt-2 pb-6">
+                      <p className="text-muted-foreground leading-relaxed whitespace-pre-line pl-11">
+                        {section.content}
+                      </p>
                     </AccordionContent>
                   </AccordionItem>
                 ))}
