@@ -50,9 +50,13 @@ const AdminStaffManagement = () => {
   // Form state
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingStaff, setEditingStaff] = useState<StaffMember | null>(null);
 
   useEffect(() => {
     fetchStaff();
@@ -122,8 +126,18 @@ const AdminStaffManagement = () => {
   };
 
   const handleAddStaff = async () => {
-    if (!email || !fullName || !selectedRole) {
+    if (!email || !fullName || !selectedRole || !password || !confirmPassword) {
       toast.error("Please fill in all required fields");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters long");
       return;
     }
 
@@ -134,6 +148,8 @@ const AdminStaffManagement = () => {
           email,
           fullName,
           role: selectedRole,
+          password: password,
+          permissions: selectedPermissions,
         },
       });
 
@@ -173,8 +189,65 @@ const AdminStaffManagement = () => {
   const resetForm = () => {
     setEmail("");
     setFullName("");
+    setPassword("");
+    setConfirmPassword("");
     setSelectedRole("");
     setSelectedPermissions([]);
+    setEditingStaff(null);
+  };
+
+  const handleEditStaff = (member: StaffMember) => {
+    setEditingStaff(member);
+    setEmail(member.email);
+    setFullName(member.full_name);
+    setSelectedRole(member.roles[0]?.role || "");
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateStaff = async () => {
+    if (!editingStaff || !fullName) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      // Update profile
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({ full_name: fullName })
+        .eq("id", editingStaff.user_id);
+
+      if (profileError) throw profileError;
+
+      // Update role if changed
+      if (selectedRole && selectedRole !== editingStaff.roles[0]?.role) {
+        // Delete old roles
+        const { error: deleteError } = await supabase
+          .from("user_roles")
+          .delete()
+          .eq("user_id", editingStaff.user_id);
+
+        if (deleteError) throw deleteError;
+
+        // Insert new role
+        const { error: roleError } = await supabase
+          .from("user_roles")
+          .insert([{ user_id: editingStaff.user_id, role: selectedRole as any }]);
+
+        if (roleError) throw roleError;
+      }
+
+      toast.success("Staff member updated successfully");
+      setIsEditDialogOpen(false);
+      resetForm();
+      fetchStaff();
+    } catch (error: any) {
+      console.error("Error updating staff:", error);
+      toast.error(error.message || "Failed to update staff member");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const togglePermission = (permissionId: string) => {
@@ -270,13 +343,22 @@ const AdminStaffManagement = () => {
                     {new Date(member.created_at).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteStaff(member.user_id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditStaff(member)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteStaff(member.user_id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -311,6 +393,35 @@ const AdminStaffManagement = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter email address"
                 />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold">Credentials</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password *</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter password"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Minimum 6 characters
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm Password *</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm password"
+                  />
+                </div>
               </div>
             </div>
 
@@ -382,6 +493,73 @@ const AdminStaffManagement = () => {
               <Button onClick={handleAddStaff} disabled={isSaving}>
                 {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Add Staff Member
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Staff Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Staff Member</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="editFullName">Full Name *</Label>
+              <Input
+                id="editFullName"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Enter full name"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="editEmail">Email</Label>
+              <Input
+                id="editEmail"
+                type="email"
+                value={email}
+                disabled
+                className="bg-muted"
+              />
+              <p className="text-xs text-muted-foreground">
+                Email cannot be changed
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="editRole">Role *</Label>
+              <Select value={selectedRole} onValueChange={setSelectedRole}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(roleLabels).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsEditDialogOpen(false);
+                  resetForm();
+                }}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleUpdateStaff} disabled={isSaving}>
+                {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                Update Staff Member
               </Button>
             </div>
           </div>
