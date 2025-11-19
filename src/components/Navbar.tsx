@@ -98,7 +98,7 @@ const Navbar = () => {
           {/* Action Buttons */}
           <div className="hidden md:flex items-center gap-2">
             <Link to="/book-appointment">
-              <Button variant="outline" size="sm">
+              <Button variant="hero" size="sm">
                 Book Appointment
               </Button>
             </Link>

@@ -36,44 +36,8 @@ const AboutPage = () => {
             About GNACOPS
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            The Ghana National Council of Private Schools (GNACOPS) is the leading organization dedicated to promoting excellence and standards in private education across Ghana.
+            {settings.aboutSectionText || aboutPage?.intro || "The Ghana National Council of Private Schools (GNACOPS) is the leading organization dedicated to promoting excellence and standards in private education across Ghana."}
           </p>
-        </div>
-
-        {/* Mission, Vision, Values Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          <Card className="hover-glow">
-            <CardHeader>
-              <CardTitle className="text-2xl text-accent">Our Mission</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                {aboutPage?.mission?.text || "To support, regulate, and elevate the standards of private educational institutions throughout Ghana."}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="hover-glow">
-            <CardHeader>
-              <CardTitle className="text-2xl text-accent">Our Vision</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                {aboutPage?.vision?.text || "A thriving private education sector that contributes significantly to Ghana's educational excellence and national development."}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="hover-glow">
-            <CardHeader>
-              <CardTitle className="text-2xl text-accent">Our Values</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                {aboutPage?.values?.items?.join(", ") || "Quality, Integrity, Innovation, and Collaboration in fostering exceptional learning environments."}
-              </p>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Director's Message */}
@@ -173,6 +137,50 @@ const AboutPage = () => {
               </Accordion>
             </CardContent>
           </Card>
+        )}
+
+        {/* Mission, Vision, Values Grid */}
+        {(aboutPage?.mission || aboutPage?.vision || aboutPage?.values) && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            {aboutPage?.mission && (
+              <Card className="hover-glow">
+                <CardHeader>
+                  <CardTitle className="text-2xl text-accent">Our Mission</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                    {aboutPage.mission.text}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {aboutPage?.vision && (
+              <Card className="hover-glow">
+                <CardHeader>
+                  <CardTitle className="text-2xl text-accent">Our Vision</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                    {aboutPage.vision.text}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {aboutPage?.values && (
+              <Card className="hover-glow">
+                <CardHeader>
+                  <CardTitle className="text-2xl text-accent">Our Values</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                    {aboutPage.values.items?.join(", ")}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         )}
       </div>
       <Footer />
