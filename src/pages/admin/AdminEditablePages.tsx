@@ -43,6 +43,8 @@ const pages = [
 ];
 
 const AdminEditablePages = () => {
+  console.log("AdminEditablePages component rendered");
+  
   return (
     <div className="p-6 space-y-6">
       <div>
@@ -70,13 +72,21 @@ const AdminEditablePages = () => {
                 <CardDescription>{page.description}</CardDescription>
               </CardHeader>
               <CardContent className="flex gap-2">
-                <Link to={`/admin/panel/editable-pages/${page.key}`} className="flex-1">
+                <Link 
+                  to={`/admin/panel/editable-pages/${page.key}`} 
+                  className="flex-1"
+                  onClick={() => console.log(`Navigating to: /admin/panel/editable-pages/${page.key}`)}
+                >
                   <Button variant="default" className="w-full">
                     <FileEdit className="mr-2 h-4 w-4" />
                     Edit Page
                   </Button>
                 </Link>
-                <Link to={`/${page.key}`} target="_blank">
+                <Link 
+                  to={`/${page.key}`} 
+                  target="_blank"
+                  onClick={() => console.log(`Opening in new tab: /${page.key}`)}
+                >
                   <Button variant="outline" size="icon">
                     <ExternalLink className="h-4 w-4" />
                   </Button>
