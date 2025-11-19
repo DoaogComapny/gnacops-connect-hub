@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useDistrictCoordinatorAuth } from "@/hooks/useDistrictCoordinatorAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Eye, Search } from "lucide-react";
@@ -32,19 +32,14 @@ interface School {
 }
 
 const DistrictSchoolsList = () => {
-  const { user } = useAuth();
+  const { user, assignment, error: assignmentError } = useDistrictCoordinatorAuth();
   const navigate = useNavigate();
-  const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [schools, setSchools] = useState<School[]>([]);
   const [filteredSchools, setFilteredSchools] = useState<School[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [paymentFilter, setPaymentFilter] = useState("all");
-
-  useEffect(() => {
-    fetchAssignment();
-  }, [user]);
 
   useEffect(() => {
     if (assignment) {
@@ -55,25 +50,6 @@ const DistrictSchoolsList = () => {
   useEffect(() => {
     applyFilters();
   }, [searchTerm, statusFilter, paymentFilter, schools]);
-
-  const fetchAssignment = async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await supabase
-        .from("staff_assignments")
-        .select("region, district")
-        .eq("user_id", user.id)
-        .eq("role", "district_coordinator")
-        .single();
-
-      if (error) throw error;
-      setAssignment(data);
-    } catch (error) {
-      console.error("Error fetching assignment:", error);
-      toast.error("Failed to load assignment");
-    }
-  };
 
   const fetchSchools = async () => {
     if (!assignment) return;
