@@ -52,22 +52,41 @@ const BookAppointment = () => {
       const appointmentDate = new Date(selectedDate);
       appointmentDate.setHours(hours, minutes, 0, 0);
 
-      const { error } = await supabase.from("appointments").insert({
+      console.log("Booking appointment:", {
+        user_id: user.id,
+        appointment_type: appointmentType,
+        appointment_date: appointmentDate.toISOString(),
+        duration_minutes: parseInt(duration),
+        purpose: purpose.trim(),
+      });
+
+      const { data, error } = await supabase.from("appointments").insert({
         user_id: user.id,
         appointment_type: appointmentType,
         appointment_date: appointmentDate.toISOString(),
         duration_minutes: parseInt(duration),
         purpose: purpose.trim(),
         status: "pending",
-      });
+      }).select().single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Database error:", error);
+        throw error;
+      }
 
+      console.log("Appointment booked successfully:", data);
       toast.success("Appointment request submitted! You'll receive an email once it's reviewed.");
-      navigate("/dashboard");
-    } catch (error) {
+      
+      // Reset form
+      setSelectedDate(undefined);
+      setTimeSlot("");
+      setPurpose("");
+      
+      // Redirect after short delay
+      setTimeout(() => navigate("/dashboard"), 1500);
+    } catch (error: any) {
       console.error("Error booking appointment:", error);
-      toast.error("Failed to book appointment. Please try again.");
+      toast.error(`Failed to book appointment: ${error.message || "Please try again"}`);
     } finally {
       setIsSubmitting(false);
     }

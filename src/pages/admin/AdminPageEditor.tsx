@@ -218,7 +218,14 @@ const AdminPageEditor = () => {
   };
 
   const addBlock = async (type: string) => {
+    if (!page) {
+      toast.error("No page loaded");
+      return;
+    }
+    
     try {
+      console.log("Adding block:", { type, page_id: page.id, position: blocks.length });
+      
       const { data, error } = await supabase
         .from("page_blocks")
         .insert({
@@ -230,28 +237,39 @@ const AdminPageEditor = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Database error:", error);
+        throw error;
+      }
+      
+      console.log("Block added successfully:", data);
       setBlocks([...blocks, data as PageBlock]);
-      toast.success("Block added");
-    } catch (error) {
+      toast.success("Block added successfully");
+    } catch (error: any) {
       console.error("Error adding block:", error);
-      toast.error("Failed to add block");
+      toast.error(`Failed to add block: ${error.message || "Unknown error"}`);
     }
   };
 
   const updateBlock = async (id: string, data: Record<string, any>) => {
     try {
+      console.log("Updating block:", { id, data });
+      
       const { error } = await supabase
         .from("page_blocks")
         .update({ block_data: data })
         .eq("id", id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Database error:", error);
+        throw error;
+      }
+      
       setBlocks(blocks.map((b) => (b.id === id ? { ...b, block_data: data } : b)));
-      toast.success("Block updated");
-    } catch (error) {
+      toast.success("Block updated successfully");
+    } catch (error: any) {
       console.error("Error updating block:", error);
-      toast.error("Failed to update block");
+      toast.error(`Failed to update block: ${error.message || "Unknown error"}`);
     }
   };
 
