@@ -153,7 +153,14 @@ const AdminStaffManagement = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Edge function error:", error);
+        throw new Error(error.message || "Failed to create staff member");
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
 
       toast.success("Staff member added successfully");
       setIsAddDialogOpen(false);

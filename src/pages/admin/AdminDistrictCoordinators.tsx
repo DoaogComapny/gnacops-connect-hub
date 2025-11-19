@@ -122,7 +122,14 @@ const AdminDistrictCoordinators = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Edge function error:", error);
+        throw new Error(error.message || "Failed to create coordinator");
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
 
       toast.success("District coordinator added successfully");
       setIsAddDialogOpen(false);
