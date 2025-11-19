@@ -71,6 +71,8 @@ import UserSupportTicketDetail from "./pages/user/UserSupportTicketDetail";
 import SecretaryPanel from "./pages/SecretaryPanel";
 import SecretaryAppointments from "./pages/secretary/SecretaryAppointments";
 import SecretaryCalendar from "./pages/secretary/SecretaryCalendar";
+import SecretarySupport from "./pages/secretary/SecretarySupport";
+import SecretaryAnalytics from "./pages/secretary/SecretaryAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -137,12 +139,12 @@ const App = () => (
           <Route path="/secretary/panel" element={<SecretaryPanel />}>
             <Route path="appointments" element={<SecretaryAppointments />} />
             <Route path="calendar" element={<SecretaryCalendar />} />
-            <Route path="support" element={<AdminSupport />} />
+            <Route path="support" element={<SecretarySupport />} />
+            <Route path="analytics" element={<SecretaryAnalytics />} />
             <Route path="applications" element={<AdminApplications />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="payments" element={<UserPayments />} />
             <Route path="certificates" element={<AdminCertificates />} />
-            <Route path="analytics" element={<AdminAuditLogs />} />
             <Route path="staff" element={<AdminStaff />} />
             <Route path="password-reset" element={<StaffForgotRequests />} />
             <Route path="profile" element={<AdminProfile />} />
