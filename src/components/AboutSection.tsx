@@ -1,14 +1,11 @@
+import { useState } from "react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 const AboutSection = () => {
   const { settings } = useSiteSettings();
+  const [isMissionExpanded, setIsMissionExpanded] = useState(false);
   
   const content = {
     title: settings.aboutSectionTitle || "About GNACOPS",
@@ -17,6 +14,9 @@ const AboutSection = () => {
     vision: settings.aboutPage?.vision?.text || "A thriving private education sector that contributes significantly to Ghana's educational excellence and national development.",
     values: settings.aboutPage?.values?.items?.join(", ") || "Quality, Integrity, Innovation, and Collaboration in fostering exceptional learning environments."
   };
+
+  const missionPreview = content.mission.slice(0, 200);
+  const showMissionToggle = content.mission.length > 200;
 
   return (
     <section id="about" className="py-20 px-4 spotlight-effect">
@@ -30,39 +30,54 @@ const AboutSection = () => {
           </p>
         </div>
 
-        <Carousel className="w-full max-w-5xl mx-auto" opts={{ loop: true }}>
-          <CarouselContent>
-            {[
-              {
-                title: "Our Mission",
-                description: content.mission,
-              },
-              {
-                title: "Our Vision",
-                description: content.vision,
-              },
-              {
-                title: "Our Values",
-                description: content.values,
-              },
-            ].map((item, index) => (
-              <CarouselItem key={index} className="md:basis-1/3">
-                <div className="h-full p-2">
-                  <div className="bg-card border border-card-border rounded-lg p-8 hover:border-primary transition-all duration-300 hover-glow h-full">
-                    <h3 className="text-2xl font-semibold mb-4 text-accent">
-                      {item.title}
-                    </h3>
-                    <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                      {item.description}
-                    </p>
-                  </div>
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className="hover-glow" />
-          <CarouselNext className="hover-glow" />
-        </Carousel>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {/* Our Mission */}
+          <div className="bg-card border border-card-border rounded-lg p-8 hover:border-primary transition-all duration-300 hover-glow">
+            <h3 className="text-2xl font-semibold mb-4 text-accent">
+              Our Mission
+            </h3>
+            <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+              {isMissionExpanded ? content.mission : `${missionPreview}${showMissionToggle ? "..." : ""}`}
+            </p>
+            {showMissionToggle && (
+              <Button
+                variant="ghost"
+                onClick={() => setIsMissionExpanded(!isMissionExpanded)}
+                className="mt-4 w-full sm:w-auto hover-glow gap-2"
+              >
+                {isMissionExpanded ? (
+                  <>
+                    Read Less <ChevronUp className="h-4 w-4" />
+                  </>
+                ) : (
+                  <>
+                    Read More <ChevronDown className="h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+
+          {/* Our Vision */}
+          <div className="bg-card border border-card-border rounded-lg p-8 hover:border-primary transition-all duration-300 hover-glow">
+            <h3 className="text-2xl font-semibold mb-4 text-accent">
+              Our Vision
+            </h3>
+            <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+              {content.vision}
+            </p>
+          </div>
+
+          {/* Our Values */}
+          <div className="bg-card border border-card-border rounded-lg p-8 hover:border-primary transition-all duration-300 hover-glow">
+            <h3 className="text-2xl font-semibold mb-4 text-accent">
+              Our Values
+            </h3>
+            <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+              {content.values}
+            </p>
+          </div>
+        </div>
       </div>
     </section>
   );
