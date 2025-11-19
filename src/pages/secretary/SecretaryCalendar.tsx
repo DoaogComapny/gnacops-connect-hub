@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, CalendarDays, CalendarOff, Cloud } from "lucide-react";
 import { useSecretaryAuth } from "@/hooks/useSecretaryAuth";
 
 const SecretaryCalendar = () => {
@@ -15,6 +15,7 @@ const SecretaryCalendar = () => {
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [bookedDates, setBookedDates] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     fetchDates();
@@ -77,6 +78,23 @@ const SecretaryCalendar = () => {
     });
   };
 
+  const syncToGoogleCalendar = async (date: Date, action: 'add' | 'remove') => {
+    try {
+      const dateStr = date.toISOString().split('T')[0];
+      const { error } = await supabase.functions.invoke('google-calendar-sync', {
+        body: {
+          action: action === 'add' ? 'sync_available_date' : 'remove_available_date',
+          date: dateStr,
+        },
+      });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Google Calendar sync error:', error);
+      throw error;
+    }
+  };
+
   const handleMarkAvailable = async () => {
     if (selectedDates.length === 0) {
       toast({
@@ -87,6 +105,7 @@ const SecretaryCalendar = () => {
       return;
     }
 
+    setSyncing(true);
     try {
       const inserts = selectedDates.map(date => ({
         date: date.toISOString().split('T')[0],
@@ -100,20 +119,27 @@ const SecretaryCalendar = () => {
 
       if (error) throw error;
 
+      // Sync to Google Calendar
+      for (const date of selectedDates) {
+        await syncToGoogleCalendar(date, 'add');
+      }
+
       toast({
         title: "Success",
-        description: `Marked ${selectedDates.length} date(s) as available`,
+        description: `Marked ${selectedDates.length} date(s) as available and synced to Google Calendar`,
       });
 
       setSelectedDates([]);
       fetchDates();
     } catch (error) {
-      console.error('Error marking dates:', error);
+      console.error('Error marking dates as available:', error);
       toast({
         title: "Error",
-        description: "Failed to mark dates as available",
+        description: "Failed to mark dates as available. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -127,125 +153,166 @@ const SecretaryCalendar = () => {
       return;
     }
 
+    setSyncing(true);
     try {
-      const dateStrs = selectedDates.map(d => d.toISOString().split('T')[0]);
+      const datesToRemove = selectedDates.map(date => date.toISOString().split('T')[0]);
 
       const { error } = await supabase
         .from('available_dates')
         .delete()
-        .in('date', dateStrs);
+        .in('date', datesToRemove);
 
       if (error) throw error;
 
+      // Sync to Google Calendar
+      for (const date of selectedDates) {
+        await syncToGoogleCalendar(date, 'remove');
+      }
+
       toast({
         title: "Success",
-        description: `Marked ${selectedDates.length} date(s) as unavailable`,
-        variant: "destructive",
+        description: `Marked ${selectedDates.length} date(s) as unavailable and synced to Google Calendar`,
       });
 
       setSelectedDates([]);
       fetchDates();
     } catch (error) {
-      console.error('Error marking dates:', error);
+      console.error('Error marking dates as unavailable:', error);
       toast({
         title: "Error",
-        description: "Failed to mark dates as unavailable",
+        description: "Failed to mark dates as unavailable. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setSyncing(false);
     }
-  };
-
-  const modifiers = {
-    available: (date: Date) => availableDates.includes(date.toISOString().split('T')[0]),
-    booked: (date: Date) => bookedDates.includes(date.toISOString().split('T')[0]),
-    selected: (date: Date) => selectedDates.some(d => d.toISOString().split('T')[0] === date.toISOString().split('T')[0]),
-  };
-
-  const modifiersClassNames = {
-    available: "bg-green-100 text-green-900 dark:bg-green-900 dark:text-green-100",
-    booked: "bg-red-100 text-red-900 dark:bg-red-900 dark:text-red-100",
-    selected: "bg-accent text-accent-foreground",
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
+      <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
-  return (
-    <div>
-      <h1 className="text-3xl font-bold text-gradient-accent mb-6">Calendar Setup</h1>
+  const modifiers = {
+    available: availableDates.map(d => new Date(d)),
+    booked: bookedDates.map(d => new Date(d)),
+    selected: selectedDates,
+  };
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card className="p-6">
+  const modifiersClassNames = {
+    available: "bg-green-100 text-green-900 hover:bg-green-200 dark:bg-green-900 dark:text-green-100",
+    booked: "bg-red-100 text-red-900 line-through dark:bg-red-900 dark:text-red-100",
+    selected: "bg-primary text-primary-foreground",
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gradient-accent mb-2">Calendar Setup</h1>
+        <p className="text-muted-foreground">Manage available dates for appointments</p>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="p-6 lg:col-span-2">
+          <div className="space-y-4">
             <Calendar
               mode="multiple"
               selected={selectedDates}
-              onSelect={(dates) => setSelectedDates(dates || [])}
+              onSelect={(dates) => {
+                if (Array.isArray(dates)) {
+                  setSelectedDates(dates);
+                }
+              }}
               onDayClick={handleDateSelect}
               modifiers={modifiers}
               modifiersClassNames={modifiersClassNames}
-              className="rounded-md border"
+              className="rounded-md border mx-auto"
               disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
             />
-          </Card>
-        </div>
+
+            <div className="flex gap-2">
+              <Button
+                onClick={handleMarkAvailable}
+                className="flex-1"
+                disabled={syncing || selectedDates.length === 0}
+              >
+                {syncing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Syncing...
+                  </>
+                ) : (
+                  <>
+                    <CalendarDays className="mr-2 h-4 w-4" />
+                    Mark Available
+                  </>
+                )}
+              </Button>
+              <Button
+                onClick={handleMarkUnavailable}
+                variant="outline"
+                className="flex-1"
+                disabled={syncing || selectedDates.length === 0}
+              >
+                {syncing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Syncing...
+                  </>
+                ) : (
+                  <>
+                    <CalendarOff className="mr-2 h-4 w-4" />
+                    Mark Unavailable
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </Card>
 
         <div className="space-y-4">
-          <Card className="p-4">
-            <h3 className="font-semibold mb-4">Legend</h3>
-            <div className="space-y-2">
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Legend</h3>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Cloud className="h-4 w-4 text-green-500" />
+                <span>Synced</span>
+              </div>
+            </div>
+            <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Badge className="bg-green-100 text-green-900 dark:bg-green-900 dark:text-green-100">
-                  Available
-                </Badge>
-                <span className="text-sm">Dates open for booking</span>
+                <div className="w-4 h-4 rounded bg-green-100 dark:bg-green-900" />
+                <span className="text-sm">Available Dates</span>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="destructive">Booked</Badge>
-                <span className="text-sm">Dates with appointments</span>
+                <div className="w-4 h-4 rounded bg-red-100 dark:bg-red-900" />
+                <span className="text-sm">Booked Dates</span>
               </div>
               <div className="flex items-center gap-2">
-                <Badge>Selected</Badge>
-                <span className="text-sm">Your current selection</span>
+                <div className="w-4 h-4 rounded bg-primary" />
+                <span className="text-sm">Selected Dates</span>
               </div>
             </div>
           </Card>
 
-          <Card className="p-4">
-            <h3 className="font-semibold mb-4">Actions</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Selected: {selectedDates.length} date(s)
-            </p>
-            <div className="space-y-2">
-              <Button
-                variant="default"
-                className="w-full"
-                onClick={handleMarkAvailable}
-                disabled={selectedDates.length === 0}
-              >
-                Mark as Available
-              </Button>
-              <Button
-                variant="destructive"
-                className="w-full"
-                onClick={handleMarkUnavailable}
-                disabled={selectedDates.length === 0}
-              >
-                Mark as Unavailable
-              </Button>
-            </div>
-          </Card>
-
-          <Card className="p-4">
-            <h3 className="font-semibold mb-2">Statistics</h3>
-            <div className="space-y-1 text-sm">
-              <p>Available Dates: <strong>{availableDates.length}</strong></p>
-              <p>Booked Dates: <strong>{bookedDates.length}</strong></p>
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Statistics</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Available</span>
+                <Badge variant="secondary">{availableDates.length}</Badge>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Booked</span>
+                <Badge variant="secondary">{bookedDates.length}</Badge>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Selected</span>
+                <Badge variant="secondary">{selectedDates.length}</Badge>
+              </div>
             </div>
           </Card>
         </div>
