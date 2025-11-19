@@ -25,6 +25,7 @@ const Navbar = () => {
     { label: "Events", path: "/events" },
     { label: "Gallery", path: "/gallery" },
     { label: "Education TV", path: "/education-tv" },
+    { label: "Book Appointment", path: "/book-appointment" },
     { label: "Contact", path: "/contact" },
   ];
 
@@ -56,7 +57,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-6 flex-1 ml-8">
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
@@ -86,7 +87,7 @@ const Navbar = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`text-sm font-medium transition-colors hover:text-accent ${
+                className={`text-sm font-medium transition-colors hover:text-accent whitespace-nowrap ${
                   isActive(item.path) ? "text-accent" : "text-foreground/80"
                 }`}
               >
@@ -97,11 +98,6 @@ const Navbar = () => {
 
           {/* Action Buttons */}
           <div className="hidden md:flex items-center gap-2">
-            <Link to="/book-appointment">
-              <Button variant="hero" size="sm">
-                Book Appointment
-              </Button>
-            </Link>
             <Link to="/login">
               <Button variant="hero" size="sm">
                 Login
@@ -162,11 +158,6 @@ const Navbar = () => {
                 {item.label}
               </Link>
             ))}
-            <Link to="/book-appointment" onClick={() => setIsMenuOpen(false)}>
-              <Button variant="outline" size="sm" className="w-full">
-                Book Appointment
-              </Button>
-            </Link>
             <Link to="/login" onClick={() => setIsMenuOpen(false)}>
               <Button variant="hero" size="sm" className="w-full">
                 Login
