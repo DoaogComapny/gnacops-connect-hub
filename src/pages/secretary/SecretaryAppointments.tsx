@@ -108,16 +108,34 @@ const SecretaryAppointments = () => {
             appointmentId: selectedAppointment.id,
           },
         });
+      } catch (syncError) {
+        console.error('Google Calendar sync error:', syncError);
+      }
+
+      // Send email notification
+      try {
+        await supabase.functions.invoke('send-appointment-notification', {
+          body: {
+            userEmail: selectedAppointment.profiles?.email || '',
+            userName: selectedAppointment.profiles?.full_name || 'User',
+            appointmentType: selectedAppointment.appointment_type,
+            appointmentDate: selectedAppointment.appointment_date,
+            purpose: selectedAppointment.purpose,
+            status: 'approved',
+            secretaryNotes: notes,
+            meetingLink: meetingLink,
+          },
+        });
         
         toast({
           title: "Success",
-          description: "Appointment approved and synced to Google Calendar",
+          description: "Appointment approved, synced to calendar, and email sent to user",
         });
-      } catch (syncError) {
-        console.error('Google Calendar sync error:', syncError);
+      } catch (emailError) {
+        console.error('Email notification error:', emailError);
         toast({
           title: "Partially Successful",
-          description: "Appointment approved but Google Calendar sync failed. Please try syncing manually.",
+          description: "Appointment approved but email notification failed",
           variant: "default",
         });
       }
@@ -134,7 +152,7 @@ const SecretaryAppointments = () => {
     }
   };
 
-  const handleReject = async (id: string) => {
+  const handleReject = async (appointment: Appointment) => {
     try {
       const { error } = await supabase
         .from('appointments')
@@ -143,15 +161,36 @@ const SecretaryAppointments = () => {
           approved_by: user?.id,
           approved_at: new Date().toISOString(),
         })
-        .eq('id', id);
+        .eq('id', appointment.id);
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Appointment rejected",
-        variant: "destructive",
-      });
+      // Send email notification
+      try {
+        await supabase.functions.invoke('send-appointment-notification', {
+          body: {
+            userEmail: appointment.profiles?.email || '',
+            userName: appointment.profiles?.full_name || 'User',
+            appointmentType: appointment.appointment_type,
+            appointmentDate: appointment.appointment_date,
+            purpose: appointment.purpose,
+            status: 'rejected',
+            secretaryNotes: 'Unfortunately, we are unable to accommodate your appointment request at the requested time.',
+          },
+        });
+
+        toast({
+          title: "Success",
+          description: "Appointment rejected and email sent to user",
+        });
+      } catch (emailError) {
+        console.error('Email notification error:', emailError);
+        toast({
+          title: "Partially Successful",
+          description: "Appointment rejected but email notification failed",
+          variant: "default",
+        });
+      }
 
       fetchAppointments();
     } catch (error) {
@@ -237,7 +276,7 @@ const SecretaryAppointments = () => {
           <Button
             variant="destructive"
             size="sm"
-            onClick={() => handleReject(appointment.id)}
+            onClick={() => handleReject(appointment)}
             className="flex-1"
           >
             <X className="h-4 w-4 mr-1" />
