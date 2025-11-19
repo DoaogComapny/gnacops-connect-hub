@@ -28,6 +28,7 @@ const SecretaryEmailTemplates = () => {
   const [saving, setSaving] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewMode, setPreviewMode] = useState(false);
 
   useEffect(() => {
     fetchTemplates();

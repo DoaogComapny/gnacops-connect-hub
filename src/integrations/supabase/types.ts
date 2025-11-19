@@ -26,6 +26,7 @@ export type Database = {
           id: string
           meeting_link: string | null
           purpose: string
+          reminder_sent: boolean | null
           secretary_notes: string | null
           status: string
           updated_at: string | null
@@ -42,6 +43,7 @@ export type Database = {
           id?: string
           meeting_link?: string | null
           purpose: string
+          reminder_sent?: boolean | null
           secretary_notes?: string | null
           status?: string
           updated_at?: string | null
@@ -58,6 +60,7 @@ export type Database = {
           id?: string
           meeting_link?: string | null
           purpose?: string
+          reminder_sent?: boolean | null
           secretary_notes?: string | null
           status?: string
           updated_at?: string | null
@@ -466,6 +469,50 @@ export type Database = {
           video_url?: string
         }
         Relationships: []
+      }
+      email_analytics: {
+        Row: {
+          appointment_id: string | null
+          bounce_status: string | null
+          clicked_at: string | null
+          created_at: string | null
+          email_type: string
+          id: string
+          opened_at: string | null
+          recipient_email: string
+          sent_at: string | null
+        }
+        Insert: {
+          appointment_id?: string | null
+          bounce_status?: string | null
+          clicked_at?: string | null
+          created_at?: string | null
+          email_type: string
+          id?: string
+          opened_at?: string | null
+          recipient_email: string
+          sent_at?: string | null
+        }
+        Update: {
+          appointment_id?: string | null
+          bounce_status?: string | null
+          clicked_at?: string | null
+          created_at?: string | null
+          email_type?: string
+          id?: string
+          opened_at?: string | null
+          recipient_email?: string
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_analytics_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_templates: {
         Row: {
