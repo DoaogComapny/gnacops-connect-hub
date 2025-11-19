@@ -76,6 +76,16 @@ import SecretaryAnalytics from "./pages/secretary/SecretaryAnalytics";
 import SecretarySyncStatus from "./pages/secretary/SecretarySyncStatus";
 import SecretaryEmailTemplates from "./pages/secretary/SecretaryEmailTemplates";
 import SecretaryRecurringAppointments from "./pages/secretary/SecretaryRecurringAppointments";
+import SecretaryEmailAnalytics from "./pages/secretary/SecretaryEmailAnalytics";
+
+// District Coordinator Pages
+import DistrictCoordinatorPanel from "./pages/coordinator/DistrictCoordinatorPanel";
+import DistrictDashboardHome from "./pages/coordinator/DistrictDashboardHome";
+import DistrictSchoolsList from "./pages/coordinator/DistrictSchoolsList";
+import DistrictSchoolDetails from "./pages/coordinator/DistrictSchoolDetails";
+import DistrictPaymentsPage from "./pages/coordinator/DistrictPaymentsPage";
+import DistrictReportsPage from "./pages/coordinator/DistrictReportsPage";
+import DistrictAccountPage from "./pages/coordinator/DistrictAccountPage";
 
 const queryClient = new QueryClient();
 
@@ -167,6 +177,16 @@ const App = () => (
             <Route path="notifications" element={<UserNotifications />} />
           </Route>
           <Route path="/book-appointment" element={<BookAppointment />} />
+
+          {/* District Coordinator Routes */}
+          <Route path="/coordinator/district/*" element={<DistrictCoordinatorPanel />}>
+            <Route path="dashboard" element={<DistrictDashboardHome />} />
+            <Route path="schools" element={<DistrictSchoolsList />} />
+            <Route path="school/:schoolId" element={<DistrictSchoolDetails />} />
+            <Route path="payments" element={<DistrictPaymentsPage />} />
+            <Route path="reports" element={<DistrictReportsPage />} />
+            <Route path="account" element={<DistrictAccountPage />} />
+          </Route>
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
