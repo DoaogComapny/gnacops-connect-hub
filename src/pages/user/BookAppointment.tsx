@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -9,26 +9,73 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Calendar as CalendarIcon, Video, MapPin } from "lucide-react";
+import { Loader2, Calendar as CalendarIcon, Video, MapPin, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const BookAppointment = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingDates, setIsLoadingDates] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [appointmentType, setAppointmentType] = useState<"in-person" | "virtual">("in-person");
   const [duration, setDuration] = useState("30");
   const [timeSlot, setTimeSlot] = useState("");
   const [purpose, setPurpose] = useState("");
+  const [availableDates, setAvailableDates] = useState<Date[]>([]);
 
   const timeSlots = [
     "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
     "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
     "15:00", "15:30", "16:00", "16:30",
   ];
+
+  // Fetch available dates from the database
+  useEffect(() => {
+    fetchAvailableDates();
+  }, []);
+
+  const fetchAvailableDates = async () => {
+    setIsLoadingDates(true);
+    try {
+      const { data, error } = await supabase
+        .from("available_dates")
+        .select("date")
+        .eq("is_available", true)
+        .gte("date", new Date().toISOString().split("T")[0])
+        .order("date", { ascending: true });
+
+      if (error) {
+        console.error("Error fetching available dates:", error);
+        toast.error("Failed to load available dates");
+        return;
+      }
+
+      if (data) {
+        const dates = data.map(item => new Date(item.date + "T00:00:00"));
+        setAvailableDates(dates);
+        console.log("Available dates loaded:", dates.length);
+      }
+    } catch (error: any) {
+      console.error("Error:", error);
+      toast.error("Failed to load available dates");
+    } finally {
+      setIsLoadingDates(false);
+    }
+  };
+
+  // Check if a date is available
+  const isDateAvailable = (date: Date) => {
+    return availableDates.some(
+      availableDate =>
+        availableDate.getFullYear() === date.getFullYear() &&
+        availableDate.getMonth() === date.getMonth() &&
+        availableDate.getDate() === date.getDate()
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,16 +163,40 @@ const BookAppointment = () => {
                   <CardDescription>Choose your preferred appointment date and time</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Select Date</Label>
-                    <Calendar
-                      mode="single"
-                      selected={selectedDate}
-                      onSelect={setSelectedDate}
-                      disabled={(date) => date < new Date() || date.getDay() === 0 || date.getDay() === 6}
-                      className="rounded-md border mx-auto"
-                    />
-                  </div>
+                  {isLoadingDates ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      <span className="ml-2 text-muted-foreground">Loading available dates...</span>
+                    </div>
+                  ) : availableDates.length === 0 ? (
+                    <Alert>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        No available dates at the moment. Please check back later or contact us directly.
+                      </AlertDescription>
+                    </Alert>
+                  ) : (
+                    <>
+                      <div className="space-y-2">
+                        <Label>Select Date</Label>
+                        <p className="text-sm text-muted-foreground">
+                          {availableDates.length} date(s) available
+                        </p>
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={setSelectedDate}
+                          disabled={(date) => {
+                            // Disable past dates
+                            if (date < new Date(new Date().setHours(0, 0, 0, 0))) return true;
+                            // Only enable dates that are in the available_dates list
+                            return !isDateAvailable(date);
+                          }}
+                          className="rounded-md border mx-auto"
+                        />
+                      </div>
+                    </>
+                  )}
 
                   <div className="space-y-2">
                     <Label htmlFor="time-slot">Time Slot *</Label>
@@ -214,7 +285,12 @@ const BookAppointment = () => {
                   </CardContent>
                 </Card>
 
-                <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  size="lg" 
+                  disabled={isSubmitting || isLoadingDates || availableDates.length === 0}
+                >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
