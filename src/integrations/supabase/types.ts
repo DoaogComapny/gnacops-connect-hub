@@ -246,6 +246,53 @@ export type Database = {
           },
         ]
       }
+      coordinator_notifications: {
+        Row: {
+          coordinator_id: string
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          notification_type: string
+          priority: string | null
+          read_at: string | null
+          school_id: string | null
+          title: string
+        }
+        Insert: {
+          coordinator_id: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          notification_type: string
+          priority?: string | null
+          read_at?: string | null
+          school_id?: string | null
+          title: string
+        }
+        Update: {
+          coordinator_id?: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          notification_type?: string
+          priority?: string | null
+          read_at?: string | null
+          school_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coordinator_notifications_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "form_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       departments: {
         Row: {
           code: string
@@ -1363,6 +1410,53 @@ export type Database = {
             columns: ["permission_id"]
             isOneToOne: false
             referencedRelation: "permissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_flags: {
+        Row: {
+          coordinator_id: string
+          created_at: string | null
+          flag_type: string
+          id: string
+          notes: string | null
+          priority: string | null
+          resolved_at: string | null
+          school_id: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          coordinator_id: string
+          created_at?: string | null
+          flag_type: string
+          id?: string
+          notes?: string | null
+          priority?: string | null
+          resolved_at?: string | null
+          school_id: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          coordinator_id?: string
+          created_at?: string | null
+          flag_type?: string
+          id?: string
+          notes?: string | null
+          priority?: string | null
+          resolved_at?: string | null
+          school_id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_flags_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "form_submissions"
             referencedColumns: ["id"]
           },
         ]

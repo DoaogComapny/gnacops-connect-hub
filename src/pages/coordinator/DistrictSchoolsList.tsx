@@ -10,6 +10,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { BulkActionsToolbar } from "@/components/coordinator/BulkActionsToolbar";
 
 interface Assignment {
   region: string;
@@ -36,6 +38,7 @@ const DistrictSchoolsList = () => {
   const navigate = useNavigate();
   const [schools, setSchools] = useState<School[]>([]);
   const [filteredSchools, setFilteredSchools] = useState<School[]>([]);
+  const [selectedSchools, setSelectedSchools] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -137,6 +140,27 @@ const DistrictSchoolsList = () => {
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
+  const handleToggleSchool = (schoolId: string) => {
+    setSelectedSchools(prev => 
+      prev.includes(schoolId)
+        ? prev.filter(id => id !== schoolId)
+        : [...prev, schoolId]
+    );
+  };
+
+  const handleToggleAll = () => {
+    if (selectedSchools.length === filteredSchools.length) {
+      setSelectedSchools([]);
+    } else {
+      setSelectedSchools(filteredSchools.map(s => s.id));
+    }
+  };
+
+  const handleBulkActionComplete = () => {
+    setSelectedSchools([]);
+    fetchSchools();
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -210,6 +234,15 @@ const DistrictSchoolsList = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Bulk Actions Toolbar */}
+      {user && (
+        <BulkActionsToolbar
+          selectedSchools={selectedSchools}
+          onActionComplete={handleBulkActionComplete}
+          coordinatorId={user.id}
+        />
+      )}
 
       {/* Schools Table */}
       <Card className="hover-glow">
