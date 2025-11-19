@@ -87,6 +87,17 @@ import DistrictPaymentsPage from "./pages/coordinator/DistrictPaymentsPage";
 import DistrictReportsPage from "./pages/coordinator/DistrictReportsPage";
 import DistrictAccountPage from "./pages/coordinator/DistrictAccountPage";
 
+// Regional Coordinator Pages
+import RegionalCoordinatorPanel from "./pages/coordinator/RegionalCoordinatorPanel";
+import RegionalDashboardHome from "./pages/coordinator/RegionalDashboardHome";
+import RegionalDistrictCoordinators from "./pages/coordinator/RegionalDistrictCoordinators";
+import RegionalSchoolsList from "./pages/coordinator/RegionalSchoolsList";
+import RegionalDistrictsOverview from "./pages/coordinator/RegionalDistrictsOverview";
+import RegionalSchoolDetails from "./pages/coordinator/RegionalSchoolDetails";
+import RegionalPaymentsPage from "./pages/coordinator/RegionalPaymentsPage";
+import RegionalReportsPage from "./pages/coordinator/RegionalReportsPage";
+import RegionalAccountPage from "./pages/coordinator/RegionalAccountPage";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -186,6 +197,18 @@ const App = () => (
             <Route path="payments" element={<DistrictPaymentsPage />} />
             <Route path="reports" element={<DistrictReportsPage />} />
             <Route path="account" element={<DistrictAccountPage />} />
+          </Route>
+
+          {/* Regional Coordinator Routes */}
+          <Route path="/coordinator/regional/*" element={<RegionalCoordinatorPanel />}>
+            <Route path="dashboard" element={<RegionalDashboardHome />} />
+            <Route path="coordinators" element={<RegionalDistrictCoordinators />} />
+            <Route path="schools" element={<RegionalSchoolsList />} />
+            <Route path="schools/:schoolId" element={<RegionalSchoolDetails />} />
+            <Route path="districts" element={<RegionalDistrictsOverview />} />
+            <Route path="payments" element={<RegionalPaymentsPage />} />
+            <Route path="reports" element={<RegionalReportsPage />} />
+            <Route path="account" element={<RegionalAccountPage />} />
           </Route>
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
