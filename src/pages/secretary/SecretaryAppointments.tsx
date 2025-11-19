@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { useSecretaryAuth } from "@/hooks/useSecretaryAuth";
@@ -38,6 +39,8 @@ const SecretaryAppointments = () => {
   const [notes, setNotes] = useState("");
   const [meetingLink, setMeetingLink] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkProcessing, setBulkProcessing] = useState(false);
 
   useEffect(() => {
     fetchAppointments();
@@ -152,6 +155,149 @@ const SecretaryAppointments = () => {
     }
   };
 
+  const handleBulkApprove = async () => {
+    if (selectedIds.length === 0) {
+      toast({
+        title: "No Selection",
+        description: "Please select appointments to approve",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setBulkProcessing(true);
+    try {
+      for (const id of selectedIds) {
+        const appointment = appointments.find(a => a.id === id);
+        if (!appointment) continue;
+
+        await supabase
+          .from('appointments')
+          .update({
+            status: 'approved',
+            approved_by: user?.id,
+            approved_at: new Date().toISOString(),
+          })
+          .eq('id', id);
+
+        // Sync to Google Calendar
+        try {
+          await supabase.functions.invoke('google-calendar-sync', {
+            body: {
+              action: 'sync_appointment',
+              appointmentId: id,
+            },
+          });
+        } catch (syncError) {
+          console.error('Google Calendar sync error:', syncError);
+        }
+
+        // Send email notification
+        try {
+          await supabase.functions.invoke('send-appointment-notification', {
+            body: {
+              userEmail: appointment.profiles?.email || '',
+              userName: appointment.profiles?.full_name || 'User',
+              appointmentType: appointment.appointment_type,
+              appointmentDate: appointment.appointment_date,
+              purpose: appointment.purpose,
+              status: 'approved',
+            },
+          });
+        } catch (emailError) {
+          console.error('Email notification error:', emailError);
+        }
+      }
+
+      toast({
+        title: "Success",
+        description: `${selectedIds.length} appointments approved`,
+      });
+
+      setSelectedIds([]);
+      fetchAppointments();
+    } catch (error) {
+      console.error('Error bulk approving:', error);
+      toast({
+        title: "Error",
+        description: "Failed to approve appointments",
+        variant: "destructive",
+      });
+    } finally {
+      setBulkProcessing(false);
+    }
+  };
+
+  const handleBulkReject = async () => {
+    if (selectedIds.length === 0) {
+      toast({
+        title: "No Selection",
+        description: "Please select appointments to reject",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setBulkProcessing(true);
+    try {
+      for (const id of selectedIds) {
+        const appointment = appointments.find(a => a.id === id);
+        if (!appointment) continue;
+
+        await supabase
+          .from('appointments')
+          .update({
+            status: 'rejected',
+            approved_by: user?.id,
+            approved_at: new Date().toISOString(),
+          })
+          .eq('id', id);
+
+        // Send email notification
+        try {
+          await supabase.functions.invoke('send-appointment-notification', {
+            body: {
+              userEmail: appointment.profiles?.email || '',
+              userName: appointment.profiles?.full_name || 'User',
+              appointmentType: appointment.appointment_type,
+              appointmentDate: appointment.appointment_date,
+              purpose: appointment.purpose,
+              status: 'rejected',
+              secretaryNotes: 'Unfortunately, we are unable to accommodate your appointment request at the requested time.',
+            },
+          });
+        } catch (emailError) {
+          console.error('Email notification error:', emailError);
+        }
+      }
+
+      toast({
+        title: "Success",
+        description: `${selectedIds.length} appointments rejected`,
+      });
+
+      setSelectedIds([]);
+      fetchAppointments();
+    } catch (error) {
+      console.error('Error bulk rejecting:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reject appointments",
+        variant: "destructive",
+      });
+    } finally {
+      setBulkProcessing(false);
+    }
+  };
+
+  const toggleSelection = (id: string) => {
+    setSelectedIds(prev => 
+      prev.includes(id) 
+        ? prev.filter(i => i !== id)
+        : [...prev, id]
+    );
+  };
+
   const handleReject = async (appointment: Appointment) => {
     try {
       const { error } = await supabase
@@ -222,6 +368,12 @@ const SecretaryAppointments = () => {
     <Card className="p-6 hover-glow">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
+          {appointment.status === 'pending' && (
+            <Checkbox
+              checked={selectedIds.includes(appointment.id)}
+              onCheckedChange={() => toggleSelection(appointment.id)}
+            />
+          )}
           {appointment.appointment_type === 'virtual' ? (
             <Video className="h-5 w-5 text-accent" />
           ) : (
@@ -297,7 +449,29 @@ const SecretaryAppointments = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gradient-accent mb-6">Appointment Management</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-gradient-accent">Appointment Management</h1>
+        {selectedIds.length > 0 && (
+          <div className="flex gap-2">
+            <Button
+              variant="default"
+              onClick={handleBulkApprove}
+              disabled={bulkProcessing}
+            >
+              <Check className="h-4 w-4 mr-2" />
+              Approve Selected ({selectedIds.length})
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleBulkReject}
+              disabled={bulkProcessing}
+            >
+              <X className="h-4 w-4 mr-2" />
+              Reject Selected ({selectedIds.length})
+            </Button>
+          </div>
+        )}
+      </div>
 
       <Tabs defaultValue="all" className="w-full">
         <TabsList className="mb-6">
