@@ -288,6 +288,7 @@ const AdminStaffManagement = () => {
                 </Select>
               </div>
 
+              {/* Region/District Assignment */}
               {needsRegionDistrict && (
                 <>
                   <div className="space-y-2">
@@ -332,6 +333,81 @@ const AdminStaffManagement = () => {
                     </div>
                   )}
                 </>
+              )}
+
+              {/* Permissions Section - Only for roles that need granular permissions */}
+              {!needsRegionDistrict && selectedRole && selectedRole !== "user" && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label>Permissions (Optional)</Label>
+                    <p className="text-xs text-muted-foreground">
+                      {selectedRole === "secretary" ? "Select specific permissions for this secretary" : "Select granular permissions"}
+                    </p>
+                  </div>
+                  
+                  {permissions.length === 0 ? (
+                    <p className="text-sm text-muted-foreground p-4 border rounded-lg bg-muted">
+                      No additional permissions available. Role-based access will be automatically applied.
+                    </p>
+                  ) : (
+                    <div className="border rounded-lg p-4 max-h-[300px] overflow-y-auto space-y-3">
+                      {permissions
+                        .filter(p => {
+                          // Filter permissions based on role
+                          if (selectedRole === "secretary") {
+                            return p.module === "secretary" || p.module === "membership";
+                          }
+                          return true;
+                        })
+                        .map((permission) => (
+                          <div key={permission.id} className="flex items-start gap-3 p-2 hover:bg-muted rounded-lg">
+                            <Checkbox
+                              id={permission.id}
+                              checked={selectedPermissions.includes(permission.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedPermissions([...selectedPermissions, permission.id]);
+                                } else {
+                                  setSelectedPermissions(
+                                    selectedPermissions.filter((p) => p !== permission.id)
+                                  );
+                                }
+                              }}
+                            />
+                            <div className="flex-1">
+                              <Label htmlFor={permission.id} className="font-medium cursor-pointer">
+                                {permission.name}
+                              </Label>
+                              {permission.description && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {permission.description}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Info message for coordinator roles */}
+              {needsRegionDistrict && (
+                <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                  <div className="flex gap-3">
+                    <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                        {selectedRole === "district_coordinator" ? "District Coordinator" : "Regional Coordinator"} - Read-Only Access
+                      </p>
+                      <p className="text-xs text-blue-700 dark:text-blue-300">
+                        {selectedRole === "district_coordinator" 
+                          ? "This role automatically monitors all schools in their assigned district. No additional permissions needed."
+                          : "This role automatically monitors all schools across all districts in their assigned region. No additional permissions needed."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               )}
 
               <div className="flex justify-end gap-2 pt-4">
