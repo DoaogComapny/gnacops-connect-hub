@@ -31,8 +31,12 @@ import AdminCertificates from "./pages/admin/AdminCertificates";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminStaff from "./pages/admin/AdminStaff";
-import AdminEditablePages from "./pages/admin/AdminEditablePages";
-import AdminPageEditor from "./pages/admin/AdminPageEditor";
+import AdminTeamManagement from "./pages/admin/AdminTeamManagement";
+import AdminServicesManagement from "./pages/admin/AdminServicesManagement";
+import AdminNewsManagement from "./pages/admin/AdminNewsManagement";
+import AdminGalleryManagement from "./pages/admin/AdminGalleryManagement";
+import AdminEventsManagement from "./pages/admin/AdminEventsManagement";
+import AdminEducationTVManagement from "./pages/admin/AdminEducationTVManagement";
 import AdminRolesManagement from "./pages/admin/AdminRolesManagement";
 import AdminAuditLogs from "./pages/admin/AdminAuditLogs";
 import OfficeDashboard from "./pages/office/OfficeDashboard";
@@ -50,7 +54,6 @@ import NewsPage from "./pages/NewsPage";
 import GalleryPage from "./pages/GalleryPage";
 import EventsPage from "./pages/EventsPage";
 import EducationTVPage from "./pages/EducationTVPage";
-import EditablePageView from "./pages/EditablePageView";
 import AdminSchoolsView from "./pages/admin/AdminSchoolsView";
 import AdminFormBuilder from "./pages/admin/AdminFormBuilder";
 import AdminSupport from "./pages/admin/AdminSupport";
@@ -118,7 +121,6 @@ const App = () => (
           <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/education-tv" element={<EducationTVPage />} />
-          <Route path="/page/:pageKey" element={<EditablePageView />} />
           <Route path="/membership" element={<MembershipPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -145,8 +147,12 @@ const App = () => (
             <Route path="forgot-requests" element={<StaffForgotRequests />} />
             <Route path="pricing" element={<AdminPricingSettings />} />
               <Route path="settings" element={<AdminSettings />} />
-            <Route path="editable-pages" element={<AdminEditablePages />} />
-            <Route path="editable-pages/:pageKey" element={<AdminPageEditor />} />
+            <Route path="team-management" element={<AdminTeamManagement />} />
+            <Route path="services-management" element={<AdminServicesManagement />} />
+            <Route path="news-management" element={<AdminNewsManagement />} />
+            <Route path="gallery-management" element={<AdminGalleryManagement />} />
+            <Route path="events-management" element={<AdminEventsManagement />} />
+            <Route path="education-tv-management" element={<AdminEducationTVManagement />} />
             <Route path="roles" element={<AdminRolesManagement />} />
             <Route path="audit-logs" element={<AdminAuditLogs />} />
             <Route path="form-builder" element={<AdminFormBuilder />} />
