@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileEdit, Users, Briefcase, Newspaper, Image, Calendar, Tv, ExternalLink } from "lucide-react";
@@ -43,58 +43,54 @@ const pages = [
 ];
 
 const AdminEditablePages = () => {
-  console.log("AdminEditablePages component rendered");
+  const navigate = useNavigate();
+
+  const handleEditClick = (pageKey: string) => {
+    navigate(`/admin/panel/editable-pages/${pageKey}`);
+  };
+
+  const handleViewClick = (pageKey: string) => {
+    window.open(`/${pageKey}`, '_blank');
+  };
   
   return (
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold mb-2">Editable Pages</h1>
         <p className="text-muted-foreground">
-          Manage content for all editable pages using drag-and-drop builder
+          Manage content for your dynamic pages using the page builder
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {pages.map((page) => {
-          const Icon = page.icon;
-          return (
-            <Card
-              key={page.key}
-              className="hover-glow hover:-translate-y-1 transition-all duration-300"
-            >
-              <CardHeader>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Icon className="h-6 w-6 text-primary" />
-                  </div>
-                </div>
+        {pages.map((page) => (
+          <Card key={page.key} className="hover-glow">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <page.icon className="h-5 w-5 text-primary" />
                 <CardTitle>{page.title}</CardTitle>
-                <CardDescription>{page.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex gap-2">
-                <Link 
-                  to={`/admin/panel/editable-pages/${page.key}`} 
-                  className="flex-1"
-                  onClick={() => console.log(`Navigating to: /admin/panel/editable-pages/${page.key}`)}
-                >
-                  <Button variant="default" className="w-full">
-                    <FileEdit className="mr-2 h-4 w-4" />
-                    Edit Page
-                  </Button>
-                </Link>
-                <Link 
-                  to={`/${page.key}`} 
-                  target="_blank"
-                  onClick={() => console.log(`Opening in new tab: /${page.key}`)}
-                >
-                  <Button variant="outline" size="icon">
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          );
-        })}
+              </div>
+              <CardDescription>{page.description}</CardDescription>
+            </CardHeader>
+            <CardContent className="flex gap-2">
+              <Button 
+                variant="default" 
+                className="flex-1"
+                onClick={() => handleEditClick(page.key)}
+              >
+                <FileEdit className="mr-2 h-4 w-4" />
+                Edit Page
+              </Button>
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={() => handleViewClick(page.key)}
+              >
+                <ExternalLink className="h-4 w-4" />
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );
