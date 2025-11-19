@@ -1,12 +1,10 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { Resend } from 'npm:resend@2.0.0';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const resendApiKey = Deno.env.get('RESEND_API_KEY')!;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
-const resend = new Resend(resendApiKey);
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -140,15 +138,26 @@ Deno.serve(async (req) => {
           htmlBody = htmlBody.replace(/{{meetingLink}}/g, '');
         }
 
-        // Send email
-        const emailResponse = await resend.emails.send({
-          from: 'GNACOPS <onboarding@resend.dev>',
-          to: [userProfile.email],
-          subject: subject,
-          html: htmlBody,
+        // Send email via Resend API
+        const emailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'GNACOPS <onboarding@resend.dev>',
+            to: [userProfile.email],
+            subject: subject,
+            html: htmlBody,
+          }),
         });
 
-        console.log('Reminder email sent:', emailResponse);
+        if (!emailResponse.ok) {
+          throw new Error(`Resend API error: ${await emailResponse.text()}`);
+        }
+
+        console.log('Reminder email sent successfully');
 
         // Mark as sent
         await supabase
@@ -166,7 +175,7 @@ Deno.serve(async (req) => {
         sentCount++;
       } catch (error) {
         console.error(`Error sending reminder for appointment ${appointment.id}:`, error);
-        errors.push(`Failed to send reminder for appointment ${appointment.id}: ${error.message}`);
+        errors.push(`Failed to send reminder for appointment ${appointment.id}: ${(error as Error).message}`);
       }
     }
 
