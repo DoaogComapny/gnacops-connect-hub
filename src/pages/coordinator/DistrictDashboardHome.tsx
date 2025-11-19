@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useDistrictCoordinatorAuth } from "@/hooks/useDistrictCoordinatorAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, School, DollarSign, CheckCircle, XCircle, TrendingUp } from "lucide-react";
@@ -24,9 +24,8 @@ interface DashboardStats {
 }
 
 const DistrictDashboardHome = () => {
-  const { user } = useAuth();
+  const { user, assignment, error: assignmentError } = useDistrictCoordinatorAuth();
   const navigate = useNavigate();
-  const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [stats, setStats] = useState<DashboardStats>({
     totalSchools: 0,
     pendingRenewals: 0,
@@ -40,33 +39,10 @@ const DistrictDashboardHome = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchAssignment();
-  }, [user]);
-
-  useEffect(() => {
     if (assignment) {
       fetchDashboardData();
     }
   }, [assignment]);
-
-  const fetchAssignment = async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await supabase
-        .from("staff_assignments")
-        .select("region, district")
-        .eq("user_id", user.id)
-        .eq("role", "district_coordinator")
-        .single();
-
-      if (error) throw error;
-      setAssignment(data);
-    } catch (error) {
-      console.error("Error fetching assignment:", error);
-      toast.error("Failed to load assignment");
-    }
-  };
 
   const fetchDashboardData = async () => {
     if (!assignment) return;
@@ -179,15 +155,14 @@ const DistrictDashboardHome = () => {
     );
   }
 
-  if (!assignment) {
+  if (assignmentError || !assignment) {
     return (
-      <Card>
-        <CardContent className="pt-6">
-          <p className="text-center text-muted-foreground">
-            No district assignment found. Please contact admin.
-          </p>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <p className="text-destructive font-semibold">
+          {assignmentError || 'No district assignment found'}
+        </p>
+        <p className="text-sm text-muted-foreground">Please contact an administrator to assign you to a district</p>
+      </div>
     );
   }
 
