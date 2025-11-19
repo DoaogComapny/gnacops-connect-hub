@@ -10,6 +10,8 @@ interface CreateStaffRequest {
   email: string;
   fullName: string;
   role: string;
+  password: string;
+  permissions?: string[];
   region?: string;
   district?: string;
 }
@@ -51,11 +53,15 @@ serve(async (req) => {
       );
     }
 
-    const { email, fullName, role, region, district }: CreateStaffRequest = await req.json();
+    const { email, fullName, role, password, permissions, region, district }: CreateStaffRequest = await req.json();
 
     // Validate inputs
-    if (!email || !fullName || !role) {
+    if (!email || !fullName || !role || !password) {
       throw new Error('Missing required fields');
+    }
+
+    if (password.length < 6) {
+      throw new Error('Password must be at least 6 characters long');
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -79,13 +85,10 @@ serve(async (req) => {
       throw new Error('Email already exists');
     }
 
-    // Generate temporary password
-    const tempPassword = `Temp${Math.random().toString(36).slice(-8)}!${Date.now().toString(36)}`;
-
-    // Create user account using admin API
+    // Create user account using admin API with provided password
     const { data: authData, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email,
-      password: tempPassword,
+      password: password,
       email_confirm: true,
       user_metadata: {
         full_name: fullName,
@@ -132,19 +135,21 @@ serve(async (req) => {
       }
     }
 
-    // Send welcome email with temp password
-    await supabaseAdmin.functions.invoke('send-email', {
-      body: {
-        to: email,
-        subject: 'Welcome to GNACOPS Staff Portal',
-        html: `<p>Welcome ${fullName},</p><p>Your staff account has been created. Your temporary password is: <strong>${tempPassword}</strong></p><p>Please login and change your password immediately.</p>`,
-      },
-    });
+    // Assign permissions if provided
+    if (permissions && permissions.length > 0) {
+      // Note: Permission assignment would typically be done through role_permissions
+      // This is a placeholder for future implementation
+      console.log(`[create-staff] Permissions provided: ${permissions.length}`);
+    }
 
     console.log(`[create-staff] Staff member created successfully: ${email}`);
 
     return new Response(
-      JSON.stringify({ success: true, userId }),
+      JSON.stringify({ 
+        success: true, 
+        userId,
+        message: 'Staff account created successfully. User can now login with their email and password.'
+      }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
