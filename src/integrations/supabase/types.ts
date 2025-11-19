@@ -467,6 +467,39 @@ export type Database = {
         }
         Relationships: []
       }
+      email_templates: {
+        Row: {
+          created_at: string | null
+          html_body: string
+          id: string
+          is_active: boolean | null
+          subject: string
+          template_key: string
+          updated_at: string | null
+          variables: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          html_body: string
+          id?: string
+          is_active?: boolean | null
+          subject: string
+          template_key: string
+          updated_at?: string | null
+          variables?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          html_body?: string
+          id?: string
+          is_active?: boolean | null
+          subject?: string
+          template_key?: string
+          updated_at?: string | null
+          variables?: Json | null
+        }
+        Relationships: []
+      }
       email_verifications: {
         Row: {
           code: string
@@ -1199,6 +1232,65 @@ export type Database = {
         }
         Relationships: []
       }
+      recurring_appointments: {
+        Row: {
+          appointment_type: string
+          created_at: string | null
+          days_of_week: number[] | null
+          duration_minutes: number
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          purpose: string
+          recurrence_interval: number
+          recurrence_pattern: string
+          start_date: string
+          time_of_day: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          appointment_type: string
+          created_at?: string | null
+          days_of_week?: number[] | null
+          duration_minutes?: number
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          purpose: string
+          recurrence_interval?: number
+          recurrence_pattern: string
+          start_date: string
+          time_of_day: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          appointment_type?: string
+          created_at?: string | null
+          days_of_week?: number[] | null
+          duration_minutes?: number
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          purpose?: string
+          recurrence_interval?: number
+          recurrence_pattern?: string
+          start_date?: string
+          time_of_day?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_appointments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_permissions: {
         Row: {
           created_at: string | null
@@ -1442,6 +1534,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sync_logs: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          entity_id: string | null
+          error_message: string | null
+          google_event_id: string | null
+          id: string
+          status: string
+          sync_type: string
+          synced_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          entity_id?: string | null
+          error_message?: string | null
+          google_event_id?: string | null
+          id?: string
+          status?: string
+          sync_type: string
+          synced_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          entity_id?: string | null
+          error_message?: string | null
+          google_event_id?: string | null
+          id?: string
+          status?: string
+          sync_type?: string
+          synced_at?: string | null
+        }
+        Relationships: []
       }
       task_comments: {
         Row: {

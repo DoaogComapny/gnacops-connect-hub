@@ -73,6 +73,9 @@ import SecretaryAppointments from "./pages/secretary/SecretaryAppointments";
 import SecretaryCalendar from "./pages/secretary/SecretaryCalendar";
 import SecretarySupport from "./pages/secretary/SecretarySupport";
 import SecretaryAnalytics from "./pages/secretary/SecretaryAnalytics";
+import SecretarySyncStatus from "./pages/secretary/SecretarySyncStatus";
+import SecretaryEmailTemplates from "./pages/secretary/SecretaryEmailTemplates";
+import SecretaryRecurringAppointments from "./pages/secretary/SecretaryRecurringAppointments";
 
 const queryClient = new QueryClient();
 
@@ -139,6 +142,9 @@ const App = () => (
           <Route path="/secretary/panel" element={<SecretaryPanel />}>
             <Route path="appointments" element={<SecretaryAppointments />} />
             <Route path="calendar" element={<SecretaryCalendar />} />
+            <Route path="recurring-appointments" element={<SecretaryRecurringAppointments />} />
+            <Route path="sync-status" element={<SecretarySyncStatus />} />
+            <Route path="email-templates" element={<SecretaryEmailTemplates />} />
             <Route path="support" element={<SecretarySupport />} />
             <Route path="analytics" element={<SecretaryAnalytics />} />
             <Route path="applications" element={<AdminApplications />} />

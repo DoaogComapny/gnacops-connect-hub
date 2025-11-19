@@ -12,7 +12,10 @@ import {
   Settings,
   User,
   LogOut,
-  Key
+  Key,
+  Repeat,
+  Activity,
+  Mail
 } from "lucide-react";
 import { useSecretaryAuth } from "@/hooks/useSecretaryAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,6 +39,9 @@ const menuItems = [
   { title: "Staff Management", icon: Shield, path: "/secretary/panel/staff" },
   { title: "Appointments", icon: CalendarIcon, path: "/secretary/panel/appointments" },
   { title: "Calendar Setup", icon: CalendarIcon, path: "/secretary/panel/calendar" },
+  { title: "Recurring Appointments", icon: Repeat, path: "/secretary/panel/recurring-appointments" },
+  { title: "Sync Status", icon: Activity, path: "/secretary/panel/sync-status" },
+  { title: "Email Templates", icon: Mail, path: "/secretary/panel/email-templates" },
   { title: "Password Reset", icon: Key, path: "/secretary/panel/password-reset" },
   { title: "Profile", icon: User, path: "/secretary/panel/profile" },
   { title: "Settings", icon: Settings, path: "/secretary/panel/settings" },

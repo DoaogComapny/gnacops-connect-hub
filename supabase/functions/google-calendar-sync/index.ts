@@ -228,6 +228,17 @@ serve(async (req) => {
           .from('appointments')
           .update({ google_calendar_event_id: result.id })
           .eq('id', appointmentId);
+
+        // Log successful sync
+        await supabaseClient
+          .from('sync_logs')
+          .insert({
+            sync_type: 'appointment',
+            entity_id: appointmentId,
+            status: 'success',
+            google_event_id: result.id,
+            synced_at: new Date().toISOString(),
+          });
         
         break;
       }
@@ -256,6 +267,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Google Calendar sync error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    
     return new Response(
       JSON.stringify({ error: errorMessage }),
       {
