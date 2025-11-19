@@ -101,20 +101,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Determine destination based on role
     const { data: { user } } = await supabase.auth.getUser();
-    let admin = false;
+    let destination = '/user/dashboard';
+    
     if (user) {
       const { data } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
-        .eq('role', 'admin')
-        .maybeSingle();
-      admin = !!data;
-      setIsAdmin(admin);
+        .in('role', ['admin', 'super_admin', 'secretary']);
+      
+      if (data && data.length > 0) {
+        const roles = data.map(r => r.role);
+        
+        if (roles.includes('admin') || roles.includes('super_admin')) {
+          destination = '/admin/panel';
+          setIsAdmin(true);
+        } else if (roles.includes('secretary')) {
+          destination = '/secretary/panel';
+        }
+      }
     }
 
     toast.success('Signed in successfully!');
-    navigate(admin ? '/admin/panel' : '/user/dashboard');
+    navigate(destination);
     return { error: null };
   };
 
