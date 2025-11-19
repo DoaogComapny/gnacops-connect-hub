@@ -44,30 +44,43 @@ const AdminDistrictCoordinators = () => {
 
   const fetchCoordinators = async () => {
     try {
-      const { data: assignments, error } = await supabase
+      // Fetch staff assignments
+      const { data: assignments, error: assignmentsError } = await supabase
         .from("staff_assignments")
-        .select(`
-          id,
-          user_id,
-          region,
-          district,
-          profiles!inner(email, full_name),
-          created_at
-        `)
+        .select("id, user_id, region, district, created_at")
         .eq("role", "district_coordinator")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (assignmentsError) throw assignmentsError;
 
-      const formattedData = (assignments || []).map((a: any) => ({
-        id: a.id,
-        user_id: a.user_id,
-        email: a.profiles.email,
-        full_name: a.profiles.full_name,
-        region: a.region,
-        district: a.district,
-        created_at: a.created_at,
-      }));
+      if (!assignments || assignments.length === 0) {
+        setCoordinators([]);
+        return;
+      }
+
+      // Fetch profiles for these users
+      const userIds = assignments.map((a) => a.user_id);
+      const { data: profiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, email, full_name")
+        .in("id", userIds);
+
+      if (profilesError) throw profilesError;
+
+      // Combine the data
+      const profilesMap = new Map(profiles?.map((p) => [p.id, p]) || []);
+      const formattedData = assignments.map((a) => {
+        const profile = profilesMap.get(a.user_id);
+        return {
+          id: a.id,
+          user_id: a.user_id,
+          email: profile?.email || "N/A",
+          full_name: profile?.full_name || "Unknown",
+          region: a.region,
+          district: a.district,
+          created_at: a.created_at,
+        };
+      });
 
       setCoordinators(formattedData);
     } catch (error) {
