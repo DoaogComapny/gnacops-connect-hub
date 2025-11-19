@@ -54,6 +54,7 @@ const AdminStaffManagement = () => {
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isAddCoordinatorDialogOpen, setIsAddCoordinatorDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Form state
@@ -232,13 +233,14 @@ const AdminStaffManagement = () => {
             Manage staff members, roles, and permissions
           </p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <UserPlus className="h-4 w-4" />
-              Add Staff Member
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <UserPlus className="h-4 w-4" />
+                Add Staff Member
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add New Staff Member</DialogTitle>
@@ -279,11 +281,13 @@ const AdminStaffManagement = () => {
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(roleLabels).map(([key, label]) => (
-                      <SelectItem key={key} value={key}>
-                        {label}
-                      </SelectItem>
-                    ))}
+                    {Object.entries(roleLabels)
+                      .filter(([key]) => key !== "district_coordinator" && key !== "regional_coordinator")
+                      .map(([key, label]) => (
+                        <SelectItem key={key} value={key}>
+                          {label}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -355,8 +359,13 @@ const AdminStaffManagement = () => {
                         .filter(p => {
                           // Filter permissions based on role
                           if (selectedRole === "secretary") {
-                            return p.module === "secretary" || p.module === "membership";
+                            // Show all secretary permissions AND appointment-related permissions
+                            return p.code.startsWith("secretary.") || 
+                                   p.code.startsWith("appointments.") ||
+                                   p.module === "office_management" ||
+                                   p.module === "both";
                           }
+                          // For other roles, show all permissions
                           return true;
                         })
                         .map((permission) => (
@@ -432,6 +441,149 @@ const AdminStaffManagement = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        <Dialog open={isAddCoordinatorDialogOpen} onOpenChange={setIsAddCoordinatorDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" className="gap-2">
+              <Shield className="h-4 w-4" />
+              Add Coordinator
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Add Regional or District Coordinator</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="coordFullName">
+                    Full Name <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="coordFullName"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Enter full name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="coordEmail">
+                    Email <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="coordEmail"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="email@example.com"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="coordRole">
+                  Coordinator Type <span className="text-destructive">*</span>
+                </Label>
+                <Select value={selectedRole} onValueChange={setSelectedRole}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select coordinator type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="regional_coordinator">
+                      Regional Coordinator
+                    </SelectItem>
+                    <SelectItem value="district_coordinator">
+                      District Coordinator
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {selectedRole && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="coordRegion">
+                      Region <span className="text-destructive">*</span>
+                    </Label>
+                    <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select region" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getAllRegions().map((region) => (
+                          <SelectItem key={region} value={region}>
+                            {region}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {selectedRole === "district_coordinator" && (
+                    <div className="space-y-2">
+                      <Label htmlFor="coordDistrict">
+                        District <span className="text-destructive">*</span>
+                      </Label>
+                      <Select
+                        value={selectedDistrict}
+                        onValueChange={setSelectedDistrict}
+                        disabled={!selectedRegion}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select district" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {districts.map((district) => (
+                            <SelectItem key={district} value={district}>
+                              {district}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <div className="flex gap-3">
+                      <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                          {selectedRole === "district_coordinator" ? "District Coordinator" : "Regional Coordinator"} - Read-Only Monitoring
+                        </p>
+                        <p className="text-xs text-blue-700 dark:text-blue-300">
+                          {selectedRole === "district_coordinator" 
+                            ? "This role monitors all schools, payments, and appointments in their assigned district. No editing permissions - view and report only."
+                            : "This role monitors all schools, payments, and appointments across all districts in their assigned region. No editing permissions - view and report only."}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <div className="flex justify-end gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsAddCoordinatorDialogOpen(false)}
+                  disabled={isSaving}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleAddStaff} disabled={isSaving}>
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    "Add Coordinator"
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
       </div>
 
       <div className="flex items-center gap-2">
