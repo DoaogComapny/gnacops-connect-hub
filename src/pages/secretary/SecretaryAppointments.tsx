@@ -100,10 +100,27 @@ const SecretaryAppointments = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Appointment approved successfully",
-      });
+      // Sync to Google Calendar
+      try {
+        await supabase.functions.invoke('google-calendar-sync', {
+          body: {
+            action: 'sync_appointment',
+            appointmentId: selectedAppointment.id,
+          },
+        });
+        
+        toast({
+          title: "Success",
+          description: "Appointment approved and synced to Google Calendar",
+        });
+      } catch (syncError) {
+        console.error('Google Calendar sync error:', syncError);
+        toast({
+          title: "Partially Successful",
+          description: "Appointment approved but Google Calendar sync failed. Please try syncing manually.",
+          variant: "default",
+        });
+      }
 
       setIsDialogOpen(false);
       fetchAppointments();
