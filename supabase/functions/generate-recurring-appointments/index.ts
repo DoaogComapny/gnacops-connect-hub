@@ -140,7 +140,7 @@ Deno.serve(async (req) => {
         }
       } catch (error) {
         console.error(`Error processing recurring appointment ${recurring.id}:`, error);
-        errors.push(`Failed to process recurring appointment ${recurring.id}: ${error.message}`);
+        errors.push(`Failed to process recurring appointment ${recurring.id}: ${(error as Error).message}`);
       }
     }
 

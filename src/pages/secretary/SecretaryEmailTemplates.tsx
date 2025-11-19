@@ -91,7 +91,8 @@ const SecretaryEmailTemplates = () => {
     }
   };
 
-  const handlePreview = () => {
+  const handlePreview = (template: EmailTemplate) => {
+    setSelectedTemplate(template);
     setPreviewOpen(true);
   };
 
