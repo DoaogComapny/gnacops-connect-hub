@@ -147,7 +147,7 @@ const AdminPanel = () => {
                       <Collapsible key={item.title} className="group/collapsible">
                         <SidebarMenuItem>
                           <CollapsibleTrigger asChild>
-                            <SidebarMenuButton className="flex items-center gap-3">
+                            <SidebarMenuButton className="flex items-center gap-3 px-3 py-2 text-sidebar-foreground hover:bg-accent hover:text-accent-foreground">
                               <item.icon className="h-4 w-4" />
                               <span>{item.title}</span>
                               <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
@@ -158,16 +158,16 @@ const AdminPanel = () => {
                               {item.subItems.map((subItem: any) => (
                                 <SidebarMenuSubItem key={subItem.title}>
                                   <SidebarMenuSubButton asChild>
-                                    <NavLink 
-                                      to={subItem.path}
-                                      className={({ isActive }) => 
-                                        `flex items-center gap-3 pl-8 transition-colors hover:bg-accent hover:text-accent-foreground rounded-md ${
-                                          isActive ? "bg-accent text-accent-foreground font-medium" : ""
-                                        }`
-                                      }
-                                    >
-                                      <span>{subItem.title}</span>
-                                    </NavLink>
+                                  <NavLink 
+                                    to={subItem.path}
+                                    className={({ isActive }) => 
+                                      `flex items-center gap-3 px-3 py-2 pl-8 transition-colors text-sidebar-foreground hover:bg-accent hover:text-accent-foreground rounded-md ${
+                                        isActive ? "bg-accent text-accent-foreground font-medium" : ""
+                                      }`
+                                    }
+                                  >
+                                    <span>{subItem.title}</span>
+                                  </NavLink>
                                   </SidebarMenuSubButton>
                                 </SidebarMenuSubItem>
                               ))}
@@ -185,7 +185,7 @@ const AdminPanel = () => {
                           to={item.path} 
                           end={item.path === "/admin/panel"}
                           className={({ isActive }) => 
-                            `flex items-center gap-3 transition-colors hover:bg-accent hover:text-accent-foreground rounded-md ${
+                            `flex items-center gap-3 px-3 py-2 transition-colors text-sidebar-foreground hover:bg-accent hover:text-accent-foreground rounded-md ${
                               isActive ? "bg-accent text-accent-foreground font-medium" : ""
                             }`
                           }
