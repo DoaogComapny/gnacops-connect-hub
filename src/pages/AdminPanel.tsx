@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu, MapPin, LayoutDashboard, HelpCircle, User, Loader2, Award, Building2, CheckSquare, Calendar as CalendarIcon, Briefcase, Newspaper, ImageIcon, CalendarDays, Tv } from "lucide-react";
+import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu, MapPin, LayoutDashboard, HelpCircle, User, Loader2, Award, Building2, CheckSquare, Calendar as CalendarIcon, Briefcase, Newspaper, ImageIcon, CalendarDays, Tv, ChevronDown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem } from "@/components/ui/sidebar";
 import { NavLink, useNavigate, Outlet, useLocation } from "react-router-dom";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { AdminSidebarHeader } from "@/components/admin/AdminSidebarHeader";
@@ -16,6 +17,15 @@ const membershipMenuItems = [
   { title: "Applications", icon: FileText, path: "/admin/panel/applications" },
   { title: "Users", icon: Users, path: "/admin/panel/users" },
   { title: "Staff", icon: Shield, path: "/admin/panel/staff" },
+  { 
+    title: "Coordinators", 
+    icon: MapPin, 
+    isDropdown: true,
+    subItems: [
+      { title: "Regional Coordinators", path: "/admin/panel/regional-coordinators" },
+      { title: "District Coordinators", path: "/admin/panel/district-coordinators" },
+    ]
+  },
   { title: "Schools", icon: MapPin, path: "/admin/panel/schools-view" },
   { title: "Certificates", icon: Award, path: "/admin/panel/certificates" },
   { title: "Messages", icon: Mail, path: "/admin/panel/messages" },
@@ -130,24 +140,64 @@ const AdminPanel = () => {
             <SidebarGroup>
               <SidebarGroupLabel>Menu</SidebarGroupLabel>
               <SidebarGroupContent>
-                <SidebarMenu>
-                  {currentMenuItems.map((item) => (
+              <SidebarMenu>
+                {currentMenuItems.map((item: any) => {
+                  if (item.isDropdown && item.subItems) {
+                    return (
+                      <Collapsible key={item.title} className="group/collapsible">
+                        <SidebarMenuItem>
+                          <CollapsibleTrigger asChild>
+                            <SidebarMenuButton className="flex items-center gap-3">
+                              <item.icon className="h-4 w-4" />
+                              <span>{item.title}</span>
+                              <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                            </SidebarMenuButton>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <SidebarMenuSub>
+                              {item.subItems.map((subItem: any) => (
+                                <SidebarMenuSubItem key={subItem.title}>
+                                  <SidebarMenuSubButton asChild>
+                                    <NavLink 
+                                      to={subItem.path}
+                                      className={({ isActive }) => 
+                                        `flex items-center gap-3 pl-8 transition-colors hover:bg-accent hover:text-accent-foreground rounded-md ${
+                                          isActive ? "bg-accent text-accent-foreground font-medium" : ""
+                                        }`
+                                      }
+                                    >
+                                      <span>{subItem.title}</span>
+                                    </NavLink>
+                                  </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                              ))}
+                            </SidebarMenuSub>
+                          </CollapsibleContent>
+                        </SidebarMenuItem>
+                      </Collapsible>
+                    );
+                  }
+                  
+                  return (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild>
                         <NavLink 
                           to={item.path} 
-                          end
+                          end={item.path === "/admin/panel"}
                           className={({ isActive }) => 
-                            `transition-all duration-200 ${isActive ? "bg-accent/20 text-accent" : "hover:bg-accent/10"}`
+                            `flex items-center gap-3 transition-colors hover:bg-accent hover:text-accent-foreground rounded-md ${
+                              isActive ? "bg-accent text-accent-foreground font-medium" : ""
+                            }`
                           }
                         >
-                          <item.icon className="mr-2 h-4 w-4" />
+                          <item.icon className="h-4 w-4" />
                           <span>{item.title}</span>
                         </NavLink>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
+                  );
+                })}
+              </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
