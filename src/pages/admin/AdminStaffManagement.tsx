@@ -1,17 +1,16 @@
 import { useState, useEffect } from "react";
-import { UserPlus, Shield, Trash2, Edit, Loader2, Search } from "lucide-react";
+import { UserPlus, Trash2, Loader2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { getAllRegions, getDistrictsByRegion } from "@/data/ghanaRegions";
 
 interface Permission {
   id: string;
@@ -28,14 +27,9 @@ interface StaffMember {
   full_name: string;
   roles: { role: string }[];
   created_at: string;
-  assignment?: {
-    region: string | null;
-    district: string | null;
-  };
 }
 
 const roleLabels: Record<string, string> = {
-  super_admin: "Super Admin (Executive Director)",
   admin: "Admin",
   director: "Director",
   head_of_unit: "Head of Unit",
@@ -44,9 +38,6 @@ const roleLabels: Record<string, string> = {
   membership_officer: "Membership Officer",
   finance_officer: "Finance Officer",
   secretary: "Secretary",
-  district_coordinator: "District Coordinator",
-  regional_coordinator: "Regional Coordinator",
-  user: "User",
 };
 
 const AdminStaffManagement = () => {
@@ -54,7 +45,6 @@ const AdminStaffManagement = () => {
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isAddCoordinatorDialogOpen, setIsAddCoordinatorDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Form state
@@ -62,8 +52,6 @@ const AdminStaffManagement = () => {
   const [fullName, setFullName] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
-  const [selectedRegion, setSelectedRegion] = useState("");
-  const [selectedDistrict, setSelectedDistrict] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -73,7 +61,6 @@ const AdminStaffManagement = () => {
 
   const fetchStaff = async () => {
     try {
-      // Fetch all users with roles
       const { data: users, error: usersError } = await supabase
         .from("profiles")
         .select(`
@@ -86,7 +73,6 @@ const AdminStaffManagement = () => {
 
       if (usersError) throw usersError;
 
-      // Fetch roles for each user
       const staffWithRoles = await Promise.all(
         (users || []).map(async (user) => {
           const { data: roles } = await supabase
@@ -94,30 +80,26 @@ const AdminStaffManagement = () => {
             .select("role")
             .eq("user_id", user.id);
 
-          const { data: assignment } = await supabase
-            .from("staff_assignments")
-            .select("region, district")
-            .eq("user_id", user.id)
-            .single();
-
           return {
             ...user,
             user_id: user.id,
             roles: roles || [],
-            assignment: assignment || undefined,
           };
         })
       );
 
-      // Filter out users with only 'user' role
-      const staffOnly = staffWithRoles.filter(
-        (s) => s.roles.length > 0 && !s.roles.every((r) => r.role === "user")
-      );
+      // Filter for staff roles only (exclude coordinators and regular users)
+      const staffOnly = staffWithRoles.filter((s) => {
+        const hasStaffRole = s.roles.some((r) => 
+          ['admin', 'director', 'head_of_unit', 'assistant', 'support_worker', 'membership_officer', 'finance_officer', 'secretary'].includes(r.role)
+        );
+        return hasStaffRole;
+      });
 
       setStaff(staffOnly);
     } catch (error) {
       console.error("Error fetching staff:", error);
-      toast.error("Failed to load staff members");
+      toast.error("Failed to fetch staff members");
     } finally {
       setLoading(false);
     }
@@ -128,12 +110,14 @@ const AdminStaffManagement = () => {
       const { data, error } = await supabase
         .from("permissions")
         .select("*")
-        .order("name");
+        .order("module", { ascending: true })
+        .order("name", { ascending: true });
 
       if (error) throw error;
       setPermissions(data || []);
     } catch (error) {
       console.error("Error fetching permissions:", error);
+      toast.error("Failed to fetch permissions");
     }
   };
 
@@ -143,31 +127,19 @@ const AdminStaffManagement = () => {
       return;
     }
 
-    if (
-      (selectedRole === "district_coordinator" && (!selectedRegion || !selectedDistrict)) ||
-      (selectedRole === "regional_coordinator" && !selectedRegion)
-    ) {
-      toast.error("Please select region and district for coordinators");
-      return;
-    }
-
     setIsSaving(true);
-
     try {
-      // Call secure edge function to create staff account
-      const { data, error: functionError } = await supabase.functions.invoke("create-staff", {
+      const { data, error } = await supabase.functions.invoke("create-staff", {
         body: {
           email,
           fullName,
           role: selectedRole,
-          region: selectedRegion || null,
-          district: selectedDistrict || null,
         },
       });
 
-      if (functionError) throw functionError;
+      if (error) throw error;
 
-      toast.success("Staff member added successfully. Temporary password sent via email.");
+      toast.success("Staff member added successfully");
       setIsAddDialogOpen(false);
       resetForm();
       fetchStaff();
@@ -180,20 +152,21 @@ const AdminStaffManagement = () => {
   };
 
   const handleDeleteStaff = async (userId: string) => {
-    if (!confirm("Are you sure you want to remove this staff member?")) return;
+    if (!confirm("Are you sure you want to delete this staff member?")) return;
 
     try {
-      // Delete roles
-      await supabase.from("user_roles").delete().eq("user_id", userId);
+      const { error: rolesError } = await supabase
+        .from("user_roles")
+        .delete()
+        .eq("user_id", userId);
 
-      // Delete assignments
-      await supabase.from("staff_assignments").delete().eq("user_id", userId);
+      if (rolesError) throw rolesError;
 
-      toast.success("Staff member removed");
+      toast.success("Staff member deleted successfully");
       fetchStaff();
     } catch (error) {
       console.error("Error deleting staff:", error);
-      toast.error("Failed to remove staff member");
+      toast.error("Failed to delete staff member");
     }
   };
 
@@ -202,8 +175,14 @@ const AdminStaffManagement = () => {
     setFullName("");
     setSelectedRole("");
     setSelectedPermissions([]);
-    setSelectedRegion("");
-    setSelectedDistrict("");
+  };
+
+  const togglePermission = (permissionId: string) => {
+    setSelectedPermissions((prev) =>
+      prev.includes(permissionId)
+        ? prev.filter((id) => id !== permissionId)
+        : [...prev, permissionId]
+    );
   };
 
   const filteredStaff = staff.filter(
@@ -212,408 +191,64 @@ const AdminStaffManagement = () => {
       s.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const needsRegionDistrict =
-    selectedRole === "district_coordinator" || selectedRole === "regional_coordinator";
-  const districts = selectedRegion ? getDistrictsByRegion(selectedRegion) : [];
+  const groupedPermissions = permissions.reduce((acc, perm) => {
+    if (!acc[perm.module]) {
+      acc[perm.module] = [];
+    }
+    acc[perm.module].push(perm);
+    return acc;
+  }, {} as Record<string, Permission[]>);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center h-96">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Staff Management</h1>
           <p className="text-muted-foreground">
-            Manage staff members, roles, and permissions
+            Manage staff members and their permissions
           </p>
         </div>
-        <div className="flex gap-2">
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2">
-                <UserPlus className="h-4 w-4" />
-                Add Staff Member
-              </Button>
-            </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add New Staff Member</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">
-                    Full Name <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="fullName"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Enter full name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">
-                    Email <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="email@example.com"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="role">
-                  Role <span className="text-destructive">*</span>
-                </Label>
-                <Select value={selectedRole} onValueChange={setSelectedRole}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(roleLabels)
-                      .filter(([key]) => key !== "district_coordinator" && key !== "regional_coordinator")
-                      .map(([key, label]) => (
-                        <SelectItem key={key} value={key}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Region/District Assignment */}
-              {needsRegionDistrict && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="region">
-                      Region <span className="text-destructive">*</span>
-                    </Label>
-                    <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select region" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {getAllRegions().map((region) => (
-                          <SelectItem key={region} value={region}>
-                            {region}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {selectedRole === "district_coordinator" && (
-                    <div className="space-y-2">
-                      <Label htmlFor="district">
-                        District <span className="text-destructive">*</span>
-                      </Label>
-                      <Select
-                        value={selectedDistrict}
-                        onValueChange={setSelectedDistrict}
-                        disabled={!selectedRegion}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select district" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {districts.map((district) => (
-                            <SelectItem key={district} value={district}>
-                              {district}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* Permissions Section - Only for roles that need granular permissions */}
-              {!needsRegionDistrict && selectedRole && selectedRole !== "user" && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label>Permissions (Optional)</Label>
-                    <p className="text-xs text-muted-foreground">
-                      {selectedRole === "secretary" ? "Select specific permissions for this secretary" : "Select granular permissions"}
-                    </p>
-                  </div>
-                  
-                  {permissions.length === 0 ? (
-                    <p className="text-sm text-muted-foreground p-4 border rounded-lg bg-muted">
-                      No additional permissions available. Role-based access will be automatically applied.
-                    </p>
-                  ) : (
-                    <div className="border rounded-lg p-4 max-h-[300px] overflow-y-auto space-y-3">
-                      {permissions
-                        .filter(p => {
-                          // Filter permissions based on role
-                          if (selectedRole === "secretary") {
-                            // Show all secretary permissions AND appointment-related permissions
-                            return p.code.startsWith("secretary.") || 
-                                   p.code.startsWith("appointments.") ||
-                                   p.module === "office_management" ||
-                                   p.module === "both";
-                          }
-                          // For other roles, show all permissions
-                          return true;
-                        })
-                        .map((permission) => (
-                          <div key={permission.id} className="flex items-start gap-3 p-2 hover:bg-muted rounded-lg">
-                            <Checkbox
-                              id={permission.id}
-                              checked={selectedPermissions.includes(permission.id)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setSelectedPermissions([...selectedPermissions, permission.id]);
-                                } else {
-                                  setSelectedPermissions(
-                                    selectedPermissions.filter((p) => p !== permission.id)
-                                  );
-                                }
-                              }}
-                            />
-                            <div className="flex-1">
-                              <Label htmlFor={permission.id} className="font-medium cursor-pointer">
-                                {permission.name}
-                              </Label>
-                              {permission.description && (
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  {permission.description}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Info message for coordinator roles */}
-              {needsRegionDistrict && (
-                <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                  <div className="flex gap-3">
-                    <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                        {selectedRole === "district_coordinator" ? "District Coordinator" : "Regional Coordinator"} - Read-Only Access
-                      </p>
-                      <p className="text-xs text-blue-700 dark:text-blue-300">
-                        {selectedRole === "district_coordinator" 
-                          ? "This role automatically monitors all schools in their assigned district. No additional permissions needed."
-                          : "This role automatically monitors all schools across all districts in their assigned region. No additional permissions needed."}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex justify-end gap-2 pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsAddDialogOpen(false)}
-                  disabled={isSaving}
-                >
-                  Cancel
-                </Button>
-                <Button onClick={handleAddStaff} disabled={isSaving}>
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Adding...
-                    </>
-                  ) : (
-                    "Add Staff Member"
-                  )}
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={isAddCoordinatorDialogOpen} onOpenChange={setIsAddCoordinatorDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline" className="gap-2">
-              <Shield className="h-4 w-4" />
-              Add Coordinator
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add Regional or District Coordinator</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="coordFullName">
-                    Full Name <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="coordFullName"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Enter full name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="coordEmail">
-                    Email <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="coordEmail"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="email@example.com"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="coordRole">
-                  Coordinator Type <span className="text-destructive">*</span>
-                </Label>
-                <Select value={selectedRole} onValueChange={setSelectedRole}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select coordinator type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="regional_coordinator">
-                      Regional Coordinator
-                    </SelectItem>
-                    <SelectItem value="district_coordinator">
-                      District Coordinator
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {selectedRole && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="coordRegion">
-                      Region <span className="text-destructive">*</span>
-                    </Label>
-                    <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select region" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {getAllRegions().map((region) => (
-                          <SelectItem key={region} value={region}>
-                            {region}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {selectedRole === "district_coordinator" && (
-                    <div className="space-y-2">
-                      <Label htmlFor="coordDistrict">
-                        District <span className="text-destructive">*</span>
-                      </Label>
-                      <Select
-                        value={selectedDistrict}
-                        onValueChange={setSelectedDistrict}
-                        disabled={!selectedRegion}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select district" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {districts.map((district) => (
-                            <SelectItem key={district} value={district}>
-                              {district}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                    <div className="flex gap-3">
-                      <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                          {selectedRole === "district_coordinator" ? "District Coordinator" : "Regional Coordinator"} - Read-Only Monitoring
-                        </p>
-                        <p className="text-xs text-blue-700 dark:text-blue-300">
-                          {selectedRole === "district_coordinator" 
-                            ? "This role monitors all schools, payments, and appointments in their assigned district. No editing permissions - view and report only."
-                            : "This role monitors all schools, payments, and appointments across all districts in their assigned region. No editing permissions - view and report only."}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              <div className="flex justify-end gap-2 pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsAddCoordinatorDialogOpen(false)}
-                  disabled={isSaving}
-                >
-                  Cancel
-                </Button>
-                <Button onClick={handleAddStaff} disabled={isSaving}>
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Adding...
-                    </>
-                  ) : (
-                    "Add Coordinator"
-                  )}
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+        <Button onClick={() => setIsAddDialogOpen(true)}>
+          <UserPlus className="h-4 w-4 mr-2" />
+          Add Staff Member
+        </Button>
       </div>
 
-      <div className="flex items-center gap-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search staff..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
+      <Card className="p-6">
+        <div className="mb-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search staff members..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
         </div>
-      </div>
 
-      <Card>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Roles</TableHead>
-              <TableHead>Assignment</TableHead>
-              <TableHead>Added Date</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Created</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredStaff.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={5} className="text-center text-muted-foreground">
                   No staff members found
                 </TableCell>
               </TableRow>
@@ -624,38 +259,24 @@ const AdminStaffManagement = () => {
                   <TableCell>{member.email}</TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
-                      {member.roles.map((r, idx) => (
-                        <Badge key={idx} variant="secondary">
+                      {member.roles.map((r) => (
+                        <Badge key={r.role} variant="secondary">
                           {roleLabels[r.role] || r.role}
                         </Badge>
                       ))}
                     </div>
                   </TableCell>
                   <TableCell>
-                    {member.assignment ? (
-                      <div className="text-sm">
-                        <div className="font-medium">{member.assignment.region}</div>
-                        {member.assignment.district && (
-                          <div className="text-muted-foreground">
-                            {member.assignment.district}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
+                    {new Date(member.created_at).toLocaleDateString()}
                   </TableCell>
-                  <TableCell>{new Date(member.created_at).toLocaleDateString()}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteStaff(member.user_id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteStaff(member.user_id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
@@ -663,6 +284,109 @@ const AdminStaffManagement = () => {
           </TableBody>
         </Table>
       </Card>
+
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add Staff Member</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name *</Label>
+                <Input
+                  id="fullName"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Enter full name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter email address"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="role">Role *</Label>
+              <Select value={selectedRole} onValueChange={setSelectedRole}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(roleLabels).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Available Permissions</Label>
+              <p className="text-sm text-muted-foreground mb-4">
+                Select permissions to grant to this staff member
+              </p>
+              
+              {Object.entries(groupedPermissions).map(([module, perms]) => (
+                <Card key={module} className="p-4 mb-4">
+                  <h3 className="font-semibold mb-3 capitalize">
+                    {module.replace(/_/g, " ")} Module
+                  </h3>
+                  <div className="space-y-2">
+                    {perms.map((perm) => (
+                      <div key={perm.id} className="flex items-start space-x-2">
+                        <Checkbox
+                          id={perm.id}
+                          checked={selectedPermissions.includes(perm.id)}
+                          onCheckedChange={() => togglePermission(perm.id)}
+                        />
+                        <div className="flex-1">
+                          <label
+                            htmlFor={perm.id}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                          >
+                            {perm.name}
+                          </label>
+                          {perm.description && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {perm.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              ))}
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsAddDialogOpen(false);
+                  resetForm();
+                }}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleAddStaff} disabled={isSaving}>
+                {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                Add Staff Member
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

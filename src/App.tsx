@@ -31,6 +31,8 @@ import AdminCertificates from "./pages/admin/AdminCertificates";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminStaff from "./pages/admin/AdminStaff";
+import AdminRegionalCoordinators from "./pages/admin/AdminRegionalCoordinators";
+import AdminDistrictCoordinators from "./pages/admin/AdminDistrictCoordinators";
 import AdminTeamManagement from "./pages/admin/AdminTeamManagement";
 import AdminServicesManagement from "./pages/admin/AdminServicesManagement";
 import AdminNewsManagement from "./pages/admin/AdminNewsManagement";
@@ -140,6 +142,8 @@ const App = () => (
             <Route path="users" element={<AdminUsers />} />
             <Route path="applications" element={<AdminApplications />} />
             <Route path="staff" element={<AdminStaff />} />
+            <Route path="regional-coordinators" element={<AdminRegionalCoordinators />} />
+            <Route path="district-coordinators" element={<AdminDistrictCoordinators />} />
             <Route path="certificates" element={<AdminCertificates />} />
             <Route path="awarded-certificates" element={<AdminAwardedCertificates />} />
             <Route path="schools-view" element={<AdminSchoolsView />} />
