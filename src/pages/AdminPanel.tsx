@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu, MapPin, LayoutDashboard, HelpCircle, User, Loader2, FileEdit, Award, Building2, CheckSquare, Calendar as CalendarIcon } from "lucide-react";
+import { Users, FileText, Settings, BarChart, Mail, Shield, LogOut, Menu, MapPin, LayoutDashboard, HelpCircle, User, Loader2, Award, Building2, CheckSquare, Calendar as CalendarIcon, Briefcase, Newspaper, ImageIcon, CalendarDays, Tv } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,12 @@ const membershipMenuItems = [
   { title: "Support", icon: HelpCircle, path: "/admin/panel/support" },
   { title: "Form Builder", icon: LayoutDashboard, path: "/admin/panel/form-builder" },
   { title: "Pricing", icon: BarChart, path: "/admin/panel/pricing" },
-  { title: "Editable Pages", icon: FileEdit, path: "/admin/panel/editable-pages" },
+  { title: "Team", icon: Users, path: "/admin/panel/team-management" },
+  { title: "Services", icon: Briefcase, path: "/admin/panel/services-management" },
+  { title: "News", icon: Newspaper, path: "/admin/panel/news-management" },
+  { title: "Gallery", icon: ImageIcon, path: "/admin/panel/gallery-management" },
+  { title: "Events", icon: CalendarDays, path: "/admin/panel/events-management" },
+  { title: "Education TV", icon: Tv, path: "/admin/panel/education-tv-management" },
   { title: "Roles & Permissions", icon: Shield, path: "/admin/panel/roles" },
   { title: "Audit Logs", icon: FileText, path: "/admin/panel/audit-logs" },
   { title: "Profile", icon: User, path: "/admin/panel/profile" },
