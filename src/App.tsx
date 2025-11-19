@@ -67,6 +67,11 @@ import UserAccount from "./pages/user/UserAccount";
 import UserSupportTickets from "./pages/user/UserSupportTickets";
 import UserSupportTicketDetail from "./pages/user/UserSupportTicketDetail";
 
+// Secretary Pages
+import SecretaryPanel from "./pages/SecretaryPanel";
+import SecretaryAppointments from "./pages/secretary/SecretaryAppointments";
+import SecretaryCalendar from "./pages/secretary/SecretaryCalendar";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -126,6 +131,22 @@ const App = () => (
             <Route path="office-management/appointments" element={<AppointmentsPage />} />
             <Route path="support" element={<AdminSupport />} />
             <Route path="profile" element={<AdminProfile />} />
+          </Route>
+
+          {/* Secretary Routes */}
+          <Route path="/secretary/panel" element={<SecretaryPanel />}>
+            <Route path="appointments" element={<SecretaryAppointments />} />
+            <Route path="calendar" element={<SecretaryCalendar />} />
+            <Route path="support" element={<AdminSupport />} />
+            <Route path="applications" element={<AdminApplications />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="payments" element={<UserPayments />} />
+            <Route path="certificates" element={<AdminCertificates />} />
+            <Route path="analytics" element={<AdminAuditLogs />} />
+            <Route path="staff" element={<AdminStaff />} />
+            <Route path="password-reset" element={<StaffForgotRequests />} />
+            <Route path="profile" element={<AdminProfile />} />
+            <Route path="settings" element={<AdminSettings />} />
           </Route>
 
           {/* User Routes */}

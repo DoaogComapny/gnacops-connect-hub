@@ -122,6 +122,44 @@ export type Database = {
         }
         Relationships: []
       }
+      available_dates: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          date: string
+          id: string
+          is_available: boolean
+          notes: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          date: string
+          id?: string
+          is_available?: boolean
+          notes?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          date?: string
+          id?: string
+          is_available?: boolean
+          notes?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "available_dates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       certificate_templates: {
         Row: {
           background_url: string | null
