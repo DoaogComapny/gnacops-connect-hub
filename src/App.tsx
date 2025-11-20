@@ -30,7 +30,6 @@ import AdminApplications from "./pages/admin/AdminApplications";
 import AdminCertificates from "./pages/admin/AdminCertificates";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminSettings from "./pages/admin/AdminSettings";
-import AdminStaff from "./pages/admin/AdminStaff";
 import AdminRegionalCoordinators from "./pages/admin/AdminRegionalCoordinators";
 import AdminDistrictCoordinators from "./pages/admin/AdminDistrictCoordinators";
 import AdminTeamManagement from "./pages/admin/AdminTeamManagement";
@@ -141,7 +140,6 @@ const App = () => (
           <Route path="/admin/panel" element={<AdminPanel />}>
             <Route path="users" element={<AdminUsers />} />
             <Route path="applications" element={<AdminApplications />} />
-            <Route path="staff" element={<AdminStaff />} />
             <Route path="regional-coordinators" element={<AdminRegionalCoordinators />} />
             <Route path="district-coordinators" element={<AdminDistrictCoordinators />} />
             <Route path="certificates" element={<AdminCertificates />} />
@@ -182,7 +180,6 @@ const App = () => (
             <Route path="users" element={<AdminUsers />} />
             <Route path="payments" element={<UserPayments />} />
             <Route path="certificates" element={<AdminCertificates />} />
-            <Route path="staff" element={<AdminStaff />} />
             <Route path="password-reset" element={<StaffForgotRequests />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="settings" element={<AdminSettings />} />

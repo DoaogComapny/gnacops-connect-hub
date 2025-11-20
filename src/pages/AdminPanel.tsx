@@ -16,7 +16,6 @@ const membershipMenuItems = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/admin/panel" },
   { title: "Applications", icon: FileText, path: "/admin/panel/applications" },
   { title: "Users", icon: Users, path: "/admin/panel/users" },
-  { title: "Staff", icon: Shield, path: "/admin/panel/staff" },
   { 
     title: "Coordinators", 
     icon: MapPin, 
