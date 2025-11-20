@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
-import { UserPlus, Trash2, Loader2, Search } from "lucide-react";
+import { UserPlus, Trash2, Loader2, Search, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -45,6 +47,7 @@ const AdminStaffManagement = () => {
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Form state
@@ -55,7 +58,6 @@ const AdminStaffManagement = () => {
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<StaffMember | null>(null);
 
   useEffect(() => {
@@ -67,12 +69,7 @@ const AdminStaffManagement = () => {
     try {
       const { data: users, error: usersError } = await supabase
         .from("profiles")
-        .select(`
-          id,
-          email,
-          full_name,
-          created_at
-        `)
+        .select("id, email, full_name, created_at")
         .order("created_at", { ascending: false });
 
       if (usersError) throw usersError;
@@ -92,7 +89,7 @@ const AdminStaffManagement = () => {
         })
       );
 
-      // Filter for staff roles only (exclude coordinators and regular users)
+      // Filter for staff roles only
       const staffOnly = staffWithRoles.filter((s) => {
         const hasStaffRole = s.roles.some((r) => 
           ['admin', 'director', 'head_of_unit', 'assistant', 'support_worker', 'membership_officer', 'finance_officer', 'secretary'].includes(r.role)
@@ -174,35 +171,6 @@ const AdminStaffManagement = () => {
     }
   };
 
-  const handleDeleteStaff = async (userId: string) => {
-    if (!confirm("Are you sure you want to delete this staff member?")) return;
-
-    try {
-      const { error: rolesError } = await supabase
-        .from("user_roles")
-        .delete()
-        .eq("user_id", userId);
-
-      if (rolesError) throw rolesError;
-
-      toast.success("Staff member deleted successfully");
-      fetchStaff();
-    } catch (error) {
-      console.error("Error deleting staff:", error);
-      toast.error("Failed to delete staff member");
-    }
-  };
-
-  const resetForm = () => {
-    setEmail("");
-    setFullName("");
-    setPassword("");
-    setConfirmPassword("");
-    setSelectedRole("");
-    setSelectedPermissions([]);
-    setEditingStaff(null);
-  };
-
   const handleEditStaff = (member: StaffMember) => {
     setEditingStaff(member);
     setEmail(member.email);
@@ -257,6 +225,35 @@ const AdminStaffManagement = () => {
     }
   };
 
+  const handleDeleteStaff = async (userId: string) => {
+    if (!confirm("Are you sure you want to delete this staff member?")) return;
+
+    try {
+      const { error: rolesError } = await supabase
+        .from("user_roles")
+        .delete()
+        .eq("user_id", userId);
+
+      if (rolesError) throw rolesError;
+
+      toast.success("Staff member deleted successfully");
+      fetchStaff();
+    } catch (error) {
+      console.error("Error deleting staff:", error);
+      toast.error("Failed to delete staff member");
+    }
+  };
+
+  const resetForm = () => {
+    setEmail("");
+    setFullName("");
+    setPassword("");
+    setConfirmPassword("");
+    setSelectedRole("");
+    setSelectedPermissions([]);
+    setEditingStaff(null);
+  };
+
   const togglePermission = (permissionId: string) => {
     setSelectedPermissions((prev) =>
       prev.includes(permissionId)
@@ -293,7 +290,7 @@ const AdminStaffManagement = () => {
         <div>
           <h1 className="text-3xl font-bold">Staff Management</h1>
           <p className="text-muted-foreground">
-            Manage staff members and their permissions
+            Manage Secretary and other staff members
           </p>
         </div>
         <Button onClick={() => setIsAddDialogOpen(true)}>
@@ -356,6 +353,7 @@ const AdminStaffManagement = () => {
                         size="sm"
                         onClick={() => handleEditStaff(member)}
                       >
+                        <Edit className="h-4 w-4 mr-1" />
                         Edit
                       </Button>
                       <Button
@@ -374,134 +372,156 @@ const AdminStaffManagement = () => {
         </Table>
       </Card>
 
+      {/* Add Staff Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle>Add Staff Member</DialogTitle>
+            <DialogTitle>Add New Staff Member</DialogTitle>
+            <DialogDescription>
+              Create a new staff account with role and permissions
+            </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name *</Label>
-                <Input
-                  id="fullName"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Enter full name"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter email address"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold">Credentials</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password *</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter password"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Minimum 6 characters
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm Password *</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm password"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="role">Role *</Label>
-              <Select value={selectedRole} onValueChange={setSelectedRole}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a role" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(roleLabels).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Available Permissions</Label>
-              <p className="text-sm text-muted-foreground mb-4">
-                Select permissions to grant to this staff member
-              </p>
-              
-              {Object.entries(groupedPermissions).map(([module, perms]) => (
-                <Card key={module} className="p-4 mb-4">
-                  <h3 className="font-semibold mb-3 capitalize">
-                    {module.replace(/_/g, " ")} Module
-                  </h3>
+          <ScrollArea className="max-h-[calc(90vh-120px)] pr-4">
+            <div className="space-y-6">
+              {/* Basic Information */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-foreground">Basic Information</h3>
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    {perms.map((perm) => (
-                      <div key={perm.id} className="flex items-start space-x-2">
-                        <Checkbox
-                          id={perm.id}
-                          checked={selectedPermissions.includes(perm.id)}
-                          onCheckedChange={() => togglePermission(perm.id)}
-                        />
-                        <div className="flex-1">
-                          <label
-                            htmlFor={perm.id}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                          >
-                            {perm.name}
-                          </label>
-                          {perm.description && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {perm.description}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                    <Label htmlFor="fullName">Full Name *</Label>
+                    <Input
+                      id="fullName"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Enter full name"
+                    />
                   </div>
-                </Card>
-              ))}
-            </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter email address"
+                    />
+                  </div>
+                </div>
+              </div>
 
-            <div className="flex justify-end gap-2 pt-4">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsAddDialogOpen(false);
-                  resetForm();
-                }}
-              >
-                Cancel
-              </Button>
-              <Button onClick={handleAddStaff} disabled={isSaving}>
-                {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                Add Staff Member
-              </Button>
+              <Separator />
+
+              {/* Credentials Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-foreground">Credentials</h3>
+                <p className="text-xs text-muted-foreground">
+                  Set the login password for this staff member
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password *</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter password"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Minimum 6 characters
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirm Password *</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm password"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Role Selection */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-foreground">Role *</h3>
+                <Select value={selectedRole} onValueChange={setSelectedRole}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(roleLabels).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Separator />
+
+              {/* Permissions */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-foreground">Permissions</h3>
+                <p className="text-sm text-muted-foreground">
+                  Select permissions to grant to this staff member
+                </p>
+                
+                {Object.entries(groupedPermissions).map(([module, perms]) => (
+                  <Card key={module} className="p-4">
+                    <h4 className="font-semibold mb-3 capitalize text-sm">
+                      {module.replace(/_/g, " ")}
+                    </h4>
+                    <div className="space-y-3">
+                      {perms.map((perm) => (
+                        <div key={perm.id} className="flex items-start space-x-3">
+                          <Checkbox
+                            id={perm.id}
+                            checked={selectedPermissions.includes(perm.id)}
+                            onCheckedChange={() => togglePermission(perm.id)}
+                          />
+                          <div className="flex-1">
+                            <label
+                              htmlFor={perm.id}
+                              className="text-sm font-medium leading-none cursor-pointer"
+                            >
+                              {perm.name}
+                            </label>
+                            {perm.description && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {perm.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                ))}
+              </div>
             </div>
+          </ScrollArea>
+
+          <div className="flex justify-end gap-2 pt-4 border-t">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsAddDialogOpen(false);
+                resetForm();
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleAddStaff} disabled={isSaving}>
+              {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Add Staff Member
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -511,6 +531,9 @@ const AdminStaffManagement = () => {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Edit Staff Member</DialogTitle>
+            <DialogDescription>
+              Update staff member information and role
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
