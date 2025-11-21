@@ -36,7 +36,6 @@ const menuItems = [
   { title: "Approve Applications", icon: FileText, path: "/secretary/panel/applications" },
   { title: "Payments", icon: CreditCard, path: "/secretary/panel/payments" },
   { title: "Analytics", icon: BarChart, path: "/secretary/panel/analytics" },
-  { title: "Staff Management", icon: Shield, path: "/secretary/panel/staff" },
   { title: "Appointments", icon: CalendarIcon, path: "/secretary/panel/appointments" },
   { title: "Calendar Setup", icon: CalendarIcon, path: "/secretary/panel/calendar" },
   { title: "Recurring Appointments", icon: Repeat, path: "/secretary/panel/recurring-appointments" },
