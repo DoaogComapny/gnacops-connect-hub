@@ -8,6 +8,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { useAuditLog } from "@/hooks/useAuditLog";
 
 interface UserWithStats {
   id: string;
@@ -28,6 +31,9 @@ const AdminUsers = () => {
   const [formStats, setFormStats] = useState<FormStats[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('all');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<UserWithStats | null>(null);
+  const { logAudit } = useAuditLog();
 
   useEffect(() => {
     fetchUsers();
@@ -115,6 +121,40 @@ const AdminUsers = () => {
           m.form_categories?.type.toLowerCase() === selectedType.toLowerCase()
         )
       ).length;
+
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+
+    try {
+      // Delete user profile (this should cascade to related records)
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userToDelete.id);
+
+      if (error) throw error;
+
+      // Log the deletion
+      await logAudit({
+        action: 'delete_user',
+        entityType: 'profile',
+        entityId: userToDelete.id,
+        oldData: { email: userToDelete.email, full_name: userToDelete.full_name }
+      });
+
+      toast.success('User deleted successfully');
+      
+      // Refresh the users list
+      fetchUsers();
+      fetchFormStats();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast.error('Failed to delete user');
+    } finally {
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -234,8 +274,8 @@ const AdminUsers = () => {
                         <DropdownMenuItem 
                           className="text-destructive"
                           onClick={() => {
-                            // TODO: Implement delete user functionality
-                            console.log('Delete user:', user.id);
+                            setUserToDelete(user);
+                            setDeleteDialogOpen(true);
                           }}
                         >
                           Delete User
@@ -249,6 +289,23 @@ const AdminUsers = () => {
           </TableBody>
         </Table>
       </Card>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the user <strong>{userToDelete?.full_name || userToDelete?.email}</strong> and all associated data. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteUser} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
