@@ -16,9 +16,11 @@ const membershipMenuItems = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/admin/panel" },
   { title: "Applications", icon: FileText, path: "/admin/panel/applications" },
   { title: "Users", icon: Users, path: "/admin/panel/users" },
+  { title: "Secretary", icon: Shield, path: "/admin/panel/secretary" },
+  { title: "Staff", icon: Users, path: "/admin/panel/staff" },
   { 
     title: "Coordinators", 
-    icon: MapPin, 
+    icon: MapPin,
     isDropdown: true,
     subItems: [
       { title: "Regional Coordinators", path: "/admin/panel/regional-coordinators" },
