@@ -340,6 +340,33 @@ export type Database = {
           },
         ]
       }
+      department_staff_assignments: {
+        Row: {
+          created_at: string | null
+          department_code: string
+          id: string
+          role: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          department_code: string
+          id?: string
+          role: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          department_code?: string
+          id?: string
+          role?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       departments: {
         Row: {
           code: string
