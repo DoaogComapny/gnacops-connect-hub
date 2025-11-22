@@ -48,6 +48,7 @@ const membershipMenuItems = [
 const marketplaceMenuItems = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/admin/panel/marketplace" },
   { title: "Vendor Management", icon: Users, path: "/admin/panel/marketplace/vendors" },
+  { title: "Onboarding Questions", icon: HelpCircle, path: "/admin/panel/marketplace/onboarding" },
   { title: "Product Management", icon: Briefcase, path: "/admin/panel/marketplace/products" },
   { title: "Order Management", icon: FileText, path: "/admin/panel/marketplace/orders" },
   { title: "Delivery System", icon: MapPin, path: "/admin/panel/marketplace/delivery" },
