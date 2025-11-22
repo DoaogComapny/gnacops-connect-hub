@@ -104,6 +104,17 @@ import RegionalPaymentsPage from "./pages/coordinator/RegionalPaymentsPage";
 import RegionalReportsPage from "./pages/coordinator/RegionalReportsPage";
 import RegionalAccountPage from "./pages/coordinator/RegionalAccountPage";
 
+// Marketplace Pages
+import MarketplacePage from "./pages/MarketplacePage";
+import MarketplaceCart from "./pages/MarketplaceCart";
+import MarketplaceCheckout from "./pages/MarketplaceCheckout";
+import MarketplaceOrders from "./pages/MarketplaceOrders";
+import VendorSignup from "./pages/VendorSignup";
+import VendorDashboard from "./pages/VendorDashboard";
+import VendorProductForm from "./pages/VendorProductForm";
+import VendorOrders from "./pages/VendorOrders";
+import AdminMarketplace from "./pages/admin/AdminMarketplace";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -169,6 +180,7 @@ const App = () => (
             <Route path="office-management/appointments" element={<AppointmentsPage />} />
             <Route path="support" element={<AdminSupport />} />
             <Route path="profile" element={<AdminProfile />} />
+            <Route path="marketplace" element={<AdminMarketplace />} />
           </Route>
 
           {/* Secretary Routes */}
@@ -199,6 +211,17 @@ const App = () => (
             <Route path="notifications" element={<UserNotifications />} />
           </Route>
           <Route path="/book-appointment" element={<BookAppointment />} />
+
+          {/* Marketplace Routes */}
+          <Route path="/marketplace" element={<MarketplacePage />} />
+          <Route path="/marketplace/cart" element={<MarketplaceCart />} />
+          <Route path="/marketplace/checkout" element={<MarketplaceCheckout />} />
+          <Route path="/marketplace/orders" element={<MarketplaceOrders />} />
+          <Route path="/vendor/signup" element={<VendorSignup />} />
+          <Route path="/vendor/dashboard" element={<VendorDashboard />} />
+          <Route path="/vendor/products/new" element={<VendorProductForm />} />
+          <Route path="/vendor/products/:id/edit" element={<VendorProductForm />} />
+          <Route path="/vendor/orders" element={<VendorOrders />} />
 
           {/* District Coordinator Routes */}
           <Route path="/coordinator/district/*" element={<DistrictCoordinatorPanel />}>
