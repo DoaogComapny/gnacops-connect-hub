@@ -74,15 +74,25 @@ serve(async (req) => {
       throw new Error('Region and district required for coordinators');
     }
 
-    // Check if email already exists
-    const { data: existingUser } = await supabaseAdmin
+    // Check if email already exists in profiles
+    const { data: existingProfile } = await supabaseAdmin
       .from('profiles')
       .select('email')
       .eq('email', email)
       .maybeSingle();
 
-    if (existingUser) {
-      throw new Error('Email already exists');
+    if (existingProfile) {
+      throw new Error('A user with this email already exists in the system');
+    }
+
+    // Check if email exists in auth.users
+    const { data: authUsers, error: authCheckError } = await supabaseAdmin.auth.admin.listUsers();
+    
+    if (!authCheckError && authUsers?.users) {
+      const emailExists = authUsers.users.some(user => user.email === email);
+      if (emailExists) {
+        throw new Error('A user with this email already exists in the system');
+      }
     }
 
     // Create user account using admin API with provided password
@@ -97,6 +107,12 @@ serve(async (req) => {
 
     if (createError) {
       console.error('[create-staff] Auth error:', createError);
+      
+      // Provide user-friendly error messages
+      if (createError.message?.includes('already been registered')) {
+        throw new Error('A user with this email already exists in the system');
+      }
+      
       throw new Error(`Account creation failed: ${createError.message}`);
     }
 
