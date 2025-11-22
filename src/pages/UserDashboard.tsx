@@ -24,7 +24,6 @@ const UserDashboard = () => {
   const { user, signOut, isAdmin } = useAuth();
   const isDashboard = location.pathname === "/user/dashboard";
   const [memberships, setMemberships] = useState<any[]>([]);
-  const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
     if (!user) {
@@ -54,16 +53,7 @@ const UserDashboard = () => {
     if (!error && data) {
       setMemberships(data);
     }
-    setLoadingData(false);
   };
-
-  if (loadingData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
 
   const userData = {
     gnacopsIds: memberships.map(m => ({

@@ -5,12 +5,10 @@ import { useAuth } from './useAuth';
 export function useModuleAccess() {
   const { user } = useAuth();
   const [modules, setModules] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
       setModules([]);
-      setLoading(false);
       return;
     }
 
@@ -31,8 +29,6 @@ export function useModuleAccess() {
     } catch (error) {
       console.error('Error fetching module access:', error);
       setModules([]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -46,7 +42,6 @@ export function useModuleAccess() {
 
   return {
     modules,
-    loading,
     hasModuleAccess,
     hasAnyModuleAccess,
     refetch: fetchModuleAccess,

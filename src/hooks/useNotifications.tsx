@@ -19,13 +19,11 @@ export function useNotifications() {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
       setNotifications([]);
       setUnreadCount(0);
-      setLoading(false);
       return;
     }
 
@@ -70,8 +68,6 @@ export function useNotifications() {
       setUnreadCount(data?.filter(n => !n.is_read).length || 0);
     } catch (error) {
       console.error('Error fetching notifications:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -118,7 +114,6 @@ export function useNotifications() {
   return {
     notifications,
     unreadCount,
-    loading,
     markAsRead,
     markAllAsRead,
     refetch: fetchNotifications,
