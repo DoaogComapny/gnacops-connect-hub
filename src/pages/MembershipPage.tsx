@@ -89,8 +89,17 @@ const MembershipPage = () => {
                                 <h4 className="text-lg font-semibold">{type.name}</h4>
                               </div>
                               <div className="text-right">
-                                <span className="text-xl font-bold text-accent">GHS ₵{type.price}</span>
-                                <span className="text-xs text-muted-foreground block">/year</span>
+                                <div>
+                                  <span className="text-xl font-bold text-accent">GHS ₵{type.price}</span>
+                                  <span className="text-xs text-muted-foreground block">/year</span>
+                                </div>
+                                {type.secondary_price && type.secondary_price_label && (
+                                  <div className="mt-2 pt-2 border-t border-border/30">
+                                    <span className="text-xs text-muted-foreground block">{type.secondary_price_label}</span>
+                                    <span className="text-sm font-bold text-accent">GHS ₵{type.secondary_price}</span>
+                                    <span className="text-xs text-muted-foreground">/year</span>
+                                  </div>
+                                )}
                               </div>
                             </div>
                             <p className="text-sm text-muted-foreground leading-relaxed">
@@ -142,8 +151,17 @@ const MembershipPage = () => {
                                 <h4 className="text-lg font-semibold">{type.name}</h4>
                               </div>
                               <div className="text-right">
-                                <span className="text-xl font-bold text-accent">GHS ₵{type.price}</span>
-                                <span className="text-xs text-muted-foreground block">/year</span>
+                                <div>
+                                  <span className="text-xl font-bold text-accent">GHS ₵{type.price}</span>
+                                  <span className="text-xs text-muted-foreground block">/year</span>
+                                </div>
+                                {type.secondary_price && type.secondary_price_label && (
+                                  <div className="mt-2 pt-2 border-t border-border/30">
+                                    <span className="text-xs text-muted-foreground block">{type.secondary_price_label}</span>
+                                    <span className="text-sm font-bold text-accent">GHS ₵{type.secondary_price}</span>
+                                    <span className="text-xs text-muted-foreground">/year</span>
+                                  </div>
+                                )}
                               </div>
                             </div>
                             <p className="text-sm text-muted-foreground leading-relaxed">

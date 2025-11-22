@@ -47,11 +47,26 @@ const MembershipCards = () => {
                           <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                             {type.description}
                           </p>
-                          <div className="flex items-baseline gap-1 mb-2">
-                            <span className="text-2xl font-bold text-accent">
-                              GHS ₵{type.price}
-                            </span>
-                            <span className="text-sm text-muted-foreground">/year</span>
+                          <div className="space-y-2">
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-2xl font-bold text-accent">
+                                GHS ₵{type.price}
+                              </span>
+                              <span className="text-sm text-muted-foreground">/year</span>
+                            </div>
+                            {type.secondary_price && type.secondary_price_label && (
+                              <div className="flex items-baseline gap-1 pt-2 border-t border-border/50">
+                                <div className="flex-1">
+                                  <span className="text-xs text-muted-foreground block mb-1">
+                                    {type.secondary_price_label}
+                                  </span>
+                                  <span className="text-lg font-bold text-accent">
+                                    GHS ₵{type.secondary_price}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">/year</span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="mt-auto pt-4">
@@ -95,9 +110,24 @@ const MembershipCards = () => {
                           <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                             {type.description}
                           </p>
-                          <div className="flex items-baseline gap-1 mb-2">
-                            <span className="text-2xl font-bold text-accent">GHS ₵{type.price}</span>
-                            <span className="text-sm text-muted-foreground">/year</span>
+                          <div className="space-y-2">
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-2xl font-bold text-accent">GHS ₵{type.price}</span>
+                              <span className="text-sm text-muted-foreground">/year</span>
+                            </div>
+                            {type.secondary_price && type.secondary_price_label && (
+                              <div className="flex items-baseline gap-1 pt-2 border-t border-border/50">
+                                <div className="flex-1">
+                                  <span className="text-xs text-muted-foreground block mb-1">
+                                    {type.secondary_price_label}
+                                  </span>
+                                  <span className="text-lg font-bold text-accent">
+                                    GHS ₵{type.secondary_price}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">/year</span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="mt-auto pt-4">

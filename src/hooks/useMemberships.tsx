@@ -24,6 +24,8 @@ interface Membership {
   type: string;
   description: string | null;
   price: number;
+  secondary_price: number | null;
+  secondary_price_label: string | null;
   icon: any;
   category: 'Prime Member' | 'Associate Member';
   key: string;
@@ -61,6 +63,8 @@ export const useMemberships = () => {
         type: cat.type,
         description: cat.description,
         price: Number(cat.price),
+        secondary_price: cat.secondary_price ? Number(cat.secondary_price) : null,
+        secondary_price_label: cat.secondary_price_label,
         icon: iconMap[cat.type] || Building2,
         category: isPrimeMembership(cat.name) ? 'Prime Member' : 'Associate Member',
         key: cat.type,
