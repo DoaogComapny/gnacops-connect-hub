@@ -116,6 +116,13 @@ import VendorOrders from "./pages/VendorOrders";
 import AdminMarketplace from "./pages/admin/AdminMarketplace";
 import AdminMarketplaceVendors from "./pages/admin/AdminMarketplaceVendors";
 import AdminMarketplaceOnboarding from "./pages/admin/AdminMarketplaceOnboarding";
+import AdminMarketplaceDashboard from "./pages/admin/AdminMarketplaceDashboard";
+import AdminMarketplaceProducts from "./pages/admin/AdminMarketplaceProducts";
+import AdminMarketplaceOrders from "./pages/admin/AdminMarketplaceOrders";
+import AdminMarketplaceDelivery from "./pages/admin/AdminMarketplaceDelivery";
+import AdminMarketplacePayments from "./pages/admin/AdminMarketplacePayments";
+import AdminMarketplaceMarketing from "./pages/admin/AdminMarketplaceMarketing";
+import AdminMarketplaceStaff from "./pages/admin/AdminMarketplaceStaff";
 
 const queryClient = new QueryClient();
 
@@ -183,7 +190,14 @@ const App = () => (
             <Route path="support" element={<AdminSupport />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="marketplace" element={<AdminMarketplace />} />
+            <Route path="marketplace/dashboard" element={<AdminMarketplaceDashboard />} />
             <Route path="marketplace/vendors" element={<AdminMarketplaceVendors />} />
+            <Route path="marketplace/products" element={<AdminMarketplaceProducts />} />
+            <Route path="marketplace/orders" element={<AdminMarketplaceOrders />} />
+            <Route path="marketplace/delivery" element={<AdminMarketplaceDelivery />} />
+            <Route path="marketplace/payments" element={<AdminMarketplacePayments />} />
+            <Route path="marketplace/marketing" element={<AdminMarketplaceMarketing />} />
+            <Route path="marketplace/staff" element={<AdminMarketplaceStaff />} />
             <Route path="marketplace/onboarding" element={<AdminMarketplaceOnboarding />} />
           </Route>
 
