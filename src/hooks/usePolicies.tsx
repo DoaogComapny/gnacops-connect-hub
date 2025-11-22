@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useEffect } from 'react';
 
 export interface Policy {
   id: string;
@@ -31,6 +32,28 @@ export function usePolicies() {
       return data as Policy[];
     },
   });
+
+  // Real-time subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel('policies-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'policies'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['policies'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const createPolicy = useMutation({
     mutationFn: async (policy: Pick<Policy, 'title' | 'content'> & Partial<Omit<Policy, 'title' | 'content'>>) => {

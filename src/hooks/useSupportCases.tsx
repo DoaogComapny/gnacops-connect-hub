@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useEffect } from 'react';
 
 export interface SupportCase {
   id: string;
@@ -32,6 +33,28 @@ export function useSupportCases() {
       return data as SupportCase[];
     },
   });
+
+  // Real-time subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel('support-cases-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'support_cases'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['support_cases'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const createCase = useMutation({
     mutationFn: async (supportCase: Pick<SupportCase, 'title' | 'description' | 'case_type'> & Partial<Omit<SupportCase, 'title' | 'description' | 'case_type'>>) => {
