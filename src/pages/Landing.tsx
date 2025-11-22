@@ -20,16 +20,6 @@ const Landing = () => {
   const { memberships } = useMemberships();
   const [selectedMemberships, setSelectedMemberships] = useState<string[]>([]);
 
-  useEffect(() => {
-    if (user) {
-      if (isAdmin) {
-        navigate('/admin/panel');
-      } else {
-        navigate('/user/dashboard');
-      }
-    }
-  }, [user, isAdmin, navigate]);
-
   const handleToggleMembership = (name: string) => {
     setSelectedMemberships((prev) =>
       prev.includes(name)
