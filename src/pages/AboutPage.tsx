@@ -9,20 +9,8 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const AboutPage = () => {
-  const { settings, isLoading: loading } = useSiteSettings();
+  const { settings } = useSiteSettings();
   const [isDirectorMessageOpen, setIsDirectorMessageOpen] = useState(false);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container mx-auto px-4 py-24 text-center">
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
 
   const aboutPage = settings?.aboutPage;
 

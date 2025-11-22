@@ -17,7 +17,7 @@ import { ArrowRight } from "lucide-react";
 const Landing = () => {
   const navigate = useNavigate();
   const { user, isAdmin, loading } = useAuth();
-  const { memberships, isLoading: membershipsLoading } = useMemberships();
+  const { memberships } = useMemberships();
   const [selectedMemberships, setSelectedMemberships] = useState<string[]>([]);
 
   useEffect(() => {
@@ -39,7 +39,7 @@ const Landing = () => {
   };
 
   const totalPrice = selectedMemberships.reduce((sum, name) => {
-    const membership = memberships.find((m) => m.name === name);
+    const membership = memberships?.find((m) => m.name === name);
     return sum + (membership?.price || 0);
   }, 0);
 
@@ -76,9 +76,10 @@ const Landing = () => {
             </h3>
             <div className="overflow-x-auto pb-4 -mx-4 px-4">
               <div className="flex md:grid md:grid-cols-2 gap-6 min-w-max md:min-w-0">
-                {memberships
-                  .filter((type) => type.category === "Prime Member")
-                  .map((type) => {
+                {memberships && memberships.length > 0 ? (
+                  memberships
+                    .filter((type) => type.category === "Prime Member")
+                    .map((type) => {
                     const Icon = type.icon;
                     const isSelected = selectedMemberships.includes(type.name);
                     return (
@@ -117,7 +118,12 @@ const Landing = () => {
                         </div>
                       </Card>
                     );
-                  })}
+                  })
+                ) : (
+                  <div className="col-span-2 text-center py-8 text-muted-foreground">
+                    No memberships available
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -129,9 +135,10 @@ const Landing = () => {
             </h3>
             <div className="overflow-x-auto pb-4 -mx-4 px-4">
               <div className="flex md:grid md:grid-cols-2 gap-6 min-w-max md:min-w-0">
-                {memberships
-                  .filter((type) => type.category === "Associate Member")
-                  .map((type) => {
+                {memberships && memberships.length > 0 ? (
+                  memberships
+                    .filter((type) => type.category === "Associate Member")
+                    .map((type) => {
                     const Icon = type.icon;
                     const isSelected = selectedMemberships.includes(type.name);
                     return (
@@ -170,7 +177,12 @@ const Landing = () => {
                         </div>
                       </Card>
                     );
-                  })}
+                  })
+                ) : (
+                  <div className="col-span-2 text-center py-8 text-muted-foreground">
+                    No memberships available
+                  </div>
+                )}
               </div>
             </div>
           </div>

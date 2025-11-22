@@ -55,7 +55,7 @@ export const useSiteSettings = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: settings, isLoading } = useQuery({
+  const { data: settings } = useQuery({
     queryKey: ["site-settings"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -64,9 +64,14 @@ export const useSiteSettings = () => {
         .limit(1)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching site settings:', error);
+        return {};
+      }
       return (data?.settings_data as SiteSettings) || {};
     },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    refetchOnWindowFocus: false,
   });
 
   const updateSettings = useMutation({
@@ -127,7 +132,7 @@ export const useSiteSettings = () => {
 
   return {
     settings: settings || {},
-    isLoading,
+    isLoading: false,
     updateSettings: updateSettings.mutate,
     isUpdating: updateSettings.isPending,
   };
