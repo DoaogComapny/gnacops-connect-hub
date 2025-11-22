@@ -29,34 +29,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
         
         // Check admin status and navigate on login
         if (session?.user && event === 'SIGNED_IN') {
-          const { data } = await supabase
+          console.log('Processing SIGNED_IN event');
+          const { data, error } = await supabase
             .from('user_roles')
             .select('role')
             .eq('user_id', session.user.id)
             .in('role', ['admin', 'super_admin', 'secretary']);
           
+          console.log('User roles query result:', { data, error });
+          
           if (data && data.length > 0) {
             const roles = data.map(r => r.role);
+            console.log('User roles:', roles);
             
             if (roles.includes('admin') || roles.includes('super_admin')) {
               setIsAdmin(true);
-              toast.success('Signed in successfully!');
-              navigate('/admin/panel');
+              toast.success('Welcome, Admin!');
+              setTimeout(() => navigate('/admin/panel'), 100);
             } else if (roles.includes('secretary')) {
-              toast.success('Signed in successfully!');
-              navigate('/secretary/panel');
+              toast.success('Welcome, Secretary!');
+              setTimeout(() => navigate('/secretary/panel'), 100);
             } else {
-              toast.success('Signed in successfully!');
-              navigate('/user/dashboard');
+              toast.success('Welcome!');
+              setTimeout(() => navigate('/user/dashboard'), 100);
             }
           } else {
-            toast.success('Signed in successfully!');
-            navigate('/user/dashboard');
+            console.log('No special roles found, navigating to user dashboard');
+            toast.success('Welcome!');
+            setTimeout(() => navigate('/user/dashboard'), 100);
           }
           setCheckingRole(false);
         } else if (session?.user) {
@@ -82,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, []);
 
   const checkAdminStatus = async (userId: string) => {
     try {
