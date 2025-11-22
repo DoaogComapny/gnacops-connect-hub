@@ -72,7 +72,7 @@ const officeMenuItems = [
 const AdminPanel = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, isAdmin, loading, signOut } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
   
   // Determine which menu to show based on route
   const isOfficeManagement = location.pathname.includes('/office-management');
@@ -123,25 +123,16 @@ const AdminPanel = () => {
       });
     };
 
-    if (!loading && user && isAdmin) {
+    if (user && isAdmin) {
       fetchStats();
     }
-  }, [user, isAdmin, loading]);
+  }, [user, isAdmin]);
 
   useEffect(() => {
-    if (!loading && (!user || !isAdmin)) {
+    if (!user || !isAdmin) {
       navigate('/login');
     }
-  }, [user, isAdmin, loading, navigate]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
+  }, [user, isAdmin, navigate]);
 
   return (
     <SidebarProvider>

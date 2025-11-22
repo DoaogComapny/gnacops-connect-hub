@@ -12,20 +12,8 @@ import { ArrowRight } from "lucide-react";
 
 const MembershipPage = () => {
   const navigate = useNavigate();
-  const { memberships, isLoading } = useMemberships();
+  const { memberships } = useMemberships();
   const [selectedMemberships, setSelectedMemberships] = useState<string[]>([]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen">
-        <Navbar />
-        <div className="flex items-center justify-center h-screen">
-          <p className="text-muted-foreground">Loading memberships...</p>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
 
   const handleToggleMembership = (name: string) => {
     setSelectedMemberships((prev) =>

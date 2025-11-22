@@ -5,17 +5,7 @@ import { useMemberships } from "@/hooks/useMemberships";
 
 
 const MembershipCards = () => {
-  const { memberships, isLoading } = useMemberships();
-
-  if (isLoading) {
-    return (
-      <section className="py-20 px-4 bg-secondary/30">
-        <div className="container mx-auto text-center">
-          <p className="text-muted-foreground">Loading memberships...</p>
-        </div>
-      </section>
-    );
-  }
+  const { memberships } = useMemberships();
 
   return (
     <section id="membership" className="py-20 px-4 bg-secondary/30">

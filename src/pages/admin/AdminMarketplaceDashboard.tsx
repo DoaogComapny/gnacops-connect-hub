@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DollarSign, Package, ShoppingCart, Users } from 'lucide-react';
 
 export default function AdminMarketplaceDashboard() {
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats } = useQuery({
     queryKey: ['marketplace-stats'],
     queryFn: async () => {
       const [vendorsRes, productsRes, ordersRes] = await Promise.all([
@@ -57,10 +57,6 @@ export default function AdminMarketplaceDashboard() {
       description: `${stats?.pendingOrders || 0} pending`,
     },
   ];
-
-  if (isLoading) {
-    return <div className="p-6">Loading marketplace stats...</div>;
-  }
 
   return (
     <div className="p-6 space-y-6">

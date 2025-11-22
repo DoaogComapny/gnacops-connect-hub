@@ -8,7 +8,7 @@ interface Assignment {
 }
 
 export function useRegionalCoordinatorAuth() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const [isRegionalCoordinator, setIsRegionalCoordinator] = useState(false);
   const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [checkingRole, setCheckingRole] = useState(true);
@@ -16,7 +16,7 @@ export function useRegionalCoordinatorAuth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!user) {
       navigate('/login');
       return;
     }
@@ -24,7 +24,7 @@ export function useRegionalCoordinatorAuth() {
     if (user) {
       checkRegionalCoordinatorRole();
     }
-  }, [user, loading, navigate]);
+  }, [user, navigate]);
 
   const checkRegionalCoordinatorRole = async () => {
     if (!user) return;
@@ -78,6 +78,6 @@ export function useRegionalCoordinatorAuth() {
     isRegionalCoordinator,
     assignment,
     error,
-    loading: loading || checkingRole,
+    loading: checkingRole,
   };
 }

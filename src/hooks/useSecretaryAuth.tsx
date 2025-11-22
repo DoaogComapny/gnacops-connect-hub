@@ -4,13 +4,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 
 export function useSecretaryAuth() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const [isSecretary, setIsSecretary] = useState(false);
   const [checkingRole, setCheckingRole] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!user) {
       navigate('/login');
       return;
     }
@@ -18,7 +18,7 @@ export function useSecretaryAuth() {
     if (user) {
       checkSecretaryRole();
     }
-  }, [user, loading, navigate]);
+  }, [user, navigate]);
 
   const checkSecretaryRole = async () => {
     if (!user) return;
@@ -49,6 +49,6 @@ export function useSecretaryAuth() {
   return {
     user,
     isSecretary,
-    loading: loading || checkingRole,
+    loading: checkingRole,
   };
 }

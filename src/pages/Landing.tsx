@@ -16,22 +16,19 @@ import { ArrowRight } from "lucide-react";
 
 const Landing = () => {
   const navigate = useNavigate();
-  const { user, isAdmin, loading } = useAuth();
-  const { memberships, isLoading: membershipLoading } = useMemberships();
+  const { user, isAdmin } = useAuth();
+  const { memberships } = useMemberships();
   const [selectedMemberships, setSelectedMemberships] = useState<string[]>([]);
 
-  console.log('Landing page - memberships:', memberships);
-  console.log('Landing page - loading states:', { loading, membershipLoading });
-
   useEffect(() => {
-    if (!loading && user) {
+    if (user) {
       if (isAdmin) {
         navigate('/admin/panel');
       } else {
         navigate('/user/dashboard');
       }
     }
-  }, [user, isAdmin, loading, navigate]);
+  }, [user, isAdmin, navigate]);
 
   const handleToggleMembership = (name: string) => {
     setSelectedMemberships((prev) =>
