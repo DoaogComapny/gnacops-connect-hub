@@ -8,27 +8,15 @@ import { toast } from "sonner";
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     
-    try {
-      const { error } = await signIn(email, password);
-      if (error) {
-        console.error("Login error:", error.message);
-        toast.error(error.message || "Login failed. Please check your credentials.");
-      } else {
-        toast.success("Login successful!");
-        // The redirect will happen via the useEffect above
-      }
-    } catch (error) {
-      console.error("Unexpected login error:", error);
-      toast.error("An unexpected error occurred. Please try again.");
-    } finally {
-      setIsLoading(false);
+    const { error } = await signIn(email, password);
+    if (error) {
+      console.error("Login error:", error.message);
+      toast.error(error.message || "Login failed. Please check your credentials.");
     }
   };
 
@@ -80,8 +68,8 @@ const LoginPage = () => {
                 </Link>
               </div>
 
-              <Button type="submit" variant="hero" className="w-full" disabled={isLoading}>
-                {isLoading ? "Logging in..." : "Login"}
+              <Button type="submit" variant="hero" className="w-full">
+                Login
               </Button>
             </form>
 
