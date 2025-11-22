@@ -32,8 +32,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Check admin status after setting session
-        if (session?.user) {
+        // Check admin status and navigate on login
+        if (session?.user && event === 'SIGNED_IN') {
+          const { data } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', session.user.id)
+            .in('role', ['admin', 'super_admin', 'secretary']);
+          
+          if (data && data.length > 0) {
+            const roles = data.map(r => r.role);
+            
+            if (roles.includes('admin') || roles.includes('super_admin')) {
+              setIsAdmin(true);
+              toast.success('Signed in successfully!');
+              navigate('/admin/panel');
+            } else if (roles.includes('secretary')) {
+              toast.success('Signed in successfully!');
+              navigate('/secretary/panel');
+            } else {
+              toast.success('Signed in successfully!');
+              navigate('/user/dashboard');
+            }
+          } else {
+            toast.success('Signed in successfully!');
+            navigate('/user/dashboard');
+          }
+          setCheckingRole(false);
+        } else if (session?.user) {
           await checkAdminStatus(session.user.id);
         } else {
           setIsAdmin(false);
@@ -56,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
 
   const checkAdminStatus = async (userId: string) => {
     try {
@@ -104,35 +130,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     if (error) {
-      toast.error(error.message || 'Failed to sign in');
       return { error };
     }
 
-    // Determine destination based on role
-    const { data: { user } } = await supabase.auth.getUser();
-    let destination = '/user/dashboard';
-    
-    if (user) {
-      const { data } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .in('role', ['admin', 'super_admin', 'secretary']);
-      
-      if (data && data.length > 0) {
-        const roles = data.map(r => r.role);
-        
-        if (roles.includes('admin') || roles.includes('super_admin')) {
-          destination = '/admin/panel';
-          setIsAdmin(true);
-        } else if (roles.includes('secretary')) {
-          destination = '/secretary/panel';
-        }
-      }
-    }
-
-    toast.success('Signed in successfully!');
-    navigate(destination);
+    // Navigation will be handled by onAuthStateChange
     return { error: null };
   };
 
