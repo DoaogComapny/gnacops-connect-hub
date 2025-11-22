@@ -828,6 +828,8 @@ export type Database = {
           name: string
           position: number
           price: number
+          secondary_price: number | null
+          secondary_price_label: string | null
           type: string
         }
         Insert: {
@@ -839,6 +841,8 @@ export type Database = {
           name: string
           position?: number
           price?: number
+          secondary_price?: number | null
+          secondary_price_label?: string | null
           type: string
         }
         Update: {
@@ -850,6 +854,8 @@ export type Database = {
           name?: string
           position?: number
           price?: number
+          secondary_price?: number | null
+          secondary_price_label?: string | null
           type?: string
         }
         Relationships: []
