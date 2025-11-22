@@ -114,6 +114,8 @@ import VendorDashboard from "./pages/VendorDashboard";
 import VendorProductForm from "./pages/VendorProductForm";
 import VendorOrders from "./pages/VendorOrders";
 import AdminMarketplace from "./pages/admin/AdminMarketplace";
+import AdminMarketplaceVendors from "./pages/admin/AdminMarketplaceVendors";
+import AdminMarketplaceOnboarding from "./pages/admin/AdminMarketplaceOnboarding";
 
 const queryClient = new QueryClient();
 
@@ -181,6 +183,8 @@ const App = () => (
             <Route path="support" element={<AdminSupport />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="marketplace" element={<AdminMarketplace />} />
+            <Route path="marketplace/vendors" element={<AdminMarketplaceVendors />} />
+            <Route path="marketplace/onboarding" element={<AdminMarketplaceOnboarding />} />
           </Route>
 
           {/* Secretary Routes */}
