@@ -46,13 +46,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      setLoading(false);
       
       if (session?.user) {
-        await checkAdminStatus(session.user.id);
+        checkAdminStatus(session.user.id);
       } else {
         setCheckingRole(false);
       }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -60,11 +60,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAdminStatus = async (userId: string) => {
     try {
-      const { data } = await supabase
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout')), 3000)
+      );
+      
+      const queryPromise = supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', userId)
         .in('role', ['admin', 'super_admin']);
+      
+      const { data } = await Promise.race([queryPromise, timeoutPromise]) as any;
       
       setIsAdmin(data && data.length > 0);
     } catch (error) {
@@ -161,7 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         session,
-        loading: loading || checkingRole,
+        loading,
         isAdmin,
         signUp,
         signIn,

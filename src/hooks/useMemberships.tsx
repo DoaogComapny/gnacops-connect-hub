@@ -45,7 +45,12 @@ export const useMemberships = () => {
         .eq('is_active', true)
         .order('position');
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching memberships:', error);
+        setMemberships([]);
+        setIsLoading(false);
+        return;
+      }
 
       const formatted: Membership[] = (data || []).map((cat) => ({
         id: cat.id,
@@ -61,6 +66,7 @@ export const useMemberships = () => {
       setMemberships(formatted);
     } catch (error) {
       console.error('Error fetching memberships:', error);
+      setMemberships([]);
     } finally {
       setIsLoading(false);
     }
