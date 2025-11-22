@@ -109,6 +109,15 @@ const AdminDistrictCoordinators = () => {
       return;
     }
 
+    // Check if email already exists in coordinators
+    const existingCoordinator = coordinators.find(
+      (c) => c.email.toLowerCase() === email.toLowerCase()
+    );
+    if (existingCoordinator) {
+      toast.error(`The email "${email}" is already assigned to ${existingCoordinator.full_name}`);
+      return;
+    }
+
     setIsSaving(true);
     try {
       const { data, error } = await supabase.functions.invoke("create-staff", {
@@ -128,16 +137,21 @@ const AdminDistrictCoordinators = () => {
       }
 
       if (data?.error) {
+        // Provide user-friendly error messages
+        if (data.error.includes('already exists') || data.error.includes('already been registered')) {
+          throw new Error(`The email "${email}" is already registered in the system. Please use a different email address.`);
+        }
         throw new Error(data.error);
       }
 
-      toast.success("District coordinator added successfully");
+      toast.success(`District coordinator "${fullName}" added successfully!`);
       setIsAddDialogOpen(false);
       resetForm();
-      fetchCoordinators();
+      await fetchCoordinators();
     } catch (error: any) {
       console.error("Error adding coordinator:", error);
-      toast.error(error.message || "Failed to add district coordinator");
+      const errorMessage = error.message || "Failed to add district coordinator";
+      toast.error(errorMessage);
     } finally {
       setIsSaving(false);
     }
