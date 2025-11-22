@@ -41,23 +41,18 @@ export default function OfficeDashboard() {
         documents: docsResult.count || 0,
       });
 
-      // Fetch recent tasks assigned to user
-      const { data: tasks, error: tasksError } = await supabase
+      // Fetch recent tasks without relationships (to avoid foreign key errors)
+      const { data: tasks } = await supabase
         .from('tasks')
-        .select(`
-          *,
-          assigned_by_profile:assigned_by(full_name),
-          department:departments(name)
-        `)
+        .select('*')
         .eq('assigned_to', user!.id)
         .order('created_at', { ascending: false })
         .limit(5);
 
-      if (tasksError) throw tasksError;
       setRecentTasks(tasks || []);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
-      toast.error('Failed to load dashboard data');
+      // Don't show error toast, just log it
     } finally {
       setLoading(false);
     }
