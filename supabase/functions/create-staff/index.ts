@@ -75,6 +75,13 @@ serve(async (req) => {
       throw new Error('Region and district required for coordinators');
     }
 
+    // Check if role is a department code
+    const departmentCodes = ['CPDU', 'ESCU', 'FSDSU', 'CSEDU', 'RISEU', 'SSAU', 'PECU'];
+    const isDepartmentRole = departmentCodes.includes(role);
+    
+    // If department is provided separately, use it; otherwise use role if it's a department
+    const departmentCode = department || (isDepartmentRole ? role : null);
+
     // Check if email already exists in profiles
     const { data: existingProfile } = await supabaseAdmin
       .from('profiles')
@@ -124,15 +131,34 @@ serve(async (req) => {
     const userId = authData.user.id;
     console.log(`[create-staff] Created staff user: ${userId}`);
 
-    // Assign role
-    const { error: roleError } = await supabaseAdmin.from('user_roles').insert({
-      user_id: userId,
-      role: role,
-    });
+    // For department roles, create department_staff_assignments instead of user_roles
+    if (isDepartmentRole) {
+      // Create department staff assignment
+      const { error: deptError } = await supabaseAdmin
+        .from('department_staff_assignments')
+        .insert({
+          user_id: userId,
+          department_code: role,
+          role: 'staff', // Generic role within department
+        });
 
-    if (roleError) {
-      console.error('[create-staff] Role assignment error:', roleError);
-      throw new Error('Failed to assign role');
+      if (deptError) {
+        console.error('[create-staff] Department assignment error:', deptError);
+        throw new Error('Failed to assign department');
+      }
+      
+      console.log(`[create-staff] Assigned user to department: ${role}`);
+    } else {
+      // Assign regular role
+      const { error: roleError } = await supabaseAdmin.from('user_roles').insert({
+        user_id: userId,
+        role: role,
+      });
+
+      if (roleError) {
+        console.error('[create-staff] Role assignment error:', roleError);
+        throw new Error('Failed to assign role');
+      }
     }
 
     // Create staff assignment if coordinator
@@ -152,13 +178,13 @@ serve(async (req) => {
       }
     }
 
-    // Create department assignment if provided
-    if (department) {
+    // Create department assignment if department code provided (and not already a department role)
+    if (departmentCode && !isDepartmentRole) {
       const { error: deptError } = await supabaseAdmin
         .from('department_staff_assignments')
         .insert({
           user_id: userId,
-          department_code: department,
+          department_code: departmentCode,
           role: role,
         });
 

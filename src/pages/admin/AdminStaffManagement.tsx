@@ -31,26 +31,46 @@ interface StaffFormData {
   confirmPassword: string;
   role: string;
   permissions: string[];
-  department?: string;
 }
 
-const staffRoles = [
+const membershipRoles = [
   { value: "membership_officer", label: "Membership Officer" },
   { value: "finance_officer", label: "Finance Officer" },
   { value: "support_worker", label: "Support Worker" },
+];
+
+const officeManagementRoles = [
   { value: "director", label: "Director" },
   { value: "head_of_unit", label: "Head of Unit" },
   { value: "assistant", label: "Assistant" },
 ];
 
-const departmentUnits = [
-  { value: "CPDU", label: "Coordination & Policy Development Unit" },
-  { value: "ESCU", label: "Educational Standards & Compliance Unit" },
-  { value: "FSDSU", label: "Financial Sustainability & Development Support Unit" },
-  { value: "CSEDU", label: "Curriculum Standardization & Educational Development Unit" },
-  { value: "RISEU", label: "Research, Innovation & Stakeholder Engagement Unit" },
-  { value: "SSAU", label: "Support Services & Advocacy Unit" },
-  { value: "PECU", label: "Private Education & Compliance Unit" },
+const departmentRoles = [
+  { value: "CPDU", label: "CPDU - Coordination & Policy Development" },
+  { value: "ESCU", label: "ESCU - Educational Standards & Compliance" },
+  { value: "FSDSU", label: "FSDSU - Financial Sustainability & Development Support" },
+  { value: "CSEDU", label: "CSEDU - Curriculum Standardization & Educational Development" },
+  { value: "RISEU", label: "RISEU - Research, Innovation & Stakeholder Engagement" },
+  { value: "SSAU", label: "SSAU - Support Services & Advocacy" },
+  { value: "PECU", label: "PECU - Private Education & Compliance" },
+];
+
+const marketplaceRoles = [
+  { value: "marketplace_manager", label: "Marketplace Manager" },
+  { value: "vendor_coordinator", label: "Vendor Coordinator" },
+  { value: "order_manager", label: "Order Manager" },
+  { value: "delivery_coordinator", label: "Delivery Coordinator" },
+  { value: "marketing_manager", label: "Marketing Manager" },
+];
+
+const MARKETPLACE_PERMISSIONS = [
+  { id: 'mp_manage_vendors', code: 'manage_vendors', name: 'Manage Vendors', module: 'marketplace' },
+  { id: 'mp_manage_products', code: 'manage_products', name: 'Manage Products', module: 'marketplace' },
+  { id: 'mp_manage_orders', code: 'manage_orders', name: 'Manage Orders', module: 'marketplace' },
+  { id: 'mp_manage_delivery', code: 'manage_delivery', name: 'Manage Delivery', module: 'marketplace' },
+  { id: 'mp_manage_payments', code: 'manage_payments', name: 'Manage Payments', module: 'marketplace' },
+  { id: 'mp_manage_marketing', code: 'manage_marketing', name: 'Manage Marketing', module: 'marketplace' },
+  { id: 'mp_view_reports', code: 'view_reports', name: 'View Reports', module: 'marketplace' },
 ];
 
 export default function AdminStaffManagement() {
@@ -63,7 +83,6 @@ export default function AdminStaffManagement() {
     confirmPassword: "",
     role: "",
     permissions: [],
-    department: "",
   });
   const [isCreating, setIsCreating] = useState(false);
 
@@ -85,7 +104,13 @@ export default function AdminStaffManagement() {
   const { data: staff, isLoading } = useQuery({
     queryKey: ["staff"],
     queryFn: async () => {
-      const roleValues = staffRoles.map((r) => r.value) as Array<"membership_officer" | "finance_officer" | "support_worker" | "director" | "head_of_unit" | "assistant">;
+      const allRoles = [
+        ...membershipRoles.map(r => r.value),
+        ...officeManagementRoles.map(r => r.value),
+        ...departmentRoles.map(r => r.value),
+        ...marketplaceRoles.map(r => r.value),
+      ] as string[];
+      
       const { data, error } = await supabase
         .from("user_roles")
         .select(`
@@ -97,11 +122,13 @@ export default function AdminStaffManagement() {
             email,
             created_at
           )
-        `)
-        .in("role", roleValues);
+        `);
 
       if (error) throw error;
-      return data;
+      
+      // Filter results client-side to match our role list
+      const filtered = data?.filter((item: any) => allRoles.includes(item.role));
+      return filtered;
     },
   });
 
@@ -164,6 +191,9 @@ export default function AdminStaffManagement() {
     setIsCreating(true);
 
     try {
+      // Determine if role is a department role
+      const isDepartmentRole = departmentRoles.some(d => d.value === formData.role);
+      
       const { data, error } = await supabase.functions.invoke("create-staff", {
         body: {
           email: formData.email,
@@ -171,7 +201,7 @@ export default function AdminStaffManagement() {
           fullName: formData.fullName,
           role: formData.role,
           permissions: formData.permissions,
-          department: formData.department,
+          department: isDepartmentRole ? formData.role : undefined,
         },
       });
 
@@ -190,7 +220,6 @@ export default function AdminStaffManagement() {
         confirmPassword: "",
         role: "",
         permissions: [],
-        department: "",
       });
 
       queryClient.invalidateQueries({ queryKey: ["staff"] });
@@ -214,13 +243,19 @@ export default function AdminStaffManagement() {
     }));
   };
 
-  const groupedPermissions = permissions?.reduce((acc, permission) => {
+  // Combine database permissions with marketplace permissions
+  const allPermissions = [
+    ...(permissions || []),
+    ...MARKETPLACE_PERMISSIONS,
+  ];
+
+  const groupedPermissions = allPermissions.reduce((acc, permission) => {
     if (!acc[permission.module]) {
       acc[permission.module] = [];
     }
     acc[permission.module].push(permission);
     return acc;
-  }, {} as Record<string, typeof permissions>);
+  }, {} as Record<string, typeof allPermissions>);
 
   return (
     <div className="space-y-6">
@@ -295,8 +330,8 @@ export default function AdminStaffManagement() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="role">Role / Department</Label>
                 <Select
                   value={formData.role}
                   onValueChange={(value) =>
@@ -304,37 +339,49 @@ export default function AdminStaffManagement() {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a role" />
+                    <SelectValue placeholder="Select a role or department" />
                   </SelectTrigger>
                   <SelectContent>
-                    {staffRoles.map((role) => (
+                    <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                      Membership Roles
+                    </div>
+                    {membershipRoles.map((role) => (
+                      <SelectItem key={role.value} value={role.value}>
+                        {role.label}
+                      </SelectItem>
+                    ))}
+                    
+                    <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground mt-2">
+                      Office Management Roles
+                    </div>
+                    {officeManagementRoles.map((role) => (
+                      <SelectItem key={role.value} value={role.value}>
+                        {role.label}
+                      </SelectItem>
+                    ))}
+                    
+                    <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground mt-2">
+                      Department Roles (with Dashboard Access)
+                    </div>
+                    {departmentRoles.map((role) => (
+                      <SelectItem key={role.value} value={role.value}>
+                        {role.label}
+                      </SelectItem>
+                    ))}
+                    
+                    <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground mt-2">
+                      Marketplace Roles
+                    </div>
+                    {marketplaceRoles.map((role) => (
                       <SelectItem key={role.value} value={role.value}>
                         {role.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="department">Department (Optional)</Label>
-                <Select
-                  value={formData.department}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, department: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departmentUnits.map((dept) => (
-                      <SelectItem key={dept.value} value={dept.value}>
-                        {dept.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Department roles grant access to specific department dashboards
+                </p>
               </div>
             </div>
 
