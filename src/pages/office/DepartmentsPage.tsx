@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { toast } from "sonner";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAuditLog } from "@/hooks/useAuditLog";
+import { useNavigate } from "react-router-dom";
 
 interface Department {
   id: string;
@@ -28,6 +29,7 @@ interface Department {
 export default function DepartmentsPage() {
   const { hasPermission } = usePermissions();
   const { logAudit } = useAuditLog();
+  const navigate = useNavigate();
   const [departments, setDepartments] = useState<Department[]>([]);
   const [units, setUnits] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -291,7 +293,7 @@ export default function DepartmentsPage() {
             <Button
               variant="outline"
               className="h-auto p-4 flex flex-col items-start gap-2"
-              onClick={() => window.location.href = '/admin/panel/office-management/departments/cpdu'}
+              onClick={() => navigate('/admin/panel/office-management/departments/cpdu')}
             >
               <Building2 className="h-5 w-5 text-primary" />
               <div className="text-left">
@@ -303,7 +305,7 @@ export default function DepartmentsPage() {
             <Button
               variant="outline"
               className="h-auto p-4 flex flex-col items-start gap-2"
-              onClick={() => window.location.href = '/admin/panel/office-management/departments/escu'}
+              onClick={() => navigate('/admin/panel/office-management/departments/escu')}
             >
               <Building2 className="h-5 w-5 text-primary" />
               <div className="text-left">
@@ -315,7 +317,7 @@ export default function DepartmentsPage() {
             <Button
               variant="outline"
               className="h-auto p-4 flex flex-col items-start gap-2"
-              onClick={() => window.location.href = '/admin/panel/office-management/departments/fsdsu'}
+              onClick={() => navigate('/admin/panel/office-management/departments/fsdsu')}
             >
               <Building2 className="h-5 w-5 text-primary" />
               <div className="text-left">
@@ -327,7 +329,7 @@ export default function DepartmentsPage() {
             <Button
               variant="outline"
               className="h-auto p-4 flex flex-col items-start gap-2"
-              onClick={() => window.location.href = '/admin/panel/office-management/departments/csedu'}
+              onClick={() => navigate('/admin/panel/office-management/departments/csedu')}
             >
               <Building2 className="h-5 w-5 text-primary" />
               <div className="text-left">
@@ -339,7 +341,7 @@ export default function DepartmentsPage() {
             <Button
               variant="outline"
               className="h-auto p-4 flex flex-col items-start gap-2"
-              onClick={() => window.location.href = '/admin/panel/office-management/departments/riseu'}
+              onClick={() => navigate('/admin/panel/office-management/departments/riseu')}
             >
               <Building2 className="h-5 w-5 text-primary" />
               <div className="text-left">
@@ -351,7 +353,7 @@ export default function DepartmentsPage() {
             <Button
               variant="outline"
               className="h-auto p-4 flex flex-col items-start gap-2"
-              onClick={() => window.location.href = '/admin/panel/office-management/departments/ssau'}
+              onClick={() => navigate('/admin/panel/office-management/departments/ssau')}
             >
               <Building2 className="h-5 w-5 text-primary" />
               <div className="text-left">
@@ -363,7 +365,7 @@ export default function DepartmentsPage() {
             <Button
               variant="outline"
               className="h-auto p-4 flex flex-col items-start gap-2"
-              onClick={() => window.location.href = '/admin/panel/office-management/departments/pecu'}
+              onClick={() => navigate('/admin/panel/office-management/departments/pecu')}
             >
               <Building2 className="h-5 w-5 text-primary" />
               <div className="text-left">
