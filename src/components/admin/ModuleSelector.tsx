@@ -1,4 +1,4 @@
-import { Building2, Users } from "lucide-react";
+import { Building2, Users, ShoppingBag } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Select,
@@ -17,12 +17,15 @@ export function ModuleSelector() {
   const getCurrentModule = () => {
     const path = location.pathname;
     if (path.includes('/office-management')) return 'office';
+    if (path.includes('/marketplace')) return 'marketplace';
     return 'membership';
   };
 
   const handleModuleChange = (value: string) => {
     if (value === 'office') {
       navigate('/admin/panel/office-management');
+    } else if (value === 'marketplace') {
+      navigate('/admin/panel/marketplace');
     } else {
       navigate('/admin/panel');
     }
@@ -49,6 +52,12 @@ export function ModuleSelector() {
                 <div className="flex items-center gap-2">
                   <Building2 className="h-4 w-4" />
                   <span>Office Management</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="marketplace">
+                <div className="flex items-center gap-2">
+                  <ShoppingBag className="h-4 w-4" />
+                  <span>Marketplace</span>
                 </div>
               </SelectItem>
             </SelectGroup>

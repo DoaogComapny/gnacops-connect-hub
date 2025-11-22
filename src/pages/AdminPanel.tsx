@@ -31,7 +31,6 @@ const membershipMenuItems = [
   { title: "Certificates", icon: Award, path: "/admin/panel/certificates" },
   { title: "Messages", icon: Mail, path: "/admin/panel/messages" },
   { title: "Support", icon: HelpCircle, path: "/admin/panel/support" },
-  { title: "Marketplace", icon: Briefcase, path: "/admin/panel/marketplace" },
   { title: "Form Builder", icon: LayoutDashboard, path: "/admin/panel/form-builder" },
   { title: "Pricing", icon: BarChart, path: "/admin/panel/pricing" },
   { title: "Team", icon: Users, path: "/admin/panel/team-management" },
@@ -44,6 +43,17 @@ const membershipMenuItems = [
   { title: "Audit Logs", icon: FileText, path: "/admin/panel/audit-logs" },
   { title: "Profile", icon: User, path: "/admin/panel/profile" },
   { title: "Settings", icon: Settings, path: "/admin/panel/settings" },
+];
+
+const marketplaceMenuItems = [
+  { title: "Dashboard", icon: LayoutDashboard, path: "/admin/panel/marketplace" },
+  { title: "Vendor Management", icon: Users, path: "/admin/panel/marketplace/vendors" },
+  { title: "Product Management", icon: Briefcase, path: "/admin/panel/marketplace/products" },
+  { title: "Order Management", icon: FileText, path: "/admin/panel/marketplace/orders" },
+  { title: "Delivery System", icon: MapPin, path: "/admin/panel/marketplace/delivery" },
+  { title: "Payments & Paystack", icon: BarChart, path: "/admin/panel/marketplace/payments" },
+  { title: "Marketing Management", icon: ImageIcon, path: "/admin/panel/marketplace/marketing" },
+  { title: "Staff Management", icon: Users, path: "/admin/panel/marketplace/staff" },
 ];
 
 const officeMenuItems = [
@@ -65,7 +75,8 @@ const AdminPanel = () => {
   
   // Determine which menu to show based on route
   const isOfficeManagement = location.pathname.includes('/office-management');
-  const currentMenuItems = isOfficeManagement ? officeMenuItems : membershipMenuItems;
+  const isMarketplace = location.pathname.includes('/marketplace');
+  const currentMenuItems = isMarketplace ? marketplaceMenuItems : (isOfficeManagement ? officeMenuItems : membershipMenuItems);
   const isDashboard = location.pathname === "/admin/panel";
   
   // Real-time stats from database
