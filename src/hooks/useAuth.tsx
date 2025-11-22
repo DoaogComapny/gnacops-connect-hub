@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -24,45 +24,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingRole, setCheckingRole] = useState(true);
   const navigate = useNavigate();
+  const hasNavigated = useRef(false);
 
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Check admin status and navigate on login
-        if (session?.user && event === 'SIGNED_IN') {
-          console.log('Processing SIGNED_IN event');
+        // Only process SIGNED_IN once
+        if (session?.user && event === 'SIGNED_IN' && !hasNavigated.current) {
+          hasNavigated.current = true;
+          
           const { data, error } = await supabase
             .from('user_roles')
             .select('role')
             .eq('user_id', session.user.id)
             .in('role', ['admin', 'super_admin', 'secretary']);
           
-          console.log('User roles query result:', { data, error });
-          
           if (data && data.length > 0) {
             const roles = data.map(r => r.role);
-            console.log('User roles:', roles);
             
             if (roles.includes('admin') || roles.includes('super_admin')) {
               setIsAdmin(true);
               toast.success('Welcome, Admin!');
-              setTimeout(() => navigate('/admin/panel'), 100);
+              navigate('/admin/panel');
             } else if (roles.includes('secretary')) {
               toast.success('Welcome, Secretary!');
-              setTimeout(() => navigate('/secretary/panel'), 100);
+              navigate('/secretary/panel');
             } else {
               toast.success('Welcome!');
-              setTimeout(() => navigate('/user/dashboard'), 100);
+              navigate('/user/dashboard');
             }
           } else {
-            console.log('No special roles found, navigating to user dashboard');
             toast.success('Welcome!');
-            setTimeout(() => navigate('/user/dashboard'), 100);
+            navigate('/user/dashboard');
           }
           setCheckingRole(false);
         } else if (session?.user) {
@@ -70,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           setIsAdmin(false);
           setCheckingRole(false);
+          hasNavigated.current = false; // Reset on logout
         }
       }
     );
