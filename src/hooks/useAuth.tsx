@@ -60,18 +60,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAdminStatus = async (userId: string) => {
     try {
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout')), 3000)
-      );
-      
-      const queryPromise = supabase
+      const { data, error } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', userId)
         .in('role', ['admin', 'super_admin']);
       
-      const { data } = await Promise.race([queryPromise, timeoutPromise]) as any;
-      
+      if (error) throw error;
       setIsAdmin(data && data.length > 0);
     } catch (error) {
       console.error('Error checking admin status:', error);

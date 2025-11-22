@@ -55,7 +55,7 @@ export const useSiteSettings = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: settings } = useQuery({
+  const { data: settings, isLoading } = useQuery({
     queryKey: ["site-settings"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -66,11 +66,11 @@ export const useSiteSettings = () => {
 
       if (error) {
         console.error('Error fetching site settings:', error);
-        return {};
+        throw error;
       }
       return (data?.settings_data as SiteSettings) || {};
     },
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
   });
 
@@ -132,7 +132,7 @@ export const useSiteSettings = () => {
 
   return {
     settings: settings || {},
-    isLoading: false,
+    isLoading,
     updateSettings: updateSettings.mutate,
     isUpdating: updateSettings.isPending,
   };
