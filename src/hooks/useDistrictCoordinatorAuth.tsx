@@ -9,7 +9,7 @@ interface Assignment {
 }
 
 export function useDistrictCoordinatorAuth() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const [isDistrictCoordinator, setIsDistrictCoordinator] = useState(false);
   const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [checkingRole, setCheckingRole] = useState(true);
@@ -17,7 +17,7 @@ export function useDistrictCoordinatorAuth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!user) {
       navigate('/login');
       return;
     }
@@ -25,7 +25,7 @@ export function useDistrictCoordinatorAuth() {
     if (user) {
       checkDistrictCoordinatorRole();
     }
-  }, [user, loading, navigate]);
+  }, [user, navigate]);
 
   const checkDistrictCoordinatorRole = async () => {
     if (!user) return;
@@ -79,6 +79,6 @@ export function useDistrictCoordinatorAuth() {
     isDistrictCoordinator,
     assignment,
     error,
-    loading: loading || checkingRole,
+    loading: checkingRole,
   };
 }

@@ -31,7 +31,6 @@ interface Membership {
 
 export const useMemberships = () => {
   const [memberships, setMemberships] = useState<Membership[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchMemberships();
@@ -51,7 +50,6 @@ export const useMemberships = () => {
       if (error) {
         console.error('Error fetching memberships:', error);
         setMemberships([]);
-        setIsLoading(false);
         return;
       }
 
@@ -73,12 +71,10 @@ export const useMemberships = () => {
     } catch (error) {
       console.error('Caught error fetching memberships:', error);
       setMemberships([]);
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  return { memberships, isLoading, refetch: fetchMemberships };
+  return { memberships, refetch: fetchMemberships };
 };
 
 // Helper function to determine if membership is prime

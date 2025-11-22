@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 export default function OfficeDashboard() {
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuth();
   const [stats, setStats] = useState({
     totalDepartments: 0,
     myTasks: 0,
@@ -19,14 +19,12 @@ export default function OfficeDashboard() {
   const [dataLoading, setDataLoading] = useState(false);
 
   useEffect(() => {
-    if (!authLoading) {
-      if (user) {
-        fetchDashboardData();
-      } else {
-        setDataLoading(false);
-      }
+    if (user) {
+      fetchDashboardData();
+    } else {
+      setDataLoading(false);
     }
-  }, [user, authLoading]);
+  }, [user]);
 
   const fetchDashboardData = async () => {
     if (!user) {
@@ -88,7 +86,7 @@ export default function OfficeDashboard() {
     }
   };
 
-  if (authLoading || dataLoading) {
+  if (dataLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

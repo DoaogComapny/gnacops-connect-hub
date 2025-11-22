@@ -21,20 +21,18 @@ const menuItems = [
 const UserDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, loading, signOut, isAdmin } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
   const isDashboard = location.pathname === "/user/dashboard";
   const [memberships, setMemberships] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        navigate('/login');
-      } else if (isAdmin) {
-        navigate('/admin/panel');
-      }
+    if (!user) {
+      navigate('/login');
+    } else if (isAdmin) {
+      navigate('/admin/panel');
     }
-  }, [user, isAdmin, loading, navigate]);
+  }, [user, isAdmin, navigate]);
 
   useEffect(() => {
     if (user) {
@@ -59,7 +57,7 @@ const UserDashboard = () => {
     setLoadingData(false);
   };
 
-  if (loading || loadingData) {
+  if (loadingData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />

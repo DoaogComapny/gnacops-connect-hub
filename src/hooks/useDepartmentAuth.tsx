@@ -9,14 +9,14 @@ interface DepartmentData {
 }
 
 export function useDepartmentAuth() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const [isDepartmentStaff, setIsDepartmentStaff] = useState(false);
   const [departmentData, setDepartmentData] = useState<DepartmentData | null>(null);
   const [checkingRole, setCheckingRole] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!user) {
       navigate('/login');
       return;
     }
@@ -24,7 +24,7 @@ export function useDepartmentAuth() {
     if (user) {
       checkDepartmentRole();
     }
-  }, [user, loading, navigate]);
+  }, [user, navigate]);
 
   const checkDepartmentRole = async () => {
     if (!user) return;
@@ -61,6 +61,6 @@ export function useDepartmentAuth() {
     user,
     isDepartmentStaff,
     departmentData,
-    loading: loading || checkingRole,
+    loading: checkingRole,
   };
 }
