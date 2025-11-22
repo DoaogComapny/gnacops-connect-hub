@@ -55,9 +55,10 @@ export const useSiteSettings = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: settings, isLoading } = useQuery({
+  const { data: settings, isLoading, error } = useQuery({
     queryKey: ["site-settings"],
     queryFn: async () => {
+      console.log('Fetching site settings...');
       const { data, error } = await supabase
         .from("site_settings")
         .select("settings_data")
@@ -66,13 +67,20 @@ export const useSiteSettings = () => {
 
       if (error) {
         console.error('Error fetching site settings:', error);
-        throw error;
+        return {};
       }
+      
+      console.log('Site settings fetched:', data);
       return (data?.settings_data as SiteSettings) || {};
     },
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
+    retry: 3,
   });
+
+  if (error) {
+    console.error('Query error:', error);
+  }
 
   const updateSettings = useMutation({
     mutationFn: async (newSettings: SiteSettings) => {

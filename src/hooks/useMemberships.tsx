@@ -39,6 +39,7 @@ export const useMemberships = () => {
 
   const fetchMemberships = async () => {
     try {
+      console.log('Fetching memberships...');
       const { data, error } = await supabase
         .from('form_categories')
         .select('*')
@@ -52,20 +53,23 @@ export const useMemberships = () => {
         return;
       }
 
+      console.log('Memberships fetched:', data);
+      
       const formatted: Membership[] = (data || []).map((cat) => ({
         id: cat.id,
         name: cat.name,
         type: cat.type,
         description: cat.description,
-        price: cat.price,
+        price: Number(cat.price),
         icon: iconMap[cat.type] || Building2,
         category: isPrimeMembership(cat.name) ? 'Prime Member' : 'Associate Member',
         key: cat.type,
       }));
 
+      console.log('Formatted memberships:', formatted);
       setMemberships(formatted);
     } catch (error) {
-      console.error('Error fetching memberships:', error);
+      console.error('Caught error fetching memberships:', error);
       setMemberships([]);
     } finally {
       setIsLoading(false);
