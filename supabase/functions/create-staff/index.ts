@@ -14,6 +14,7 @@ interface CreateStaffRequest {
   permissions?: string[];
   region?: string;
   district?: string;
+  department?: string;
 }
 
 serve(async (req) => {
@@ -53,7 +54,7 @@ serve(async (req) => {
       );
     }
 
-    const { email, fullName, role, password, permissions, region, district }: CreateStaffRequest = await req.json();
+    const { email, fullName, role, password, permissions, region, district, department }: CreateStaffRequest = await req.json();
 
     // Validate inputs
     if (!email || !fullName || !role || !password) {
@@ -148,6 +149,22 @@ serve(async (req) => {
       if (assignmentError) {
         console.error('[create-staff] Assignment error:', assignmentError);
         throw new Error('Failed to create staff assignment');
+      }
+    }
+
+    // Create department assignment if provided
+    if (department) {
+      const { error: deptError } = await supabaseAdmin
+        .from('department_staff_assignments')
+        .insert({
+          user_id: userId,
+          department_code: department,
+          role: role,
+        });
+
+      if (deptError) {
+        console.error('[create-staff] Department assignment error:', deptError);
+        throw new Error('Failed to assign department');
       }
     }
 

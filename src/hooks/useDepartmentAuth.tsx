@@ -32,19 +32,18 @@ export function useDepartmentAuth() {
     try {
       // Check if user has department assignment
       const { data, error } = await supabase
-        .from('user_module_access')
-        .select('module, metadata')
+        .from('department_staff_assignments')
+        .select('department_code, role')
         .eq('user_id', user.id)
-        .eq('module', 'office_management')
         .single();
 
       if (error) throw error;
 
-      if (data && data.metadata?.department) {
+      if (data) {
         setIsDepartmentStaff(true);
         setDepartmentData({
-          department: data.metadata.department,
-          role: data.metadata.role || null,
+          department: data.department_code,
+          role: data.role,
         });
       } else {
         setIsDepartmentStaff(false);
