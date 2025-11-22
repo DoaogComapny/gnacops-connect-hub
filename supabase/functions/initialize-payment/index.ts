@@ -32,7 +32,9 @@ serve(async (req) => {
           *,
           form_categories!inner(
             name,
-            price
+            price,
+            secondary_price,
+            secondary_price_label
           )
         )
       `)
@@ -43,68 +45,169 @@ serve(async (req) => {
       throw new Error("Payment not found");
     }
 
-    // Use dynamic price from form categories (freshly fetched)
-    const dynamicPrice = payment.memberships?.form_categories?.price || payment.amount;
-    
-    // Verify payment amount matches current plan price
-    if (Math.abs(payment.amount - dynamicPrice) > 0.01) {
-      console.warn(`Payment amount (${payment.amount}) differs from current price (${dynamicPrice}). Using current price.`);
-    }
-
-    // Get Paystack API key from settings
+    // Get payment settings
     const { data: settings } = await supabaseClient
       .from("site_settings")
       .select("settings_data")
       .single();
 
     const paystackSecretKey = settings?.settings_data?.paymentApiKey;
+    const secondaryPaystackSecretKey = settings?.settings_data?.secondaryPaymentApiKey;
+    
     if (!paystackSecretKey) {
       throw new Error("Paystack API key not configured");
     }
 
-    // Initialize Paystack transaction using dynamic price
-    const paystackResponse = await fetch("https://api.paystack.co/transaction/initialize", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${paystackSecretKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: email,
-        amount: Math.round(dynamicPrice * 100), // Paystack expects amount in kobo/pesewas, using current price
-        currency: payment.currency || "GHS",
-        reference: payment.id,
-        callback_url: `${req.headers.get("origin")}/user/dashboard/payments?payment_id=${payment.id}`,
-        metadata: {
-          payment_id: payment.id,
-          membership_id: payment.membership_id,
-          user_id: payment.user_id,
-          plan_name: payment.memberships?.form_categories?.name,
-        },
-      }),
+    // Get pricing
+    const primaryPrice = payment.memberships?.form_categories?.price || payment.amount;
+    const secondaryPrice = payment.memberships?.form_categories?.secondary_price || 0;
+    const totalAmount = primaryPrice + secondaryPrice;
+
+    console.log("Payment breakdown:", {
+      primaryPrice,
+      secondaryPrice,
+      totalAmount,
+      categoryName: payment.memberships?.form_categories?.name
     });
 
-    const paystackData = await paystackResponse.json();
+    // If there's a secondary price and secondary key is configured, process dual payment
+    if (secondaryPrice > 0 && secondaryPaystackSecretKey) {
+      console.log("Processing dual payment to two Paystack accounts");
+      
+      // Initialize PRIMARY payment (main membership fee)
+      const primaryPaystackResponse = await fetch("https://api.paystack.co/transaction/initialize", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${paystackSecretKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          amount: Math.round(primaryPrice * 100), // Primary price in kobo/pesewas
+          currency: payment.currency || "GHS",
+          reference: `${payment.id}_primary`,
+          callback_url: `${req.headers.get("origin")}/user/dashboard/payments?payment_id=${payment.id}&type=primary`,
+          metadata: {
+            payment_id: payment.id,
+            membership_id: payment.membership_id,
+            user_id: payment.user_id,
+            plan_name: payment.memberships?.form_categories?.name,
+            payment_type: "primary"
+          },
+        }),
+      });
 
-    if (!paystackData.status) {
-      throw new Error(paystackData.message || "Failed to initialize payment");
+      const primaryData = await primaryPaystackResponse.json();
+
+      if (!primaryData.status) {
+        throw new Error(primaryData.message || "Failed to initialize primary payment");
+      }
+
+      // Initialize SECONDARY payment (SMS/LMS add-on)
+      const secondaryPaystackResponse = await fetch("https://api.paystack.co/transaction/initialize", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${secondaryPaystackSecretKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          amount: Math.round(secondaryPrice * 100), // Secondary price in kobo/pesewas
+          currency: payment.currency || "GHS",
+          reference: `${payment.id}_secondary`,
+          callback_url: `${req.headers.get("origin")}/user/dashboard/payments?payment_id=${payment.id}&type=secondary`,
+          metadata: {
+            payment_id: payment.id,
+            membership_id: payment.membership_id,
+            user_id: payment.user_id,
+            plan_name: payment.memberships?.form_categories?.secondary_price_label || "SMS/LMS Add-on",
+            payment_type: "secondary"
+          },
+        }),
+      });
+
+      const secondaryData = await secondaryPaystackResponse.json();
+
+      if (!secondaryData.status) {
+        throw new Error(secondaryData.message || "Failed to initialize secondary payment");
+      }
+
+      // Update payment record with both references
+      await supabaseClient
+        .from("payments")
+        .update({ 
+          paystack_reference: `${primaryData.data.reference},${secondaryData.data.reference}`,
+          amount: totalAmount // Update to total amount
+        })
+        .eq("id", paymentId);
+
+      // Return BOTH payment URLs - user will complete primary first, then secondary
+      return new Response(
+        JSON.stringify({
+          success: true,
+          dual_payment: true,
+          primary_authorization_url: primaryData.data.authorization_url,
+          secondary_authorization_url: secondaryData.data.authorization_url,
+          primary_reference: primaryData.data.reference,
+          secondary_reference: secondaryData.data.reference,
+          total_amount: totalAmount,
+          primary_amount: primaryPrice,
+          secondary_amount: secondaryPrice,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    } else {
+      // Standard single payment flow
+      console.log("Processing standard single payment");
+      
+      const paystackResponse = await fetch("https://api.paystack.co/transaction/initialize", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${paystackSecretKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          amount: Math.round(totalAmount * 100), // Total amount in kobo/pesewas
+          currency: payment.currency || "GHS",
+          reference: payment.id,
+          callback_url: `${req.headers.get("origin")}/user/dashboard/payments?payment_id=${payment.id}`,
+          metadata: {
+            payment_id: payment.id,
+            membership_id: payment.membership_id,
+            user_id: payment.user_id,
+            plan_name: payment.memberships?.form_categories?.name,
+          },
+        }),
+      });
+
+      const paystackData = await paystackResponse.json();
+
+      if (!paystackData.status) {
+        throw new Error(paystackData.message || "Failed to initialize payment");
+      }
+
+      // Update payment with Paystack reference
+      await supabaseClient
+        .from("payments")
+        .update({ 
+          paystack_reference: paystackData.data.reference,
+          amount: totalAmount
+        })
+        .eq("id", paymentId);
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          dual_payment: false,
+          authorization_url: paystackData.data.authorization_url,
+          reference: paystackData.data.reference,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
-
-    // Update payment with Paystack reference
-    await supabaseClient
-      .from("payments")
-      .update({ paystack_reference: paystackData.data.reference })
-      .eq("id", paymentId);
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        authorization_url: paystackData.data.authorization_url,
-        reference: paystackData.data.reference,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
   } catch (error: any) {
+    console.error("Payment initialization error:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }

@@ -644,7 +644,7 @@ const AdminSettings = () => {
           <Card className="p-6">
             <div className="flex items-center gap-2 mb-4">
               <CreditCard className="h-5 w-5 text-accent" />
-              <h2 className="text-xl font-semibold">Payment Gateway</h2>
+              <h2 className="text-xl font-semibold">Primary Payment Gateway (Main Membership Fees)</h2>
             </div>
             <div className="space-y-4">
               <div>
@@ -674,7 +674,48 @@ const AdminSettings = () => {
               </div>
               <Button variant="cta" onClick={handleSave}>
                 <Save className="mr-2 h-4 w-4" />
-                Save Payment Settings
+                Save Primary Payment Settings
+              </Button>
+            </div>
+          </Card>
+
+          <Card className="p-6 border-accent/50">
+            <div className="flex items-center gap-2 mb-4">
+              <CreditCard className="h-5 w-5 text-accent" />
+              <h2 className="text-xl font-semibold">Secondary Payment Gateway (SMS/LMS Add-on)</h2>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              This separate Paystack account will receive secondary price payments for institutional membership add-ons (e.g., School Management System fees)
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Provider</label>
+                <Input 
+                  value="Paystack"
+                  disabled
+                  className="bg-muted"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Secondary Public Key</label>
+                <Input 
+                  value={localSettings.secondaryPaymentPublicKey || ""}
+                  onChange={(e) => updateSetting('secondaryPaymentPublicKey', e.target.value)}
+                  placeholder="pk_live_xxxxxxxxxxxx"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Secondary Secret Key</label>
+                <Input 
+                  type="password"
+                  value={localSettings.secondaryPaymentApiKey || ""}
+                  onChange={(e) => updateSetting('secondaryPaymentApiKey', e.target.value)}
+                  placeholder="sk_live_xxxxxxxxxxxx"
+                />
+              </div>
+              <Button variant="cta" onClick={handleSave}>
+                <Save className="mr-2 h-4 w-4" />
+                Save Secondary Payment Settings
               </Button>
             </div>
           </Card>

@@ -13,6 +13,8 @@ interface FormCategory {
   type: string;
   price: number;
   description: string | null;
+  secondary_price: number | null;
+  secondary_price_label: string | null;
 }
 
 const AdminPricingSettings = () => {
@@ -42,9 +44,12 @@ const AdminPricingSettings = () => {
     }
   };
 
-  const updateCategory = (id: string, field: 'name' | 'description' | 'price', value: string | number) => {
+  const updateCategory = (id: string, field: 'name' | 'description' | 'price' | 'secondary_price' | 'secondary_price_label', value: string | number) => {
     setCategories(categories.map(cat => 
-      cat.id === id ? { ...cat, [field]: field === 'price' ? parseFloat(value as string) || 0 : value } : cat
+      cat.id === id ? { 
+        ...cat, 
+        [field]: (field === 'price' || field === 'secondary_price') ? parseFloat(value as string) || 0 : value 
+      } : cat
     ));
   };
 
@@ -58,7 +63,9 @@ const AdminPricingSettings = () => {
           .update({ 
             name: cat.name,
             description: cat.description,
-            price: cat.price 
+            price: cat.price,
+            secondary_price: cat.secondary_price,
+            secondary_price_label: cat.secondary_price_label
           })
           .eq('id', cat.id)
       );
@@ -131,6 +138,41 @@ const AdminPricingSettings = () => {
                     />
                   </div>
                 </div>
+
+                {category.type === 'institutional' && (
+                  <>
+                    <div className="border-t pt-4 mt-4">
+                      <h4 className="font-semibold mb-3 text-accent">Secondary Price (SMS/LMS Add-on)</h4>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        This secondary price will be added to the main fee and paid to a separate Paystack account
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Secondary Price Label</label>
+                      <Input 
+                        value={category.secondary_price_label || ''}
+                        onChange={(e) => updateCategory(category.id, 'secondary_price_label', e.target.value)}
+                        placeholder="e.g., School Management System Fee"
+                      />
+                    </div>
+
+                    <div className="w-64">
+                      <label className="text-sm font-medium mb-2 block">Secondary Price (GHS)</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₵</span>
+                        <Input 
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={category.secondary_price || 0}
+                          onChange={(e) => updateCategory(category.id, 'secondary_price', e.target.value)}
+                          className="pl-8"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           ))}

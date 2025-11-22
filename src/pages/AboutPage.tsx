@@ -99,7 +99,7 @@ const AboutPage = () => {
         )}
 
         {/* More About GNACOPS Accordion Sections */}
-        {aboutPage?.detailedSections && aboutPage.detailedSections.length > 0 && (
+        {aboutPage?.detailedSections && aboutPage.detailedSections.filter((section: any) => section?.title && section?.content).length > 0 && (
           <Card className="hover-glow">
             <CardHeader>
               <CardTitle className="text-2xl text-gradient-accent">More About GNACOPS</CardTitle>
@@ -110,11 +110,11 @@ const AboutPage = () => {
                   .filter((section: any) => section?.title && section?.content)
                   .map((section: any, index: number) => (
                     <AccordionItem 
-                      key={index} 
+                      key={`accordion-section-${index}`}
                       value={`section-${index}`} 
-                      className="border border-card-border rounded-lg px-4 hover-glow"
+                      className="border border-border rounded-lg px-4 hover-glow data-[state=open]:bg-accent/5"
                     >
-                      <AccordionTrigger className="hover:text-accent transition-colors py-4 hover:no-underline">
+                      <AccordionTrigger className="hover:text-accent transition-colors py-4 hover:no-underline [&[data-state=open]>svg]:rotate-180">
                         <span className="flex items-center gap-3 text-left">
                           {section.emoji && <span className="text-2xl">{section.emoji}</span>}
                           <span className="font-semibold text-lg">{section.title}</span>
