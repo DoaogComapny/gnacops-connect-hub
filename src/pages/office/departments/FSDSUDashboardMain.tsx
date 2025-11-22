@@ -10,19 +10,19 @@ import { useGrantApplications } from "@/hooks/useGrantApplications";
 
 export default function FSDSUDashboardMain() {
   const { departmentName } = useOutletContext<{ departmentCode: string; departmentName: string }>();
-  const { applications, isLoading, createApplication } = useGrantApplications();
+  const { grants, isLoading, createGrant } = useGrantApplications();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const stats = {
-    totalApplications: applications?.length || 0,
-    approved: applications?.filter(a => a.status === 'approved').length || 0,
-    pending: applications?.filter(a => a.status === 'pending').length || 0,
-    totalAmount: applications?.reduce((sum, a) => sum + Number(a.amount || 0), 0) || 0,
-    approvedAmount: applications?.filter(a => a.status === 'approved').reduce((sum, a) => sum + Number(a.amount || 0), 0) || 0,
+    totalApplications: grants?.length || 0,
+    approved: grants?.filter(a => a.status === 'approved').length || 0,
+    pending: grants?.filter(a => a.status === 'submitted' || a.status === 'in_review').length || 0,
+    totalAmount: grants?.reduce((sum, a) => sum + Number(a.amount || 0), 0) || 0,
+    approvedAmount: grants?.filter(a => a.status === 'approved').reduce((sum, a) => sum + Number(a.amount || 0), 0) || 0,
   };
 
   const handleCreateApplication = (data: any) => {
-    createApplication(data);
+    createGrant(data);
     setIsCreateDialogOpen(false);
   };
 
@@ -124,9 +124,9 @@ export default function FSDSUDashboardMain() {
         <CardContent>
           {isLoading ? (
             <p className="text-center text-muted-foreground py-8">Loading applications...</p>
-          ) : applications && applications.length > 0 ? (
+          ) : grants && grants.length > 0 ? (
             <div className="space-y-4">
-              {applications.slice(0, 5).map((app: any) => (
+              {grants.slice(0, 5).map((app: any) => (
                 <div key={app.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
                   <div className="flex-1">
                     <h4 className="font-semibold">{app.title}</h4>
