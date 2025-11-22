@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 
 const Landing = () => {
@@ -29,14 +29,6 @@ const Landing = () => {
       }
     }
   }, [user, isAdmin, loading, navigate]);
-
-  if (loading || membershipsLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   const handleToggleMembership = (name: string) => {
     setSelectedMemberships((prev) =>
