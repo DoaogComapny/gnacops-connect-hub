@@ -293,6 +293,53 @@ export type Database = {
           },
         ]
       }
+      curriculum_resources: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          file_url: string | null
+          id: string
+          resource_type: string
+          status: string
+          title: string
+          updated_at: string | null
+          version: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          resource_type: string
+          status?: string
+          title: string
+          updated_at?: string | null
+          version?: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          resource_type?: string
+          status?: string
+          title?: string
+          updated_at?: string | null
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curriculum_resources_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       departments: {
         Row: {
           code: string
@@ -938,6 +985,60 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      grant_applications: {
+        Row: {
+          amount: number
+          applicant_school_id: string | null
+          application_data: Json | null
+          created_at: string | null
+          deadline: string | null
+          id: string
+          reviewed_by: string | null
+          status: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          applicant_school_id?: string | null
+          application_data?: Json | null
+          created_at?: string | null
+          deadline?: string | null
+          id?: string
+          reviewed_by?: string | null
+          status?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          applicant_school_id?: string | null
+          application_data?: Json | null
+          created_at?: string | null
+          deadline?: string | null
+          id?: string
+          reviewed_by?: string | null
+          status?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grant_applications_applicant_school_id_fkey"
+            columns: ["applicant_school_id"]
+            isOneToOne: false
+            referencedRelation: "form_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "grant_applications_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       header_links: {
         Row: {
@@ -2069,6 +2170,63 @@ export type Database = {
         }
         Relationships: []
       }
+      policies: {
+        Row: {
+          approved_by: string | null
+          content: string
+          created_at: string | null
+          created_by: string | null
+          deadline: string | null
+          department_id: string | null
+          id: string
+          implementation_progress: number | null
+          status: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          approved_by?: string | null
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          deadline?: string | null
+          department_id?: string | null
+          id?: string
+          implementation_progress?: number | null
+          status?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          approved_by?: string | null
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          deadline?: string | null
+          department_id?: string | null
+          id?: string
+          implementation_progress?: number | null
+          status?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "policies_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "policies_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -2170,6 +2328,56 @@ export type Database = {
           },
         ]
       }
+      research_projects: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          end_date: string | null
+          findings: string | null
+          id: string
+          lead_researcher_id: string | null
+          report_url: string | null
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          findings?: string | null
+          id?: string
+          lead_researcher_id?: string | null
+          report_url?: string | null
+          start_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          findings?: string | null
+          id?: string
+          lead_researcher_id?: string | null
+          report_url?: string | null
+          start_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_projects_lead_researcher_id_fkey"
+            columns: ["lead_researcher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_permissions: {
         Row: {
           created_at: string | null
@@ -2242,6 +2450,119 @@ export type Database = {
             columns: ["school_id"]
             isOneToOne: false
             referencedRelation: "form_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_inspections: {
+        Row: {
+          compliance_score: number | null
+          created_at: string | null
+          findings: string | null
+          id: string
+          inspection_date: string
+          inspector_id: string | null
+          recommendations: string | null
+          report_url: string | null
+          school_id: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          compliance_score?: number | null
+          created_at?: string | null
+          findings?: string | null
+          id?: string
+          inspection_date: string
+          inspector_id?: string | null
+          recommendations?: string | null
+          report_url?: string | null
+          school_id?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          compliance_score?: number | null
+          created_at?: string | null
+          findings?: string | null
+          id?: string
+          inspection_date?: string
+          inspector_id?: string | null
+          recommendations?: string | null
+          report_url?: string | null
+          school_id?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_inspections_inspector_id_fkey"
+            columns: ["inspector_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_inspections_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "form_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_registrations: {
+        Row: {
+          created_at: string | null
+          id: string
+          license_expiry: string | null
+          owner_email: string
+          owner_name: string
+          owner_phone: string
+          registration_data: Json | null
+          registration_number: string | null
+          school_address: string
+          school_name: string
+          status: string
+          updated_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          license_expiry?: string | null
+          owner_email: string
+          owner_name: string
+          owner_phone: string
+          registration_data?: Json | null
+          registration_number?: string | null
+          school_address: string
+          school_name: string
+          status?: string
+          updated_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          license_expiry?: string | null
+          owner_email?: string
+          owner_name?: string
+          owner_phone?: string
+          registration_data?: Json | null
+          registration_number?: string | null
+          school_address?: string
+          school_name?: string
+          status?: string
+          updated_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_registrations_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -2374,6 +2695,66 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      support_cases: {
+        Row: {
+          assigned_to: string | null
+          case_type: string
+          created_at: string | null
+          description: string
+          id: string
+          priority: string
+          resolution: string | null
+          resolved_at: string | null
+          school_id: string | null
+          status: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          case_type: string
+          created_at?: string | null
+          description: string
+          id?: string
+          priority?: string
+          resolution?: string | null
+          resolved_at?: string | null
+          school_id?: string | null
+          status?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          case_type?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          priority?: string
+          resolution?: string | null
+          resolved_at?: string | null
+          school_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_cases_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_cases_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "form_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       support_messages: {
         Row: {
