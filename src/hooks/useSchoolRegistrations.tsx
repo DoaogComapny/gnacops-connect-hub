@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useEffect } from 'react';
 
 export interface SchoolRegistration {
   id: string;
@@ -33,6 +34,28 @@ export function useSchoolRegistrations() {
       return data as SchoolRegistration[];
     },
   });
+
+  // Real-time subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel('registrations-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'school_registrations'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['school_registrations'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const createRegistration = useMutation({
     mutationFn: async (registration: Pick<SchoolRegistration, 'school_name' | 'owner_name' | 'owner_email' | 'owner_phone' | 'school_address'> & Partial<Omit<SchoolRegistration, 'school_name' | 'owner_name' | 'owner_email' | 'owner_phone' | 'school_address'>>) => {

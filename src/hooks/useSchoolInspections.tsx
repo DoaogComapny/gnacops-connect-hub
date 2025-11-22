@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useEffect } from 'react';
 
 export interface SchoolInspection {
   id: string;
@@ -31,6 +32,28 @@ export function useSchoolInspections() {
       return data as SchoolInspection[];
     },
   });
+
+  // Real-time subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel('inspections-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'school_inspections'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['school_inspections'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const createInspection = useMutation({
     mutationFn: async (inspection: Pick<SchoolInspection, 'school_id' | 'inspection_date'> & Partial<Omit<SchoolInspection, 'school_id' | 'inspection_date'>>) => {
