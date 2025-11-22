@@ -22,6 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [checkingRole, setCheckingRole] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,22 +34,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // Check admin status after setting session
         if (session?.user) {
-          setTimeout(() => {
-            checkAdminStatus(session.user.id);
-          }, 0);
+          await checkAdminStatus(session.user.id);
         } else {
           setIsAdmin(false);
+          setCheckingRole(false);
         }
       }
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        checkAdminStatus(session.user.id);
+        await checkAdminStatus(session.user.id);
+      } else {
+        setCheckingRole(false);
       }
       setLoading(false);
     });
@@ -57,14 +59,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const checkAdminStatus = async (userId: string) => {
-    const { data } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .eq('role', 'admin')
-      .maybeSingle();
-    
-    setIsAdmin(!!data);
+    try {
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .in('role', ['admin', 'super_admin']);
+      
+      setIsAdmin(data && data.length > 0);
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      setIsAdmin(false);
+    } finally {
+      setCheckingRole(false);
+    }
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
@@ -153,7 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         session,
-        loading,
+        loading: loading || checkingRole,
         isAdmin,
         signUp,
         signIn,
