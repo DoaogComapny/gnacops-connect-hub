@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 export default function OfficeDashboard() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [stats, setStats] = useState({
     totalDepartments: 0,
     myTasks: 0,
@@ -16,22 +16,32 @@ export default function OfficeDashboard() {
     documents: 0,
   });
   const [recentTasks, setRecentTasks] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      fetchDashboardData();
+    if (!authLoading) {
+      if (user) {
+        fetchDashboardData();
+      } else {
+        setDataLoading(false);
+      }
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   const fetchDashboardData = async () => {
+    if (!user) {
+      setDataLoading(false);
+      return;
+    }
+    
+    setDataLoading(true);
     try {
       // Fetch stats
       const [deptResult, tasksResult, docsResult, myTasksResult] = await Promise.all([
         supabase.from('departments').select('id', { count: 'exact', head: true }),
         supabase.from('tasks').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
         supabase.from('documents').select('id', { count: 'exact', head: true }),
-        supabase.from('tasks').select('id', { count: 'exact', head: true }).eq('assigned_to', user!.id),
+        supabase.from('tasks').select('id', { count: 'exact', head: true }).eq('assigned_to', user.id),
       ]);
 
       setStats({
@@ -45,7 +55,7 @@ export default function OfficeDashboard() {
       const { data: tasks } = await supabase
         .from('tasks')
         .select('*')
-        .eq('assigned_to', user!.id)
+        .eq('assigned_to', user.id)
         .order('created_at', { ascending: false })
         .limit(5);
 
@@ -54,7 +64,7 @@ export default function OfficeDashboard() {
       console.error('Error fetching dashboard data:', error);
       // Don't show error toast, just log it
     } finally {
-      setLoading(false);
+      setDataLoading(false);
     }
   };
 
@@ -78,10 +88,20 @@ export default function OfficeDashboard() {
     }
   };
 
-  if (loading) {
+  if (authLoading || dataLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-muted-foreground">Please log in to access the office dashboard</p>
+        </div>
       </div>
     );
   }
