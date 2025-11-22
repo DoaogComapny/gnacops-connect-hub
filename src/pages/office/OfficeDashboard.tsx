@@ -16,23 +16,18 @@ export default function OfficeDashboard() {
     documents: 0,
   });
   const [recentTasks, setRecentTasks] = useState<any[]>([]);
-  const [dataLoading, setDataLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchDashboardData();
-    } else {
-      setDataLoading(false);
     }
   }, [user]);
 
   const fetchDashboardData = async () => {
     if (!user) {
-      setDataLoading(false);
       return;
     }
     
-    setDataLoading(true);
     try {
       // Fetch stats
       const [deptResult, tasksResult, docsResult, myTasksResult] = await Promise.all([
@@ -61,8 +56,6 @@ export default function OfficeDashboard() {
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       // Don't show error toast, just log it
-    } finally {
-      setDataLoading(false);
     }
   };
 
@@ -85,14 +78,6 @@ export default function OfficeDashboard() {
       default: return '';
     }
   };
-
-  if (dataLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   if (!user) {
     return (
