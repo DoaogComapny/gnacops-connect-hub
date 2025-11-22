@@ -11,6 +11,7 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 const AboutPage = () => {
   const { settings } = useSiteSettings();
   const [isDirectorMessageOpen, setIsDirectorMessageOpen] = useState(false);
+  const [isMissionExpanded, setIsMissionExpanded] = useState(false);
 
   const aboutPage = settings?.aboutPage;
 
@@ -23,13 +24,15 @@ const AboutPage = () => {
           <h1 className="text-4xl md:text-5xl font-bold mb-6 text-gradient-accent">
             About GNACOPS
           </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            {settings.aboutSectionText || aboutPage?.intro || "The Ghana National Council of Private Schools (GNACOPS) is the leading organization dedicated to promoting excellence and standards in private education across Ghana."}
-          </p>
+          {aboutPage?.intro && (
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              {aboutPage.intro}
+            </p>
+          )}
         </div>
 
         {/* Director's Message */}
-        {aboutPage?.director && (
+        {aboutPage?.director?.bio && (
           <Card className="hover-glow">
             <CardHeader>
               <CardTitle className="text-2xl text-gradient-accent">Message from the Director</CardTitle>
@@ -44,22 +47,22 @@ const AboutPage = () => {
                   />
                 )}
                 <div className="flex-1 space-y-4">
-                  {(() => {
-                    const directorBio = aboutPage?.director?.bio?.trim() || "";
-                    const previewText = directorBio.slice(0, 500);
-                    const hasMore = directorBio.length > 500;
+                  <Collapsible open={isDirectorMessageOpen} onOpenChange={setIsDirectorMessageOpen}>
+                    {(() => {
+                      const directorBio = aboutPage.director.bio.trim();
+                      const previewText = directorBio.slice(0, 500);
+                      const hasMore = directorBio.length > 500;
 
-                    return (
-                      <Collapsible open={isDirectorMessageOpen} onOpenChange={setIsDirectorMessageOpen}>
-                        <div className="prose prose-invert max-w-none">
-                          <p className="text-muted-foreground leading-relaxed text-justify whitespace-pre-line mb-4">
-                            {isDirectorMessageOpen ? directorBio : `${previewText}${hasMore ? "..." : ""}`}
-                          </p>
-                        </div>
+                      return (
+                        <>
+                          <div className="prose prose-invert max-w-none">
+                            <p className="text-muted-foreground leading-relaxed text-justify whitespace-pre-line">
+                              {isDirectorMessageOpen ? directorBio : `${previewText}${hasMore ? "..." : ""}`}
+                            </p>
+                          </div>
 
-                        {hasMore && (
-                          <CollapsibleContent className="overflow-hidden transition-all duration-300 ease-in-out data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-                            {(aboutPage?.director?.name || aboutPage?.director?.title) && (
+                          <CollapsibleContent>
+                            {(aboutPage.director.name || aboutPage.director.title) && (
                               <div className="mt-6 pt-4 border-t border-card-border">
                                 {aboutPage.director.name && <p className="font-semibold text-foreground">{aboutPage.director.name}</p>}
                                 {aboutPage.director.title && (
@@ -69,26 +72,26 @@ const AboutPage = () => {
                               </div>
                             )}
                           </CollapsibleContent>
-                        )}
 
-                        {hasMore && (
-                          <CollapsibleTrigger asChild>
-                            <Button variant="ghost" className="mt-4 w-full sm:w-auto justify-center gap-2 hover-glow transition-all">
-                              {isDirectorMessageOpen ? (
-                                <>
-                                  Read Less <ChevronUp className="h-4 w-4" />
-                                </>
-                              ) : (
-                                <>
-                                  Read More <ChevronDown className="h-4 w-4" />
-                                </>
-                              )}
-                            </Button>
-                          </CollapsibleTrigger>
-                        )}
-                      </Collapsible>
-                    );
-                  })()}
+                          {hasMore && (
+                            <CollapsibleTrigger asChild>
+                              <Button variant="ghost" className="mt-4 w-full sm:w-auto justify-center gap-2 hover-glow transition-all">
+                                {isDirectorMessageOpen ? (
+                                  <>
+                                    Read Less <ChevronUp className="h-4 w-4" />
+                                  </>
+                                ) : (
+                                  <>
+                                    Read More <ChevronDown className="h-4 w-4" />
+                                  </>
+                                )}
+                              </Button>
+                            </CollapsibleTrigger>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </Collapsible>
                 </div>
               </div>
             </CardContent>
@@ -103,47 +106,83 @@ const AboutPage = () => {
             </CardHeader>
             <CardContent>
               <Accordion type="single" collapsible className="w-full space-y-2">
-                {aboutPage.detailedSections.map((section: any, index: number) => (
-                  <AccordionItem 
-                    key={index} 
-                    value={`section-${index}`} 
-                    className="border border-card-border rounded-lg px-4 hover-glow"
-                  >
-                    <AccordionTrigger className="hover:text-accent transition-colors py-4 hover:no-underline">
-                      <span className="flex items-center gap-3 text-left">
-                        {section.emoji && <span className="text-2xl">{section.emoji}</span>}
-                        <span className="font-semibold text-lg">{section.title}</span>
-                      </span>
-                    </AccordionTrigger>
-                    <AccordionContent className="pt-2 pb-6">
-                      <p className="text-muted-foreground leading-relaxed whitespace-pre-line pl-11">
-                        {section.content}
-                      </p>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
+                {aboutPage.detailedSections
+                  .filter((section: any) => section?.title && section?.content)
+                  .map((section: any, index: number) => (
+                    <AccordionItem 
+                      key={index} 
+                      value={`section-${index}`} 
+                      className="border border-card-border rounded-lg px-4 hover-glow"
+                    >
+                      <AccordionTrigger className="hover:text-accent transition-colors py-4 hover:no-underline">
+                        <span className="flex items-center gap-3 text-left">
+                          {section.emoji && <span className="text-2xl">{section.emoji}</span>}
+                          <span className="font-semibold text-lg">{section.title}</span>
+                        </span>
+                      </AccordionTrigger>
+                      <AccordionContent className="pt-2 pb-6">
+                        <p className="text-muted-foreground leading-relaxed whitespace-pre-line pl-11">
+                          {section.content}
+                        </p>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
               </Accordion>
             </CardContent>
           </Card>
         )}
 
         {/* Mission, Vision, Values Grid */}
-        {(aboutPage?.mission || aboutPage?.vision || aboutPage?.values) && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            {aboutPage?.mission && (
+        {(aboutPage?.mission?.text || aboutPage?.vision?.text || aboutPage?.values?.items?.length > 0) && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Our Mission with Read More */}
+            {aboutPage?.mission?.text && (
               <Card className="hover-glow">
                 <CardHeader>
                   <CardTitle className="text-2xl text-accent">Our Mission</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                    {aboutPage.mission.text}
-                  </p>
+                  <Collapsible open={isMissionExpanded} onOpenChange={setIsMissionExpanded}>
+                    {(() => {
+                      const missionText = aboutPage.mission.text.trim();
+                      const previewText = missionText.slice(0, 200);
+                      const hasMore = missionText.length > 200;
+
+                      return (
+                        <>
+                          <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                            {isMissionExpanded ? missionText : `${previewText}${hasMore ? "..." : ""}`}
+                          </p>
+
+                          {hasMore && (
+                            <CollapsibleContent />
+                          )}
+
+                          {hasMore && (
+                            <CollapsibleTrigger asChild>
+                              <Button variant="ghost" className="mt-4 w-full sm:w-auto hover-glow gap-2">
+                                {isMissionExpanded ? (
+                                  <>
+                                    Read Less <ChevronUp className="h-4 w-4" />
+                                  </>
+                                ) : (
+                                  <>
+                                    Read More <ChevronDown className="h-4 w-4" />
+                                  </>
+                                )}
+                              </Button>
+                            </CollapsibleTrigger>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </Collapsible>
                 </CardContent>
               </Card>
             )}
 
-            {aboutPage?.vision && (
+            {/* Our Vision */}
+            {aboutPage?.vision?.text && (
               <Card className="hover-glow">
                 <CardHeader>
                   <CardTitle className="text-2xl text-accent">Our Vision</CardTitle>
@@ -156,14 +195,15 @@ const AboutPage = () => {
               </Card>
             )}
 
-            {aboutPage?.values && (
+            {/* Our Values */}
+            {aboutPage?.values?.items?.length > 0 && (
               <Card className="hover-glow">
                 <CardHeader>
                   <CardTitle className="text-2xl text-accent">Our Values</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                    {aboutPage.values.items?.join(", ")}
+                    {aboutPage.values.items.join(", ")}
                   </p>
                 </CardContent>
               </Card>
