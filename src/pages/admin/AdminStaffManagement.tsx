@@ -31,6 +31,7 @@ interface StaffFormData {
   confirmPassword: string;
   role: string;
   permissions: string[];
+  department?: string;
 }
 
 const staffRoles = [
@@ -40,6 +41,16 @@ const staffRoles = [
   { value: "director", label: "Director" },
   { value: "head_of_unit", label: "Head of Unit" },
   { value: "assistant", label: "Assistant" },
+];
+
+const departmentUnits = [
+  { value: "CPDU", label: "Coordination & Policy Development Unit" },
+  { value: "ESCU", label: "Educational Standards & Compliance Unit" },
+  { value: "FSDSU", label: "Financial Sustainability & Development Support Unit" },
+  { value: "CSEDU", label: "Curriculum Standardization & Educational Development Unit" },
+  { value: "RISEU", label: "Research, Innovation & Stakeholder Engagement Unit" },
+  { value: "SSAU", label: "Support Services & Advocacy Unit" },
+  { value: "PECU", label: "Private Education & Compliance Unit" },
 ];
 
 export default function AdminStaffManagement() {
@@ -52,6 +63,7 @@ export default function AdminStaffManagement() {
     confirmPassword: "",
     role: "",
     permissions: [],
+    department: "",
   });
   const [isCreating, setIsCreating] = useState(false);
 
@@ -159,6 +171,7 @@ export default function AdminStaffManagement() {
           fullName: formData.fullName,
           role: formData.role,
           permissions: formData.permissions,
+          department: formData.department,
         },
       });
 
@@ -177,6 +190,7 @@ export default function AdminStaffManagement() {
         confirmPassword: "",
         role: "",
         permissions: [],
+        department: "",
       });
 
       queryClient.invalidateQueries({ queryKey: ["staff"] });
@@ -281,7 +295,7 @@ export default function AdminStaffManagement() {
                 />
               </div>
 
-              <div className="space-y-2 md:col-span-2">
+              <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
                 <Select
                   value={formData.role}
@@ -296,6 +310,27 @@ export default function AdminStaffManagement() {
                     {staffRoles.map((role) => (
                       <SelectItem key={role.value} value={role.value}>
                         {role.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="department">Department (Optional)</Label>
+                <Select
+                  value={formData.department}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, department: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departmentUnits.map((dept) => (
+                      <SelectItem key={dept.value} value={dept.value}>
+                        {dept.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
