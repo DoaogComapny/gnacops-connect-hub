@@ -58,6 +58,16 @@ import RISEUDashboard from "./pages/office/departments/RISEUDashboard";
 import SSAUDashboard from "./pages/office/departments/SSAUDashboard";
 import PECUDashboard from "./pages/office/departments/PECUDashboard";
 
+// Department Panel and Main Dashboards
+import DepartmentPanel from "./pages/office/DepartmentPanel";
+import CPDUDashboardMain from "./pages/office/departments/CPDUDashboardMain";
+import ESCUDashboardMain from "./pages/office/departments/ESCUDashboardMain";
+import FSDSUDashboardMain from "./pages/office/departments/FSDSUDashboardMain";
+import CSEDUDashboardMain from "./pages/office/departments/CSEDUDashboardMain";
+import RISEUDashboardMain from "./pages/office/departments/RISEUDashboardMain";
+import SSAUDashboardMain from "./pages/office/departments/SSAUDashboardMain";
+import PECUDashboardMain from "./pages/office/departments/PECUDashboardMain";
+
 // New Public Pages
 import TeamPage from "./pages/TeamPage";
 import ServicesPage from "./pages/ServicesPage";
@@ -277,6 +287,17 @@ const App = () => (
             <Route path="payments" element={<RegionalPaymentsPage />} />
             <Route path="reports" element={<RegionalReportsPage />} />
             <Route path="account" element={<RegionalAccountPage />} />
+          </Route>
+
+          {/* Department Staff Routes */}
+          <Route path="/office/department/*" element={<DepartmentPanel />}>
+            <Route path="cpdu" element={<CPDUDashboardMain />} />
+            <Route path="escu" element={<ESCUDashboardMain />} />
+            <Route path="fsdsu" element={<FSDSUDashboardMain />} />
+            <Route path="csedu" element={<CSEDUDashboardMain />} />
+            <Route path="riseu" element={<RISEUDashboardMain />} />
+            <Route path="ssau" element={<SSAUDashboardMain />} />
+            <Route path="pecu" element={<PECUDashboardMain />} />
           </Route>
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
