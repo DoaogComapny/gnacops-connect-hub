@@ -49,6 +49,15 @@ import DocumentsPage from "./pages/office/DocumentsPage";
 import AppointmentsPage from "./pages/office/AppointmentsPage";
 import BookAppointment from "./pages/user/BookAppointment";
 
+// Department Dashboards
+import CPDUDashboard from "./pages/office/departments/CPDUDashboard";
+import ESCUDashboard from "./pages/office/departments/ESCUDashboard";
+import FSDSUDashboard from "./pages/office/departments/FSDSUDashboard";
+import CSEDUDashboard from "./pages/office/departments/CSEDUDashboard";
+import RISEUDashboard from "./pages/office/departments/RISEUDashboard";
+import SSAUDashboard from "./pages/office/departments/SSAUDashboard";
+import PECUDashboard from "./pages/office/departments/PECUDashboard";
+
 // New Public Pages
 import TeamPage from "./pages/TeamPage";
 import ServicesPage from "./pages/ServicesPage";
@@ -184,6 +193,13 @@ const App = () => (
             <Route path="form-builder" element={<AdminFormBuilder />} />
             <Route path="office-management" element={<OfficeDashboard />} />
             <Route path="office-management/departments" element={<DepartmentsPage />} />
+            <Route path="office-management/departments/cpdu" element={<CPDUDashboard />} />
+            <Route path="office-management/departments/escu" element={<ESCUDashboard />} />
+            <Route path="office-management/departments/fsdsu" element={<FSDSUDashboard />} />
+            <Route path="office-management/departments/csedu" element={<CSEDUDashboard />} />
+            <Route path="office-management/departments/riseu" element={<RISEUDashboard />} />
+            <Route path="office-management/departments/ssau" element={<SSAUDashboard />} />
+            <Route path="office-management/departments/pecu" element={<PECUDashboard />} />
             <Route path="office-management/tasks" element={<TasksPage />} />
             <Route path="office-management/documents" element={<DocumentsPage />} />
             <Route path="office-management/appointments" element={<AppointmentsPage />} />

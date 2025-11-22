@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Building2, Plus, Edit, Trash, Loader2, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -277,6 +277,103 @@ export default function DepartmentsPage() {
           </Card>
         ))}
       </div>
+
+      {/* GNACOPS Units - Department Dashboards */}
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Department Dashboards</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Access dedicated dashboards for each GNACOPS unit
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Button
+              variant="outline"
+              className="h-auto p-4 flex flex-col items-start gap-2"
+              onClick={() => window.location.href = '/admin/panel/office-management/departments/cpdu'}
+            >
+              <Building2 className="h-5 w-5 text-primary" />
+              <div className="text-left">
+                <div className="font-semibold">CPDU</div>
+                <div className="text-xs text-muted-foreground">Coordination & Policy Development</div>
+              </div>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="h-auto p-4 flex flex-col items-start gap-2"
+              onClick={() => window.location.href = '/admin/panel/office-management/departments/escu'}
+            >
+              <Building2 className="h-5 w-5 text-primary" />
+              <div className="text-left">
+                <div className="font-semibold">ESCU</div>
+                <div className="text-xs text-muted-foreground">Educational Standards & Compliance</div>
+              </div>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="h-auto p-4 flex flex-col items-start gap-2"
+              onClick={() => window.location.href = '/admin/panel/office-management/departments/fsdsu'}
+            >
+              <Building2 className="h-5 w-5 text-primary" />
+              <div className="text-left">
+                <div className="font-semibold">FSDSU</div>
+                <div className="text-xs text-muted-foreground">Financial Sustainability & Development</div>
+              </div>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="h-auto p-4 flex flex-col items-start gap-2"
+              onClick={() => window.location.href = '/admin/panel/office-management/departments/csedu'}
+            >
+              <Building2 className="h-5 w-5 text-primary" />
+              <div className="text-left">
+                <div className="font-semibold">CSEDU</div>
+                <div className="text-xs text-muted-foreground">Curriculum Standardization & Educational Development</div>
+              </div>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="h-auto p-4 flex flex-col items-start gap-2"
+              onClick={() => window.location.href = '/admin/panel/office-management/departments/riseu'}
+            >
+              <Building2 className="h-5 w-5 text-primary" />
+              <div className="text-left">
+                <div className="font-semibold">RISEU</div>
+                <div className="text-xs text-muted-foreground">Research, Innovation & Stakeholder Engagement</div>
+              </div>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="h-auto p-4 flex flex-col items-start gap-2"
+              onClick={() => window.location.href = '/admin/panel/office-management/departments/ssau'}
+            >
+              <Building2 className="h-5 w-5 text-primary" />
+              <div className="text-left">
+                <div className="font-semibold">SSAU</div>
+                <div className="text-xs text-muted-foreground">Support Services & Advocacy</div>
+              </div>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="h-auto p-4 flex flex-col items-start gap-2"
+              onClick={() => window.location.href = '/admin/panel/office-management/departments/pecu'}
+            >
+              <Building2 className="h-5 w-5 text-primary" />
+              <div className="text-left">
+                <div className="font-semibold">PECU</div>
+                <div className="text-xs text-muted-foreground">Private Education & Compliance</div>
+              </div>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {departments.length === 0 && (
         <Card className="p-12 text-center">
