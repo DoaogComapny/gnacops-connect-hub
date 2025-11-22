@@ -17,8 +17,11 @@ import { ArrowRight } from "lucide-react";
 const Landing = () => {
   const navigate = useNavigate();
   const { user, isAdmin, loading } = useAuth();
-  const { memberships } = useMemberships();
+  const { memberships, isLoading: membershipLoading } = useMemberships();
   const [selectedMemberships, setSelectedMemberships] = useState<string[]>([]);
+
+  console.log('Landing page - memberships:', memberships);
+  console.log('Landing page - loading states:', { loading, membershipLoading });
 
   useEffect(() => {
     if (!loading && user) {
