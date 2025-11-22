@@ -46,6 +46,8 @@ export const useMemberships = () => {
         .eq('is_active', true)
         .order('position');
 
+      console.log('Raw query result:', { data, error });
+
       if (error) {
         console.error('Error fetching memberships:', error);
         setMemberships([]);
@@ -53,7 +55,7 @@ export const useMemberships = () => {
         return;
       }
 
-      console.log('Memberships fetched:', data);
+      console.log('Memberships fetched successfully:', data);
       
       const formatted: Membership[] = (data || []).map((cat) => ({
         id: cat.id,
