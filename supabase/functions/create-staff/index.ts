@@ -131,7 +131,7 @@ serve(async (req) => {
     const userId = authData.user.id;
     console.log(`[create-staff] Created staff user: ${userId}`);
 
-    // For department roles, create department_staff_assignments instead of user_roles
+    // For department roles, create department_staff_assignments
     if (isDepartmentRole) {
       // Create department staff assignment
       const { error: deptError } = await supabaseAdmin
@@ -148,20 +148,23 @@ serve(async (req) => {
       }
       
       console.log(`[create-staff] Assigned user to department: ${role}`);
-    } else {
-      // Assign regular role
-      const { error: roleError } = await supabaseAdmin.from('user_roles').insert({
-        user_id: userId,
-        role: role,
-      });
-
-      if (roleError) {
-        console.error('[create-staff] Role assignment error:', roleError);
-        throw new Error('Failed to assign role');
-      }
     }
+    
+    // CRITICAL: Always create user_roles entry for authentication
+    // This applies to ALL roles including coordinators
+    const { error: roleError } = await supabaseAdmin.from('user_roles').insert({
+      user_id: userId,
+      role: role,
+    });
 
-    // Create staff assignment if coordinator
+    if (roleError) {
+      console.error('[create-staff] Role assignment error:', roleError);
+      throw new Error('Failed to assign role');
+    }
+    
+    console.log(`[create-staff] Assigned role: ${role}`);
+
+    // Create staff assignment if coordinator (in addition to user_roles)
     if (role === 'district_coordinator' || role === 'regional_coordinator') {
       const { error: assignmentError } = await supabaseAdmin
         .from('staff_assignments')
@@ -176,6 +179,8 @@ serve(async (req) => {
         console.error('[create-staff] Assignment error:', assignmentError);
         throw new Error('Failed to create staff assignment');
       }
+      
+      console.log(`[create-staff] Created staff assignment for ${role}`);
     }
 
     // Create department assignment if department code provided (and not already a department role)
