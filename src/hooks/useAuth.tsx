@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             .from('user_roles')
             .select('role')
             .eq('user_id', session.user.id)
-            .in('role', ['admin', 'super_admin', 'secretary']);
+            .in('role', ['admin', 'super_admin', 'secretary', 'regional_coordinator', 'district_coordinator']);
           
           if (data && data.length > 0) {
             const roles = data.map(r => r.role);
@@ -52,6 +52,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             } else if (roles.includes('secretary')) {
               toast.success('Welcome, Secretary!');
               navigate('/secretary/panel');
+            } else if (roles.includes('regional_coordinator')) {
+              toast.success('Welcome, Regional Coordinator!');
+              navigate('/coordinator/regional/dashboard');
+            } else if (roles.includes('district_coordinator')) {
+              toast.success('Welcome, District Coordinator!');
+              navigate('/coordinator/district/dashboard');
             } else {
               toast.success('Welcome!');
               navigate('/user/dashboard');
