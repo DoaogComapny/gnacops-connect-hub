@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
@@ -12,6 +12,7 @@ const AboutPage = () => {
   const { settings } = useSiteSettings();
   const [isDirectorMessageOpen, setIsDirectorMessageOpen] = useState(false);
   const [isMissionExpanded, setIsMissionExpanded] = useState(false);
+  const [openAccordionIndex, setOpenAccordionIndex] = useState<number | null>(null);
 
   const aboutPage = settings?.aboutPage;
 
@@ -105,29 +106,43 @@ const AboutPage = () => {
               <CardTitle className="text-2xl text-gradient-accent">More About GNACOPS</CardTitle>
             </CardHeader>
             <CardContent>
-              <Accordion type="single" collapsible className="w-full space-y-2">
+              <div className="w-full space-y-3">
                 {aboutPage.detailedSections
                   .filter((section: any) => section?.title && section?.content)
-                  .map((section: any, index: number) => (
-                    <AccordionItem 
-                      key={`accordion-section-${index}`}
-                      value={`section-${index}`} 
-                      className="border border-border rounded-lg px-4 hover-glow data-[state=open]:bg-accent/5"
-                    >
-                      <AccordionTrigger className="hover:text-accent transition-colors py-4 hover:no-underline [&[data-state=open]>svg]:rotate-180">
-                        <span className="flex items-center gap-3 text-left">
-                          {section.emoji && <span className="text-2xl">{section.emoji}</span>}
-                          <span className="font-semibold text-lg">{section.title}</span>
-                        </span>
-                      </AccordionTrigger>
-                      <AccordionContent className="pt-2 pb-6">
-                        <p className="text-muted-foreground leading-relaxed whitespace-pre-line pl-11">
-                          {section.content}
-                        </p>
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-              </Accordion>
+                  .map((section: any, index: number) => {
+                    const isOpen = openAccordionIndex === index;
+                    
+                    return (
+                      <div 
+                        key={`accordion-section-${index}`}
+                        className="border border-border rounded-lg hover-glow transition-all"
+                      >
+                        <button
+                          onClick={() => setOpenAccordionIndex(isOpen ? null : index)}
+                          className="w-full flex items-center justify-between p-4 hover:bg-accent/5 transition-colors rounded-lg text-left"
+                        >
+                          <span className="flex items-center gap-3">
+                            {section.emoji && <span className="text-2xl">{section.emoji}</span>}
+                            <span className="font-semibold text-lg text-foreground">{section.title}</span>
+                          </span>
+                          <ChevronDown 
+                            className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${
+                              isOpen ? 'rotate-180' : ''
+                            }`}
+                          />
+                        </button>
+                        
+                        {isOpen && (
+                          <div className="px-4 pb-6 pt-2 animate-in slide-in-from-top-2 duration-200">
+                            <p className="text-muted-foreground leading-relaxed whitespace-pre-line pl-11">
+                              {section.content}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+              </div>
             </CardContent>
           </Card>
         )}
