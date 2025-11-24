@@ -16,15 +16,17 @@ export function useRegionalCoordinatorAuth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-
-    if (user) {
-      checkRegionalCoordinatorRole();
-    }
-  }, [user, navigate]);
+    const initAuth = async () => {
+      if (!user) {
+        setCheckingRole(false);
+        navigate('/login');
+        return;
+      }
+      await checkRegionalCoordinatorRole();
+    };
+    
+    initAuth();
+  }, [user]);
 
   const checkRegionalCoordinatorRole = async () => {
     if (!user) return;
