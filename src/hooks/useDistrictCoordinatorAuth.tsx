@@ -17,15 +17,17 @@ export function useDistrictCoordinatorAuth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-
-    if (user) {
-      checkDistrictCoordinatorRole();
-    }
-  }, [user, navigate]);
+    const initAuth = async () => {
+      if (!user) {
+        setCheckingRole(false);
+        navigate('/login');
+        return;
+      }
+      await checkDistrictCoordinatorRole();
+    };
+    
+    initAuth();
+  }, [user]);
 
   const checkDistrictCoordinatorRole = async () => {
     if (!user) return;
