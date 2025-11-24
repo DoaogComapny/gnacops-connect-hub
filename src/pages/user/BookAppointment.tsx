@@ -235,34 +235,56 @@ const BookAppointment = () => {
               <div className="space-y-6">
                 <Card className="hover-glow">
                   <CardHeader>
-                    <CardTitle>Appointment Type</CardTitle>
-                    <CardDescription>How would you like to meet?</CardDescription>
+                    <CardTitle>Appointment Type *</CardTitle>
+                    <CardDescription>Choose your preferred meeting format</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <RadioGroup 
                       value={appointmentType} 
                       onValueChange={(value: any) => setAppointmentType(value)}
-                      className="pointer-events-auto"
+                      className="space-y-3"
                     >
                       <div 
-                        className="flex items-center space-x-2 p-4 rounded-lg border hover:bg-accent cursor-pointer transition-colors"
+                        className={`relative p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                          appointmentType === "in-person" 
+                            ? "border-accent bg-accent/5 shadow-sm" 
+                            : "border-border hover:border-accent/50 hover:bg-accent/5"
+                        }`}
                         onClick={() => setAppointmentType("in-person")}
                       >
-                        <RadioGroupItem value="in-person" id="in-person" className="pointer-events-auto" />
-                        <Label htmlFor="in-person" className="flex items-center gap-2 cursor-pointer flex-1">
-                          <MapPin className="h-4 w-4" />
-                          In-Person Meeting
-                        </Label>
+                        <div className="flex items-start space-x-3">
+                          <RadioGroupItem value="in-person" id="in-person" className="mt-1" />
+                          <div className="flex-1">
+                            <Label htmlFor="in-person" className="flex items-center gap-2 cursor-pointer font-semibold mb-1">
+                              <MapPin className="h-5 w-5 text-accent" />
+                              In-Person Meeting
+                            </Label>
+                            <p className="text-sm text-muted-foreground">
+                              Meet face-to-face at the GNACOPS office
+                            </p>
+                          </div>
+                        </div>
                       </div>
                       <div 
-                        className="flex items-center space-x-2 p-4 rounded-lg border hover:bg-accent cursor-pointer transition-colors"
+                        className={`relative p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                          appointmentType === "virtual" 
+                            ? "border-accent bg-accent/5 shadow-sm" 
+                            : "border-border hover:border-accent/50 hover:bg-accent/5"
+                        }`}
                         onClick={() => setAppointmentType("virtual")}
                       >
-                        <RadioGroupItem value="virtual" id="virtual" className="pointer-events-auto" />
-                        <Label htmlFor="virtual" className="flex items-center gap-2 cursor-pointer flex-1">
-                          <Video className="h-4 w-4" />
-                          Virtual Meeting
-                        </Label>
+                        <div className="flex items-start space-x-3">
+                          <RadioGroupItem value="virtual" id="virtual" className="mt-1" />
+                          <div className="flex-1">
+                            <Label htmlFor="virtual" className="flex items-center gap-2 cursor-pointer font-semibold mb-1">
+                              <Video className="h-5 w-5 text-accent" />
+                              Virtual Meeting
+                            </Label>
+                            <p className="text-sm text-muted-foreground">
+                              Join remotely via video conference
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </RadioGroup>
                   </CardContent>
@@ -271,17 +293,23 @@ const BookAppointment = () => {
                 <Card className="hover-glow">
                   <CardHeader>
                     <CardTitle>Purpose of Meeting *</CardTitle>
-                    <CardDescription>Tell us what you'd like to discuss</CardDescription>
+                    <CardDescription>Provide details about your meeting request</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                      Please describe the reason for your appointment. Include any specific topics or issues you'd like to discuss.
+                    </p>
                     <Textarea
-                      placeholder="Describe the purpose of your appointment..."
+                      placeholder="Example: I would like to discuss my membership renewal and inquire about new services available for school proprietors. I also have questions regarding the certification process for my staff."
                       value={purpose}
                       onChange={(e) => setPurpose(e.target.value)}
-                      rows={6}
+                      rows={8}
                       required
-                      className="pointer-events-auto"
+                      className="resize-none focus:ring-2 focus:ring-accent transition-all"
                     />
+                    <p className="text-xs text-muted-foreground">
+                      {purpose.length}/500 characters
+                    </p>
                   </CardContent>
                 </Card>
 
