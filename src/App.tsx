@@ -102,6 +102,13 @@ import SecretarySyncStatus from "./pages/secretary/SecretarySyncStatus";
 import SecretaryEmailTemplates from "./pages/secretary/SecretaryEmailTemplates";
 import SecretaryRecurringAppointments from "./pages/secretary/SecretaryRecurringAppointments";
 import SecretaryEmailAnalytics from "./pages/secretary/SecretaryEmailAnalytics";
+import SecretaryCertificates from "./pages/secretary/SecretaryCertificates";
+import SecretaryUsers from "./pages/secretary/SecretaryUsers";
+import SecretaryApplications from "./pages/secretary/SecretaryApplications";
+import SecretaryPayments from "./pages/secretary/SecretaryPayments";
+import SecretaryProfile from "./pages/secretary/SecretaryProfile";
+import SecretarySettings from "./pages/secretary/SecretarySettings";
+import SecretaryPasswordReset from "./pages/secretary/SecretaryPasswordReset";
 
 // District Coordinator Pages
 import DistrictCoordinatorPanel from "./pages/coordinator/DistrictCoordinatorPanel";
@@ -229,6 +236,10 @@ const App = () => (
 
           {/* Secretary Routes */}
           <Route path="/secretary/panel" element={<SecretaryPanel />}>
+            <Route path="certificates" element={<SecretaryCertificates />} />
+            <Route path="users" element={<SecretaryUsers />} />
+            <Route path="applications" element={<SecretaryApplications />} />
+            <Route path="payments" element={<SecretaryPayments />} />
             <Route path="appointments" element={<SecretaryAppointments />} />
             <Route path="calendar" element={<SecretaryCalendar />} />
             <Route path="recurring-appointments" element={<SecretaryRecurringAppointments />} />
@@ -236,13 +247,9 @@ const App = () => (
             <Route path="email-templates" element={<SecretaryEmailTemplates />} />
             <Route path="support" element={<SecretarySupport />} />
             <Route path="analytics" element={<SecretaryAnalytics />} />
-            <Route path="applications" element={<AdminApplications />} />
-            <Route path="users" element={<AdminUsers />} />
-            <Route path="payments" element={<UserPayments />} />
-            <Route path="certificates" element={<AdminCertificates />} />
-            <Route path="password-reset" element={<StaffForgotRequests />} />
-            <Route path="profile" element={<AdminProfile />} />
-            <Route path="settings" element={<AdminSettings />} />
+            <Route path="password-reset" element={<SecretaryPasswordReset />} />
+            <Route path="profile" element={<SecretaryProfile />} />
+            <Route path="settings" element={<SecretarySettings />} />
           </Route>
 
           {/* User Routes */}
