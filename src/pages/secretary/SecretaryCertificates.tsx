@@ -45,7 +45,20 @@ const SecretaryCertificates = () => {
   );
 
   const handleGenerateCertificate = async (membershipId: string) => {
-    toast.info("Certificate generation coming soon");
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-certificate', {
+        body: { membershipId }
+      });
+
+      if (error) throw error;
+
+      toast.success("Certificate generated successfully!");
+      // Refresh the list
+      window.location.reload();
+    } catch (error: any) {
+      console.error("Error generating certificate:", error);
+      toast.error(error.message || "Failed to generate certificate");
+    }
   };
 
   return (
