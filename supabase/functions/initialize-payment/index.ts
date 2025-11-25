@@ -53,6 +53,7 @@ serve(async (req) => {
 
     const paystackSecretKey = settings?.settings_data?.paymentApiKey;
     const secondaryPaystackSecretKey = settings?.settings_data?.secondaryPaymentApiKey;
+    const enableSecondaryPricing = settings?.settings_data?.enableSecondaryPricing || false;
     
     if (!paystackSecretKey) {
       throw new Error("Paystack API key not configured");
@@ -67,11 +68,12 @@ serve(async (req) => {
       primaryPrice,
       secondaryPrice,
       totalAmount,
+      enableSecondaryPricing,
       categoryName: payment.memberships?.form_categories?.name
     });
 
-    // If there's a secondary price and secondary key is configured, process dual payment
-    if (secondaryPrice > 0 && secondaryPaystackSecretKey) {
+    // If secondary pricing is enabled AND there's a secondary price AND secondary key is configured, process dual payment
+    if (enableSecondaryPricing && secondaryPrice > 0 && secondaryPaystackSecretKey) {
       console.log("Processing dual payment to two Paystack accounts");
       
       // Initialize PRIMARY payment (main membership fee)

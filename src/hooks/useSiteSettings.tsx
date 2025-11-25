@@ -13,6 +13,7 @@ export interface SiteSettings {
   paymentPublicKey?: string;
   secondaryPaymentApiKey?: string;
   secondaryPaymentPublicKey?: string;
+  enableSecondaryPricing?: boolean;
   heroTitle?: string;
   heroSubtitle?: string;
   aboutSectionTitle?: string;

@@ -81,10 +81,12 @@ serve(async (req) => {
           // Verify payment amount matches expected price
           const categoryData = membership.form_categories as any;
           const expectedPrice = categoryData?.price || 0;
+          const secondaryPrice = categoryData?.secondary_price || 0;
+          const totalExpectedPrice = expectedPrice + secondaryPrice;
           const paidAmount = event.data.amount / 100; // Paystack amounts are in kobo (cents)
           
-          if (Math.abs(paidAmount - expectedPrice) > 0.01) {
-            console.error(`Payment amount mismatch: expected ${expectedPrice}, got ${paidAmount}`);
+          if (Math.abs(paidAmount - totalExpectedPrice) > 0.01) {
+            console.error(`Payment amount mismatch: expected ${totalExpectedPrice}, got ${paidAmount}`);
             throw new Error("Payment amount does not match membership price");
           }
 
