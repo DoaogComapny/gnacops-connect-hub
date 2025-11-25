@@ -106,6 +106,27 @@ serve(async (req) => {
               last_payment_at: new Date().toISOString(),
             })
             .eq("id", membership.user_id);
+
+          // Generate certificate for the user
+          try {
+            const certificateResponse = await fetch(
+              `${Deno.env.get("SUPABASE_URL")}/functions/v1/generate-certificate`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+                },
+                body: JSON.stringify({ membershipId: payment.membership_id }),
+              }
+            );
+
+            const certificateResult = await certificateResponse.json();
+            console.log("Certificate generation result:", certificateResult);
+          } catch (certError) {
+            console.error("Error generating certificate:", certError);
+            // Don't fail the webhook if certificate generation fails
+          }
         }
       }
     }
