@@ -2,10 +2,13 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useMemberships } from "@/hooks/useMemberships";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 
 const MembershipCards = () => {
   const { memberships } = useMemberships();
+  const { settings } = useSiteSettings();
+  const showSecondaryPricing = settings?.enableSecondaryPricing || false;
 
   return (
     <section id="membership" className="py-20 px-4 bg-secondary/30">
@@ -54,7 +57,7 @@ const MembershipCards = () => {
                               </span>
                               <span className="text-sm text-muted-foreground">/year</span>
                             </div>
-                            {type.secondary_price && type.secondary_price_label && (
+                            {showSecondaryPricing && type.secondary_price && type.secondary_price_label && (
                               <div className="flex items-baseline gap-1 pt-2 border-t border-border/50">
                                 <div className="flex-1">
                                   <span className="text-xs text-muted-foreground block mb-1">
@@ -62,6 +65,17 @@ const MembershipCards = () => {
                                   </span>
                                   <span className="text-lg font-bold text-accent">
                                     GHS ₵{type.secondary_price}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">/year</span>
+                                </div>
+                              </div>
+                            )}
+                            {showSecondaryPricing && type.secondary_price && type.secondary_price_label && (
+                              <div className="pt-2 border-t border-accent/30">
+                                <div className="flex items-baseline gap-1">
+                                  <span className="text-xs text-muted-foreground">Total:</span>
+                                  <span className="text-xl font-bold text-accent">
+                                    GHS ₵{(parseFloat(type.price.toString()) + parseFloat(type.secondary_price.toString())).toFixed(2)}
                                   </span>
                                   <span className="text-xs text-muted-foreground">/year</span>
                                 </div>
@@ -115,7 +129,7 @@ const MembershipCards = () => {
                               <span className="text-2xl font-bold text-accent">GHS ₵{type.price}</span>
                               <span className="text-sm text-muted-foreground">/year</span>
                             </div>
-                            {type.secondary_price && type.secondary_price_label && (
+                            {showSecondaryPricing && type.secondary_price && type.secondary_price_label && (
                               <div className="flex items-baseline gap-1 pt-2 border-t border-border/50">
                                 <div className="flex-1">
                                   <span className="text-xs text-muted-foreground block mb-1">
@@ -123,6 +137,17 @@ const MembershipCards = () => {
                                   </span>
                                   <span className="text-lg font-bold text-accent">
                                     GHS ₵{type.secondary_price}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">/year</span>
+                                </div>
+                              </div>
+                            )}
+                            {showSecondaryPricing && type.secondary_price && type.secondary_price_label && (
+                              <div className="pt-2 border-t border-accent/30">
+                                <div className="flex items-baseline gap-1">
+                                  <span className="text-xs text-muted-foreground">Total:</span>
+                                  <span className="text-xl font-bold text-accent">
+                                    GHS ₵{(parseFloat(type.price.toString()) + parseFloat(type.secondary_price.toString())).toFixed(2)}
                                   </span>
                                   <span className="text-xs text-muted-foreground">/year</span>
                                 </div>
