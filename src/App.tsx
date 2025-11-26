@@ -150,7 +150,16 @@ import AdminMarketplacePayments from "./pages/admin/AdminMarketplacePayments";
 import AdminMarketplaceMarketing from "./pages/admin/AdminMarketplaceMarketing";
 import AdminMarketplaceStaff from "./pages/admin/AdminMarketplaceStaff";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes default
+      gcTime: 1000 * 60 * 30, // 30 minutes cache
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
