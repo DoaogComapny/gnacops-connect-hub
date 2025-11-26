@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import {
   Building2,
@@ -31,31 +31,26 @@ interface Membership {
   key: string;
 }
 
+// Helper function to determine if membership is prime
+const isPrimeMembership = (title: string): boolean => {
+  const primeTitles = ['institutional', 'proprietor'];
+  return primeTitles.some(prime => title.toLowerCase().includes(prime));
+};
+
 export const useMemberships = () => {
-  const [memberships, setMemberships] = useState<Membership[]>([]);
-
-  useEffect(() => {
-    fetchMemberships();
-  }, []);
-
-  const fetchMemberships = async () => {
-    try {
-      console.log('Fetching memberships...');
+  const { data: memberships = [], refetch } = useQuery({
+    queryKey: ['memberships'],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('form_categories')
         .select('*')
         .eq('is_active', true)
         .order('position');
 
-      console.log('Raw query result:', { data, error });
-
       if (error) {
         console.error('Error fetching memberships:', error);
-        setMemberships([]);
-        return;
+        return [];
       }
-
-      console.log('Memberships fetched successfully:', data);
       
       const formatted: Membership[] = (data || []).map((cat) => ({
         id: cat.id,
@@ -70,19 +65,12 @@ export const useMemberships = () => {
         key: cat.type,
       }));
 
-      console.log('Formatted memberships:', formatted);
-      setMemberships(formatted);
-    } catch (error) {
-      console.error('Caught error fetching memberships:', error);
-      setMemberships([]);
-    }
-  };
+      return formatted;
+    },
+    staleTime: 1000 * 60 * 10, // 10 minutes - memberships rarely change
+    gcTime: 1000 * 60 * 30, // 30 minutes cache
+    refetchOnWindowFocus: false,
+  });
 
-  return { memberships, refetch: fetchMemberships };
-};
-
-// Helper function to determine if membership is prime
-const isPrimeMembership = (title: string): boolean => {
-  const primeTitles = ['institutional', 'proprietor'];
-  return primeTitles.some(prime => title.toLowerCase().includes(prime));
+  return { memberships, refetch };
 };
