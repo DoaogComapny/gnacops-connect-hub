@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { toast } from "sonner";
 
 interface FormCategory {
@@ -21,10 +24,18 @@ const AdminPricingSettings = () => {
   const [categories, setCategories] = useState<FormCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const { settings, updateSettings } = useSiteSettings();
+  const [enableSecondaryPricing, setEnableSecondaryPricing] = useState(false);
 
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    if (settings) {
+      setEnableSecondaryPricing(settings.enableSecondaryPricing || false);
+    }
+  }, [settings]);
 
   const fetchCategories = async () => {
     try {
@@ -51,6 +62,18 @@ const AdminPricingSettings = () => {
         [field]: (field === 'price' || field === 'secondary_price') ? parseFloat(value as string) || 0 : value 
       } : cat
     ));
+  };
+
+  const handleToggleSecondaryPricing = async (enabled: boolean) => {
+    setEnableSecondaryPricing(enabled);
+    
+    if (settings) {
+      updateSettings({
+        ...settings,
+        enableSecondaryPricing: enabled
+      });
+      toast.success(enabled ? 'Secondary pricing enabled' : 'Secondary pricing disabled');
+    }
   };
 
   const handleSaveAll = async () => {
@@ -94,6 +117,26 @@ const AdminPricingSettings = () => {
           <p className="text-muted-foreground">Manage membership categories, titles, descriptions, and annual fees</p>
         </div>
       </div>
+
+      {/* Secondary Pricing Toggle */}
+      <Card className="p-6 bg-accent/10 border-accent/30">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <Label htmlFor="secondary-pricing" className="text-lg font-semibold">
+              Enable Secondary Pricing (SMS/LMS Add-on)
+            </Label>
+            <p className="text-sm text-muted-foreground">
+              When enabled, institutional memberships will display the School Management System fee as an additional charge. 
+              Both prices will be combined and shown to users during registration.
+            </p>
+          </div>
+          <Switch
+            id="secondary-pricing"
+            checked={enableSecondaryPricing}
+            onCheckedChange={handleToggleSecondaryPricing}
+          />
+        </div>
+      </Card>
 
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-6">
@@ -144,7 +187,7 @@ const AdminPricingSettings = () => {
                     <div className="border-t pt-4 mt-4">
                       <h4 className="font-semibold mb-3 text-accent">Secondary Price (SMS/LMS Add-on)</h4>
                       <p className="text-sm text-muted-foreground mb-4">
-                        This secondary price will be added to the main fee and paid to a separate Paystack account
+                        This secondary price will be added to the main fee and displayed together when secondary pricing is enabled above.
                       </p>
                     </div>
                     
@@ -171,6 +214,14 @@ const AdminPricingSettings = () => {
                         />
                       </div>
                     </div>
+
+                    {enableSecondaryPricing && category.secondary_price && (
+                      <div className="bg-accent/10 p-4 rounded-lg">
+                        <p className="text-sm font-medium">
+                          Total displayed to users: <span className="text-accent text-lg">GHS ₵{(category.price + (category.secondary_price || 0)).toFixed(2)}</span>
+                        </p>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
@@ -202,6 +253,7 @@ const AdminPricingSettings = () => {
           <li>Changes take effect immediately for new registrations</li>
           <li>Existing pending payments will use the price at time of registration</li>
           <li>Titles should be clear and descriptions should explain the membership benefits</li>
+          <li><strong>Secondary pricing:</strong> When enabled, the School Management System fee is shown alongside the main fee for institutional memberships</li>
         </ul>
       </Card>
     </div>
