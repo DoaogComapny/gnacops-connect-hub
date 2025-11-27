@@ -25,72 +25,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const hasNavigated = useRef(false);
 
-  useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Only process SIGNED_IN once
-        if (session?.user && event === 'SIGNED_IN' && !hasNavigated.current) {
-          hasNavigated.current = true;
-          
-          const { data, error } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', session.user.id)
-            .in('role', ['admin', 'super_admin', 'secretary', 'regional_coordinator', 'district_coordinator']);
-          
-          if (data && data.length > 0) {
-            const roles = data.map(r => r.role);
-            
-            if (roles.includes('admin') || roles.includes('super_admin')) {
-              setIsAdmin(true);
-              toast.success('Welcome, Admin!');
-              navigate('/admin/panel');
-            } else if (roles.includes('secretary')) {
-              toast.success('Welcome, Secretary!');
-              navigate('/secretary/panel');
-            } else if (roles.includes('regional_coordinator')) {
-              toast.success('Welcome, Regional Coordinator!');
-              navigate('/coordinator/regional/dashboard');
-            } else if (roles.includes('district_coordinator')) {
-              toast.success('Welcome, District Coordinator!');
-              navigate('/coordinator/district/dashboard');
-            } else {
-              toast.success('Welcome!');
-              navigate('/user/dashboard');
-            }
-          } else {
-            toast.success('Welcome!');
-            navigate('/user/dashboard');
-          }
-          setCheckingRole(false);
-        } else if (session?.user) {
-          await checkAdminStatus(session.user.id);
-        } else {
-          setIsAdmin(false);
-          setCheckingRole(false);
-          hasNavigated.current = false; // Reset on logout
-        }
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+  const handleRoleBasedNavigation = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .in('role', ['admin', 'super_admin', 'secretary', 'regional_coordinator', 'district_coordinator']);
       
-      if (session?.user) {
-        checkAdminStatus(session.user.id);
-      } else {
+      if (error) {
+        toast.success('Welcome!');
+        navigate('/user/dashboard');
         setCheckingRole(false);
+        return;
       }
-    });
 
-    return () => subscription.unsubscribe();
-  }, []);
+      if (data && data.length > 0) {
+        const roles = data.map(r => r.role);
+        
+        if (roles.includes('admin') || roles.includes('super_admin')) {
+          setIsAdmin(true);
+          toast.success('Welcome, Admin!');
+          navigate('/admin/panel');
+        } else if (roles.includes('secretary')) {
+          toast.success('Welcome, Secretary!');
+          navigate('/secretary/panel');
+        } else if (roles.includes('regional_coordinator')) {
+          toast.success('Welcome, Regional Coordinator!');
+          navigate('/coordinator/regional/dashboard');
+        } else if (roles.includes('district_coordinator')) {
+          toast.success('Welcome, District Coordinator!');
+          navigate('/coordinator/district/dashboard');
+        } else {
+          toast.success('Welcome!');
+          navigate('/user/dashboard');
+        }
+      } else {
+        toast.success('Welcome!');
+        navigate('/user/dashboard');
+      }
+    } catch (err) {
+      toast.success('Welcome!');
+      navigate('/user/dashboard');
+    } finally {
+      setCheckingRole(false);
+    }
+  };
 
   const checkAdminStatus = async (userId: string) => {
     try {
@@ -103,12 +83,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
       setIsAdmin(data && data.length > 0);
     } catch (error) {
-      console.error('Error checking admin status:', error);
       setIsAdmin(false);
     } finally {
       setCheckingRole(false);
     }
   };
+
+  useEffect(() => {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        // Only synchronous state updates here
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Defer Supabase calls with setTimeout to prevent deadlock
+        if (session?.user && event === 'SIGNED_IN' && !hasNavigated.current) {
+          hasNavigated.current = true;
+          setTimeout(() => {
+            handleRoleBasedNavigation(session.user.id);
+          }, 0);
+        } else if (session?.user && event === 'TOKEN_REFRESHED') {
+          setTimeout(() => {
+            checkAdminStatus(session.user.id);
+          }, 0);
+        } else if (!session) {
+          setIsAdmin(false);
+          setCheckingRole(false);
+          hasNavigated.current = false; // Reset on logout
+        }
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        checkAdminStatus(session.user.id);
+      } else {
+        setCheckingRole(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
     const redirectUrl = `${window.location.origin}/`;
@@ -150,6 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setSession(null);
     setIsAdmin(false);
+    hasNavigated.current = false;
     toast.success('Signed out successfully');
     navigate('/');
   };
