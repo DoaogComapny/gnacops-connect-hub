@@ -175,11 +175,7 @@ const BookAppointment = () => {
     return bookedSlots.some((booked) => {
       const [bookedHours, bookedMinutes] = booked.time.split(":").map(Number);
       const [bookedEndHours, bookedEndMinutes] = booked.endTime.split(":").map(Number);
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> 90e6e803a15586a2eb7caa983c5f14daabffb819
       const bookedStart = new Date(selectedDate);
       bookedStart.setHours(bookedHours, bookedMinutes, 0, 0);
       const bookedEnd = new Date(selectedDate);
