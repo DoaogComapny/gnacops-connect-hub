@@ -9,7 +9,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Calendar as CalendarIcon, Video, MapPin, AlertCircle, Clock, CheckCircle2, XCircle } from "lucide-react";
+import {
+  Loader2,
+  Calendar as CalendarIcon,
+  Video,
+  MapPin,
+  AlertCircle,
+  Clock,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -36,9 +45,23 @@ const BookAppointment = () => {
   const [unavailableDates, setUnavailableDates] = useState<Date[]>([]);
 
   const timeSlots = [
-    "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
-    "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
-    "15:00", "15:30", "16:00", "16:30", "17:00",
+    "09:00",
+    "09:30",
+    "10:00",
+    "10:30",
+    "11:00",
+    "11:30",
+    "12:00",
+    "12:30",
+    "13:00",
+    "13:30",
+    "14:00",
+    "14:30",
+    "15:00",
+    "15:30",
+    "16:00",
+    "16:30",
+    "17:00",
   ];
 
   // Fetch available dates and unavailable dates from the database
@@ -73,8 +96,8 @@ const BookAppointment = () => {
       if (availData) {
         const available: Date[] = [];
         const unavailable: Date[] = [];
-        
-        availData.forEach(item => {
+
+        availData.forEach((item) => {
           const date = new Date(item.date + "T00:00:00");
           if (item.is_available) {
             available.push(date);
@@ -121,7 +144,7 @@ const BookAppointment = () => {
         const hours = aptDate.getHours().toString().padStart(2, "0");
         const minutes = aptDate.getMinutes().toString().padStart(2, "0");
         const time = `${hours}:${minutes}`;
-        
+
         const endTime = new Date(aptDate);
         endTime.setMinutes(endTime.getMinutes() + (apt.duration_minutes || 30));
         const endHours = endTime.getHours().toString().padStart(2, "0");
@@ -152,22 +175,26 @@ const BookAppointment = () => {
     return bookedSlots.some((booked) => {
       const [bookedHours, bookedMinutes] = booked.time.split(":").map(Number);
       const [bookedEndHours, bookedEndMinutes] = booked.endTime.split(":").map(Number);
+<<<<<<< HEAD
       
+=======
+
+>>>>>>> 90e6e803a15586a2eb7caa983c5f14daabffb819
       const bookedStart = new Date(selectedDate);
       bookedStart.setHours(bookedHours, bookedMinutes, 0, 0);
       const bookedEnd = new Date(selectedDate);
       bookedEnd.setHours(bookedEndHours, bookedEndMinutes, 0, 0);
 
       // Check for overlap
-      return (slotStart < bookedEnd && slotEnd > bookedStart);
+      return slotStart < bookedEnd && slotEnd > bookedStart;
     });
   };
 
   // Get available time slots for the selected date
   const availableTimeSlots = useMemo(() => {
     if (!selectedDate) return [];
-    
-    return timeSlots.filter(slot => !isSlotBooked(slot));
+
+    return timeSlots.filter((slot) => !isSlotBooked(slot));
   }, [selectedDate, bookedSlots, duration]);
 
   // Check if a date is available (not in unavailable_dates)
@@ -176,13 +203,13 @@ const BookAppointment = () => {
     if (unavailableDates.length === 0) {
       return date >= new Date(new Date().setHours(0, 0, 0, 0));
     }
-    
+
     // Check if date is explicitly marked as unavailable
     const isUnavailable = unavailableDates.some(
-      unavailableDate =>
+      (unavailableDate) =>
         unavailableDate.getFullYear() === date.getFullYear() &&
         unavailableDate.getMonth() === date.getMonth() &&
-        unavailableDate.getDate() === date.getDate()
+        unavailableDate.getDate() === date.getDate(),
     );
 
     if (isUnavailable) return false;
@@ -190,10 +217,10 @@ const BookAppointment = () => {
     // If available_dates table has entries, only allow those dates
     if (availableDates.length > 0) {
       return availableDates.some(
-        availableDate =>
+        (availableDate) =>
           availableDate.getFullYear() === date.getFullYear() &&
           availableDate.getMonth() === date.getMonth() &&
-          availableDate.getDate() === date.getDate()
+          availableDate.getDate() === date.getDate(),
       );
     }
 
@@ -252,7 +279,7 @@ const BookAppointment = () => {
         const slotEnd = new Date(appointmentDate);
         slotEnd.setMinutes(slotEnd.getMinutes() + parseInt(duration));
 
-        return (appointmentDate < aptEnd && slotEnd > aptDate);
+        return appointmentDate < aptEnd && slotEnd > aptDate;
       });
 
       if (hasConflict) {
@@ -262,14 +289,18 @@ const BookAppointment = () => {
         return;
       }
 
-      const { data, error } = await supabase.from("appointments").insert({
-        user_id: user.id,
-        appointment_type: appointmentType,
-        appointment_date: appointmentDate.toISOString(),
-        duration_minutes: parseInt(duration),
-        purpose: purpose.trim(),
-        status: "pending",
-      }).select().single();
+      const { data, error } = await supabase
+        .from("appointments")
+        .insert({
+          user_id: user.id,
+          appointment_type: appointmentType,
+          appointment_date: appointmentDate.toISOString(),
+          duration_minutes: parseInt(duration),
+          purpose: purpose.trim(),
+          status: "pending",
+        })
+        .select()
+        .single();
 
       if (error) {
         console.error("Database error:", error);
@@ -277,13 +308,13 @@ const BookAppointment = () => {
       }
 
       toast.success("Appointment request submitted! You'll receive an email once it's reviewed.");
-      
+
       // Reset form
       setSelectedDate(undefined);
       setTimeSlot("");
       setPurpose("");
       setBookedSlots([]);
-      
+
       // Redirect after short delay
       setTimeout(() => navigate("/dashboard"), 1500);
     } catch (error: any) {
@@ -339,11 +370,12 @@ const BookAppointment = () => {
                     />
                     {selectedDate && (
                       <p className="text-sm text-muted-foreground text-center">
-                        Selected: {selectedDate.toLocaleDateString("en-US", { 
-                          weekday: "long", 
-                          year: "numeric", 
-                          month: "long", 
-                          day: "numeric" 
+                        Selected:{" "}
+                        {selectedDate.toLocaleDateString("en-US", {
+                          weekday: "long",
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
                         })}
                       </p>
                     )}
@@ -353,9 +385,7 @@ const BookAppointment = () => {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <Label htmlFor="time-slot">Time Slot *</Label>
-                        {isLoadingSlots && (
-                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                        )}
+                        {isLoadingSlots && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
                       </div>
                       {isLoadingSlots ? (
                         <div className="flex items-center justify-center py-4">
@@ -410,9 +440,7 @@ const BookAppointment = () => {
                           <SelectValue placeholder="Select a date first" />
                         </SelectTrigger>
                       </Select>
-                      <p className="text-xs text-muted-foreground">
-                        Please select a date to see available time slots
-                      </p>
+                      <p className="text-xs text-muted-foreground">Please select a date to see available time slots</p>
                     </div>
                   )}
 
@@ -423,10 +451,18 @@ const BookAppointment = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="pointer-events-auto">
-                        <SelectItem value="30" className="cursor-pointer">30 minutes</SelectItem>
-                        <SelectItem value="60" className="cursor-pointer">1 hour</SelectItem>
-                        <SelectItem value="90" className="cursor-pointer">1.5 hours</SelectItem>
-                        <SelectItem value="120" className="cursor-pointer">2 hours</SelectItem>
+                        <SelectItem value="30" className="cursor-pointer">
+                          30 minutes
+                        </SelectItem>
+                        <SelectItem value="60" className="cursor-pointer">
+                          1 hour
+                        </SelectItem>
+                        <SelectItem value="90" className="cursor-pointer">
+                          1.5 hours
+                        </SelectItem>
+                        <SelectItem value="120" className="cursor-pointer">
+                          2 hours
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -441,8 +477,8 @@ const BookAppointment = () => {
                     <CardDescription>Choose your preferred meeting format</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <RadioGroup 
-                      value={appointmentType} 
+                    <RadioGroup
+                      value={appointmentType}
                       onValueChange={(value: "in-person" | "virtual") => {
                         setAppointmentType(value);
                       }}
@@ -451,8 +487,8 @@ const BookAppointment = () => {
                       <label
                         htmlFor="in-person"
                         className={`relative block p-4 rounded-lg border-2 cursor-pointer transition-all pointer-events-auto ${
-                          appointmentType === "in-person" 
-                            ? "border-accent bg-accent/5 shadow-sm" 
+                          appointmentType === "in-person"
+                            ? "border-accent bg-accent/5 shadow-sm"
                             : "border-border hover:border-accent/50 hover:bg-accent/5"
                         }`}
                       >
@@ -463,17 +499,15 @@ const BookAppointment = () => {
                               <MapPin className="h-5 w-5 text-accent" />
                               In-Person Meeting
                             </div>
-                            <p className="text-sm text-muted-foreground">
-                              Meet face-to-face at the GNACOPS office
-                            </p>
+                            <p className="text-sm text-muted-foreground">Meet face-to-face at the GNACOPS office</p>
                           </div>
                         </div>
                       </label>
                       <label
                         htmlFor="virtual"
                         className={`relative block p-4 rounded-lg border-2 cursor-pointer transition-all pointer-events-auto ${
-                          appointmentType === "virtual" 
-                            ? "border-accent bg-accent/5 shadow-sm" 
+                          appointmentType === "virtual"
+                            ? "border-accent bg-accent/5 shadow-sm"
                             : "border-border hover:border-accent/50 hover:bg-accent/5"
                         }`}
                       >
@@ -484,9 +518,7 @@ const BookAppointment = () => {
                               <Video className="h-5 w-5 text-accent" />
                               Virtual Meeting
                             </div>
-                            <p className="text-sm text-muted-foreground">
-                              Join remotely via video conference
-                            </p>
+                            <p className="text-sm text-muted-foreground">Join remotely via video conference</p>
                           </div>
                         </div>
                       </label>
@@ -494,29 +526,30 @@ const BookAppointment = () => {
                   </CardContent>
                 </Card>
 
-                <Card 
-                  className="hover-glow" 
-                  style={{ 
-                    position: 'relative',
-                    overflow: 'visible'
+                <Card
+                  className="hover-glow"
+                  style={{
+                    position: "relative",
+                    overflow: "visible",
                   }}
                 >
                   <CardHeader>
                     <CardTitle>Purpose of Meeting *</CardTitle>
                     <CardDescription>Provide details about your meeting request</CardDescription>
                   </CardHeader>
-                  <CardContent 
-                    className="space-y-3" 
-                    style={{ 
-                      position: 'relative', 
+                  <CardContent
+                    className="space-y-3"
+                    style={{
+                      position: "relative",
                       zIndex: 10,
-                      pointerEvents: 'auto'
+                      pointerEvents: "auto",
                     }}
                   >
                     <p className="text-sm text-muted-foreground">
-                      Please describe the reason for your appointment. Include any specific topics or issues you'd like to discuss.
+                      Please describe the reason for your appointment. Include any specific topics or issues you'd like
+                      to discuss.
                     </p>
-                    <div style={{ position: 'relative', zIndex: 20, pointerEvents: 'auto' }}>
+                    <div style={{ position: "relative", zIndex: 20, pointerEvents: "auto" }}>
                       <Textarea
                         id="purpose-textarea"
                         name="purpose"
@@ -533,26 +566,26 @@ const BookAppointment = () => {
                         required
                         maxLength={2000}
                         className="resize-none focus:ring-2 focus:ring-accent transition-all w-full"
-                        style={{ 
-                          pointerEvents: 'auto', 
-                          position: 'relative', 
+                        style={{
+                          pointerEvents: "auto",
+                          position: "relative",
                           zIndex: 30,
-                          backgroundColor: 'hsl(var(--background))',
-                          cursor: 'text'
+                          backgroundColor: "hsl(var(--background))",
+                          cursor: "text",
                         }}
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      {purpose.length}/2000 characters
-                    </p>
+                    <p className="text-xs text-muted-foreground">{purpose.length}/2000 characters</p>
                   </CardContent>
                 </Card>
 
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  size="lg" 
-                  disabled={isSubmitting || !selectedDate || !timeSlot || !purpose.trim() || availableTimeSlots.length === 0}
+                <Button
+                  type="submit"
+                  className="w-full"
+                  size="lg"
+                  disabled={
+                    isSubmitting || !selectedDate || !timeSlot || !purpose.trim() || availableTimeSlots.length === 0
+                  }
                 >
                   {isSubmitting ? (
                     <>
