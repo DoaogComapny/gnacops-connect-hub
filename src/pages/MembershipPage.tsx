@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMemberships } from "@/hooks/useMemberships";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
@@ -13,6 +14,8 @@ import { ArrowRight } from "lucide-react";
 const MembershipPage = () => {
   const navigate = useNavigate();
   const { memberships } = useMemberships();
+  const { settings } = useSiteSettings();
+  const showSecondaryPricing = settings?.enableSecondaryPricing || false;
   const [selectedMemberships, setSelectedMemberships] = useState<string[]>([]);
 
   const handleToggleMembership = (name: string) => {
@@ -23,9 +26,19 @@ const MembershipPage = () => {
     );
   };
 
+  // Calculate total including secondary price when enabled
   const totalPrice = selectedMemberships.reduce((sum, name) => {
     const membership = memberships.find((m) => m.name === name);
-    return sum + (membership?.price || 0);
+    if (!membership) return sum;
+    
+    let price = membership.price || 0;
+    
+    // Add secondary price if enabled and available
+    if (showSecondaryPricing && membership.secondary_price && membership.secondary_price_label) {
+      price += membership.secondary_price;
+    }
+    
+    return sum + price;
   }, 0);
 
   const handleProceed = () => {
@@ -64,6 +77,11 @@ const MembershipPage = () => {
                   .map((type) => {
                     const Icon = type.icon;
                     const isSelected = selectedMemberships.includes(type.name);
+                    const hasSecondaryPrice = showSecondaryPricing && type.secondary_price && type.secondary_price_label;
+                    const totalMembershipPrice = hasSecondaryPrice 
+                      ? type.price + (type.secondary_price || 0)
+                      : type.price;
+                    
                     return (
                       <Card
                         key={type.id}
@@ -89,22 +107,33 @@ const MembershipPage = () => {
                                 <h4 className="text-lg font-semibold">{type.name}</h4>
                               </div>
                               <div className="text-right">
-                                <div>
-                                  <span className="text-xl font-bold text-accent">GHS ₵{type.price}</span>
-                                  <span className="text-xs text-muted-foreground block">/year</span>
-                                </div>
-                                {type.secondary_price && type.secondary_price_label && (
-                                  <div className="mt-2 pt-2 border-t border-border/30">
-                                    <span className="text-xs text-muted-foreground block">{type.secondary_price_label}</span>
-                                    <span className="text-sm font-bold text-accent">GHS ₵{type.secondary_price}</span>
-                                    <span className="text-xs text-muted-foreground">/year</span>
-                                  </div>
-                                )}
+                                <span className="text-xl font-bold text-accent">GHS ₵{type.price}</span>
+                                <span className="text-xs text-muted-foreground block">/year</span>
                               </div>
                             </div>
-                            <p className="text-sm text-muted-foreground leading-relaxed">
+                            <p className="text-sm text-muted-foreground leading-relaxed mb-3">
                               {type.description}
                             </p>
+                            
+                            {/* Secondary Pricing Display */}
+                            {hasSecondaryPrice && (
+                              <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-muted-foreground">
+                                    {type.secondary_price_label}
+                                  </span>
+                                  <span className="text-lg font-bold text-accent">
+                                    GHS ₵{type.secondary_price}
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between pt-2 border-t border-accent/30">
+                                  <span className="text-xs font-medium text-foreground">Total:</span>
+                                  <span className="text-xl font-bold text-accent">
+                                    GHS ₵{totalMembershipPrice}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </Card>
@@ -126,6 +155,11 @@ const MembershipPage = () => {
                   .map((type) => {
                     const Icon = type.icon;
                     const isSelected = selectedMemberships.includes(type.name);
+                    const hasSecondaryPrice = showSecondaryPricing && type.secondary_price && type.secondary_price_label;
+                    const totalMembershipPrice = hasSecondaryPrice 
+                      ? type.price + (type.secondary_price || 0)
+                      : type.price;
+                    
                     return (
                       <Card
                         key={type.id}
@@ -151,22 +185,33 @@ const MembershipPage = () => {
                                 <h4 className="text-lg font-semibold">{type.name}</h4>
                               </div>
                               <div className="text-right">
-                                <div>
-                                  <span className="text-xl font-bold text-accent">GHS ₵{type.price}</span>
-                                  <span className="text-xs text-muted-foreground block">/year</span>
-                                </div>
-                                {type.secondary_price && type.secondary_price_label && (
-                                  <div className="mt-2 pt-2 border-t border-border/30">
-                                    <span className="text-xs text-muted-foreground block">{type.secondary_price_label}</span>
-                                    <span className="text-sm font-bold text-accent">GHS ₵{type.secondary_price}</span>
-                                    <span className="text-xs text-muted-foreground">/year</span>
-                                  </div>
-                                )}
+                                <span className="text-xl font-bold text-accent">GHS ₵{type.price}</span>
+                                <span className="text-xs text-muted-foreground block">/year</span>
                               </div>
                             </div>
-                            <p className="text-sm text-muted-foreground leading-relaxed">
+                            <p className="text-sm text-muted-foreground leading-relaxed mb-3">
                               {type.description}
                             </p>
+                            
+                            {/* Secondary Pricing Display */}
+                            {hasSecondaryPrice && (
+                              <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-muted-foreground">
+                                    {type.secondary_price_label}
+                                  </span>
+                                  <span className="text-lg font-bold text-accent">
+                                    GHS ₵{type.secondary_price}
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between pt-2 border-t border-accent/30">
+                                  <span className="text-xs font-medium text-foreground">Total:</span>
+                                  <span className="text-xl font-bold text-accent">
+                                    GHS ₵{totalMembershipPrice}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </Card>
