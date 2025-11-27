@@ -13,6 +13,18 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { toast } from 'sonner';
 import { Upload, FileText } from 'lucide-react';
+import type { Json } from '@/integrations/supabase/types';
+
+interface OnboardingQuestion {
+  id: string;
+  question_text: string;
+  question_type: string;
+  options: Json;
+  is_required: boolean | null;
+  position: number | null;
+  is_active: boolean | null;
+  created_at: string | null;
+}
 
 const businessCategories = [
   'School Supplies',
@@ -43,7 +55,7 @@ export default function VendorSignup() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [onboardingQuestions, setOnboardingQuestions] = useState<any[]>([]);
+  const [onboardingQuestions, setOnboardingQuestions] = useState<OnboardingQuestion[]>([]);
   const [formData, setFormData] = useState({
     businessName: '',
     businessCategory: '',
@@ -80,7 +92,7 @@ export default function VendorSignup() {
       .order('position');
     
     if (!error && data) {
-      setOnboardingQuestions(data);
+      setOnboardingQuestions(data as OnboardingQuestion[]);
     }
   };
 
@@ -176,9 +188,10 @@ export default function VendorSignup() {
 
       toast.success('Vendor application submitted successfully! You will be notified once approved.');
       navigate('/vendor/dashboard');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error submitting vendor application:', error);
-      toast.error(error.message || 'Failed to submit application');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to submit application';
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -468,11 +481,14 @@ export default function VendorSignup() {
                             <SelectValue placeholder="Select option" />
                           </SelectTrigger>
                           <SelectContent>
-                            {question.options?.map((option: string) => (
-                              <SelectItem key={option} value={option}>
-                                {option}
-                              </SelectItem>
-                            ))}
+                            {Array.isArray(question.options) && question.options.map((option) => {
+                              const optionValue = typeof option === 'string' ? option : String(option);
+                              return (
+                                <SelectItem key={optionValue} value={optionValue}>
+                                  {optionValue}
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
                       )}
