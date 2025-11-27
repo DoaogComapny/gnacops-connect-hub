@@ -20,36 +20,75 @@ const AdminApplications = () => {
 
   const fetchApplications = async () => {
     try {
-      const { data, error } = await supabase
+      setLoading(true);
+      
+      // Fetch form submissions
+      const { data: submissions, error: submissionsError } = await supabase
         .from('form_submissions')
-        .select(`
-          *,
-          profiles:user_id(full_name, email),
-          form_categories:category_id(name, type)
-        `)
+        .select('*')
         .order('submitted_at', { ascending: false });
 
-      if (error) throw error;
+      if (submissionsError) throw submissionsError;
 
-      const formattedApps = data?.map((submission: any) => ({
-        id: submission.id,
-        name: submission.profiles?.full_name || 'Unknown',
-        email: submission.profiles?.email || 'N/A',
-        type: submission.form_categories?.name || 'N/A',
-        school: submission.submission_data?.schoolName || submission.submission_data?.institution || 'N/A',
-        status: 'Pending',
-        date: new Date(submission.submitted_at).toLocaleDateString(),
-        raw_data: submission.submission_data
-      })) || [];
+      if (!submissions || submissions.length === 0) {
+        setApplications([]);
+        setLoading(false);
+        return;
+      }
+
+      // Fetch profiles separately
+      const userIds = [...new Set(submissions.map((s: any) => s.user_id).filter(Boolean))];
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .in('id', userIds);
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+      }
+
+      // Fetch form categories separately
+      const categoryIds = [...new Set(submissions.map((s: any) => s.category_id).filter(Boolean))];
+      const { data: categories, error: categoriesError } = await supabase
+        .from('form_categories')
+        .select('id, name, type')
+        .in('id', categoryIds);
+
+      if (categoriesError) {
+        console.error('Error fetching categories:', categoriesError);
+      }
+
+      // Create maps for quick lookup
+      const profilesMap = new Map((profiles || []).map((p: any) => [p.id, p]));
+      const categoriesMap = new Map((categories || []).map((c: any) => [c.id, c]));
+
+      // Format applications
+      const formattedApps = submissions.map((submission: any) => {
+        const profile = profilesMap.get(submission.user_id);
+        const category = categoriesMap.get(submission.category_id);
+        const submissionData = submission.submission_data || {};
+
+        return {
+          id: submission.id,
+          name: profile?.full_name || 'Unknown',
+          email: profile?.email || 'N/A',
+          type: category?.name || 'N/A',
+          school: submissionData.schoolName || submissionData.institution || submissionData.school_name || 'N/A',
+          status: submission.status || 'Pending',
+          date: new Date(submission.submitted_at).toLocaleDateString(),
+          raw_data: submissionData
+        };
+      });
 
       setApplications(formattedApps);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching applications:', error);
       toast({
         title: "Error",
-        description: "Failed to load applications",
+        description: error.message || "Failed to load applications",
         variant: "destructive",
       });
+      setApplications([]);
     } finally {
       setLoading(false);
     }

@@ -26,12 +26,38 @@ const UserDashboard = () => {
   const [memberships, setMemberships] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!user) {
-      navigate('/login');
-    } else if (isAdmin) {
-      navigate('/admin/panel');
-    }
-  }, [user, isAdmin, navigate]);
+    const checkUserRole = async () => {
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+
+      // Check if user has staff/admin/coordinator roles
+      const { data: roles } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .in('role', ['admin', 'super_admin', 'secretary', 'regional_coordinator', 'district_coordinator']);
+
+      if (roles && roles.length > 0) {
+        const roleList = roles.map(r => r.role);
+        
+        // Redirect based on role priority
+        if (roleList.includes('admin') || roleList.includes('super_admin')) {
+          navigate('/admin/panel');
+        } else if (roleList.includes('secretary')) {
+          navigate('/secretary/panel');
+        } else if (roleList.includes('regional_coordinator')) {
+          navigate('/coordinator/regional/dashboard');
+        } else if (roleList.includes('district_coordinator')) {
+          navigate('/coordinator/district/dashboard');
+        }
+      }
+      // If no special roles, user stays on user dashboard (membership user)
+    };
+
+    checkUserRole();
+  }, [user, navigate]);
 
   useEffect(() => {
     if (user) {

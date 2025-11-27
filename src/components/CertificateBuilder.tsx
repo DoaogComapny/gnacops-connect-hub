@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Download, Trash2, Type, Image as ImageIcon, Square } from 'lucide-react';
+import { Plus, Download, Trash2, Type, Image as ImageIcon, Square, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import sampleCertificate from '@/assets/certificates/gnacops-sample.jpg';
 
 interface CertificateBuilderProps {
@@ -17,6 +18,78 @@ export const CertificateBuilder = ({ onSave, initialData }: CertificateBuilderPr
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fabricCanvas, setFabricCanvas] = useState<FabricCanvas | null>(null);
   const [selectedObject, setSelectedObject] = useState<any>(null);
+  const [loadingTemplate, setLoadingTemplate] = useState(false);
+
+  // Function to load template from storage
+  const loadTemplateFromStorage = async (canvas?: FabricCanvas) => {
+    const targetCanvas = canvas || fabricCanvas;
+    if (!targetCanvas) return;
+    
+    setLoadingTemplate(true);
+    try {
+      // Try to get template from site-assets bucket
+      const { data: { publicUrl } } = supabase.storage
+        .from('site-assets')
+        .getPublicUrl('certificate-template.jpg');
+
+      // Try to load the template
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      img.onload = () => {
+        FabricImage.fromURL(publicUrl).then((fabricImg) => {
+          // Clear canvas first if no initial data
+          if (!initialData) {
+            targetCanvas.clear();
+          }
+          
+          // Set canvas size to match template
+          const scale = Math.min(
+            targetCanvas.width! / (fabricImg.width || 1),
+            targetCanvas.height! / (fabricImg.height || 1)
+          );
+
+          fabricImg.set({
+            scaleX: scale,
+            scaleY: scale,
+            left: 0,
+            top: 0,
+            selectable: false,
+            evented: false,
+          });
+
+          targetCanvas.add(fabricImg);
+          targetCanvas.sendObjectToBack(fabricImg);
+          targetCanvas.renderAll();
+          toast.success('Certificate template loaded successfully!');
+        }).catch((error) => {
+          console.error('Error loading template:', error);
+          // Don't show error on initial load, just silently fail
+          if (canvas) {
+            toast.error('Template not found. Please upload it to site-assets bucket as "certificate-template.jpg"');
+          }
+        });
+      };
+
+      img.onerror = () => {
+        // Don't show error on initial load
+        if (canvas) {
+          // Silently fail on initial load
+        } else {
+          toast.error('Template not found. Please upload it to site-assets bucket as "certificate-template.jpg"');
+        }
+      };
+
+      img.src = publicUrl;
+    } catch (error) {
+      console.error('Error loading template:', error);
+      if (!canvas) {
+        toast.error('Failed to load template from storage');
+      }
+    } finally {
+      setLoadingTemplate(false);
+    }
+  };
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -33,9 +106,16 @@ export const CertificateBuilder = ({ onSave, initialData }: CertificateBuilderPr
         canvas.loadFromJSON(initialData, () => {
           canvas.renderAll();
         });
+        toast.success('Certificate builder ready!');
       } catch (error) {
         console.error('Error loading canvas data:', error);
+        toast.success('Certificate builder ready!');
       }
+    } else {
+      // Auto-load template if no initial data is provided
+      setTimeout(() => {
+        loadTemplateFromStorage(canvas);
+      }, 500);
     }
 
     canvas.on('selection:created', (e: any) => {
@@ -51,7 +131,6 @@ export const CertificateBuilder = ({ onSave, initialData }: CertificateBuilderPr
     });
 
     setFabricCanvas(canvas);
-    toast.success('Certificate builder ready!');
 
     return () => {
       canvas.dispose();
@@ -128,6 +207,7 @@ export const CertificateBuilder = ({ onSave, initialData }: CertificateBuilderPr
       toast.success('Background image added');
     });
   };
+
 
   const addLogoImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!fabricCanvas || !e.target.files?.[0]) return;
@@ -266,6 +346,20 @@ export const CertificateBuilder = ({ onSave, initialData }: CertificateBuilderPr
             <Button onClick={() => addBackgroundFromUrl(sampleCertificate)} variant="outline" size="sm">
               <ImageIcon className="mr-2 h-4 w-4" />
               Sample Background
+            </Button>
+
+            <Button 
+              onClick={() => loadTemplateFromStorage()} 
+              variant="outline" 
+              size="sm"
+              disabled={loadingTemplate || !fabricCanvas}
+            >
+              {loadingTemplate ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <ImageIcon className="mr-2 h-4 w-4" />
+              )}
+              Load Certificate Template
             </Button>
 
             <Button onClick={deleteSelected} variant="destructive" size="sm" disabled={!selectedObject}>

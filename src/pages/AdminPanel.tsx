@@ -39,6 +39,7 @@ const membershipMenuItems = [
   { title: "Gallery", icon: ImageIcon, path: "/admin/panel/gallery-management" },
   { title: "Events", icon: CalendarDays, path: "/admin/panel/events-management" },
   { title: "Education TV", icon: Tv, path: "/admin/panel/education-tv-management" },
+  { title: "Page Editor", icon: FileText, path: "/admin/panel/page-editor" },
   { title: "Roles & Permissions", icon: Shield, path: "/admin/panel/roles" },
   { title: "Audit Logs", icon: FileText, path: "/admin/panel/audit-logs" },
   { title: "Profile", icon: User, path: "/admin/panel/profile" },
@@ -82,7 +83,8 @@ const AdminPanel = () => {
   
   // Real-time stats from database
   const [stats, setStats] = useState({
-    totalMembers: 0,
+    totalUsers: 0,
+    totalStaff: 0,
     pendingApplications: 0,
     totalRevenue: "GHS 0",
     activeUsers: 0,
@@ -90,37 +92,95 @@ const AdminPanel = () => {
 
   useEffect(() => {
     const fetchStats = async () => {
-      // Fetch total members
-      const { count: memberCount } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
+      try {
+        // Fetch all profiles
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id');
 
-      // Fetch pending applications
-      const { count: pendingCount } = await supabase
-        .from('memberships')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'pending');
+        // Fetch all memberships
+        const { data: membershipsData } = await supabase
+          .from('memberships')
+          .select('user_id');
 
-      // Fetch total revenue
-      const { data: payments } = await supabase
-        .from('payments')
-        .select('amount')
-        .eq('status', 'completed');
-      
-      const revenue = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
+        // Fetch all user roles
+        const { data: userRolesData } = await supabase
+          .from('user_roles')
+          .select('user_id, role');
 
-      // Fetch active users (approved memberships)
-      const { count: activeCount } = await supabase
-        .from('memberships')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'approved');
+        // Fetch all staff assignments
+        const { data: staffAssignmentsData } = await supabase
+          .from('staff_assignments')
+          .select('user_id');
 
-      setStats({
-        totalMembers: memberCount || 0,
-        pendingApplications: pendingCount || 0,
-        totalRevenue: `GHS ${revenue.toLocaleString()}`,
-        activeUsers: activeCount || 0,
-      });
+        // Fetch all department staff assignments
+        const { data: deptAssignmentsData } = await supabase
+          .from('department_staff_assignments')
+          .select('user_id');
+
+        // Create sets for quick lookup
+        const usersWithMemberships = new Set(membershipsData?.map((m: any) => m.user_id) || []);
+        
+        const usersWithStaffRoles = new Set(
+          userRolesData
+            ?.filter((ur: any) => ur.role !== 'user' && ur.role !== 'admin' && ur.role !== 'super_admin')
+            .map((ur: any) => ur.user_id) || []
+        );
+        
+        const usersWithStaffAssignments = new Set(staffAssignmentsData?.map((sa: any) => sa.user_id) || []);
+        const usersWithDeptAssignments = new Set(deptAssignmentsData?.map((da: any) => da.user_id) || []);
+
+        // Classify profiles as users or staff
+        let userCount = 0;
+        let staffCount = 0;
+
+        profilesData?.forEach((profile: any) => {
+          const hasMemberships = usersWithMemberships.has(profile.id);
+          const hasStaffRoles = usersWithStaffRoles.has(profile.id);
+          const hasStaffAssignments = usersWithStaffAssignments.has(profile.id);
+          const hasDepartmentAssignments = usersWithDeptAssignments.has(profile.id);
+          
+          // User: has memberships (signed up via membership forms)
+          if (hasMemberships) {
+            userCount++;
+          }
+          
+          // Staff: has staff roles/assignments but no memberships
+          if (!hasMemberships && (hasStaffRoles || hasStaffAssignments || hasDepartmentAssignments)) {
+            staffCount++;
+          }
+        });
+
+        // Fetch pending applications
+        const { count: pendingCount } = await supabase
+          .from('memberships')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending');
+
+        // Fetch total revenue
+        const { data: payments } = await supabase
+          .from('payments')
+          .select('amount')
+          .eq('status', 'completed');
+        
+        const revenue = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
+
+        // Fetch active users (approved memberships)
+        const { count: activeCount } = await supabase
+          .from('memberships')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'approved');
+
+        setStats({
+          totalUsers: userCount,
+          totalStaff: staffCount,
+          pendingApplications: pendingCount || 0,
+          totalRevenue: `GHS ${revenue.toLocaleString()}`,
+          activeUsers: activeCount || 0,
+        });
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      }
     };
 
     if (user && isAdmin) {
@@ -129,10 +189,47 @@ const AdminPanel = () => {
   }, [user, isAdmin]);
 
   useEffect(() => {
-    if (!user || !isAdmin) {
-      navigate('/login');
-    }
-  }, [user, isAdmin, navigate]);
+    const checkAdminAccess = async () => {
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+
+      // Check if user has admin role
+      const { data: roles } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .in('role', ['admin', 'super_admin']);
+
+      if (!roles || roles.length === 0) {
+        // User is not an admin, redirect based on their role
+        const { data: userRoles } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .in('role', ['secretary', 'regional_coordinator', 'district_coordinator']);
+
+        if (userRoles && userRoles.length > 0) {
+          const roleList = userRoles.map(r => r.role);
+          if (roleList.includes('secretary')) {
+            navigate('/secretary/panel');
+          } else if (roleList.includes('regional_coordinator')) {
+            navigate('/coordinator/regional/dashboard');
+          } else if (roleList.includes('district_coordinator')) {
+            navigate('/coordinator/district/dashboard');
+          } else {
+            navigate('/user/dashboard');
+          }
+        } else {
+          // Regular user, redirect to user dashboard
+          navigate('/user/dashboard');
+        }
+      }
+    };
+
+    checkAdminAccess();
+  }, [user, navigate]);
 
   return (
     <SidebarProvider>
@@ -227,14 +324,26 @@ const AdminPanel = () => {
               </div>
 
               {/* Stats Cards */}
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
                 <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 hover-card">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Total Members</p>
-                      <p className="text-3xl font-bold text-primary">{stats.totalMembers}</p>
+                      <p className="text-sm text-muted-foreground">Total Users</p>
+                      <p className="text-3xl font-bold text-primary">{stats.totalUsers}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Membership signups</p>
                     </div>
                     <Users className="h-10 w-10 text-primary/50" />
+                  </div>
+                </Card>
+
+                <Card className="p-6 bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20 hover-card">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Staff</p>
+                      <p className="text-3xl font-bold text-blue-600">{stats.totalStaff}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Coordinators, Secretaries</p>
+                    </div>
+                    <Shield className="h-10 w-10 text-blue-500/50" />
                   </div>
                 </Card>
 
@@ -258,13 +367,14 @@ const AdminPanel = () => {
                   </div>
                 </Card>
 
-                <Card className="p-6 bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20 hover-card">
+                <Card className="p-6 bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-purple-500/20 hover-card">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground">Active Users</p>
-                      <p className="text-3xl font-bold text-blue-600">{stats.activeUsers}</p>
+                      <p className="text-3xl font-bold text-purple-600">{stats.activeUsers}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Approved memberships</p>
                     </div>
-                    <Shield className="h-10 w-10 text-blue-500/50" />
+                    <Users className="h-10 w-10 text-purple-500/50" />
                   </div>
                 </Card>
               </div>
@@ -282,9 +392,9 @@ const AdminPanel = () => {
               {/* Quick Actions */}
               <div className="grid md:grid-cols-3 gap-6 mt-6">
                 <Card className="p-6 hover-card">
-                  <h3 className="font-semibold mb-2">Manage Users</h3>
-                  <p className="text-sm text-muted-foreground mb-4">View and manage all members</p>
-                  <Button variant="outline" className="w-full" onClick={() => navigate("/admin/panel/users")}>View Users</Button>
+                  <h3 className="font-semibold mb-2">Manage Users & Staff</h3>
+                  <p className="text-sm text-muted-foreground mb-4">View and manage all users and staff members</p>
+                  <Button variant="outline" className="w-full" onClick={() => navigate("/admin/panel/users")}>View Users & Staff</Button>
                 </Card>
 
                 <Card className="p-6 hover-card">

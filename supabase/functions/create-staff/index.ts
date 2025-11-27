@@ -131,6 +131,50 @@ serve(async (req) => {
     const userId = authData.user.id;
     console.log(`[create-staff] Created staff user: ${userId}`);
 
+    // Ensure profile exists (trigger should create it, but we ensure it's correct)
+    const { error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .upsert({
+        id: userId,
+        full_name: fullName,
+        email: email,
+      }, { onConflict: 'id' });
+
+    if (profileError) {
+      console.error('[create-staff] Profile error:', profileError);
+      throw new Error('Failed to create profile');
+    }
+
+    console.log(`[create-staff] Profile ensured for user: ${userId}`);
+
+    // Check for duplicate coordinators BEFORE creating
+    if (role === 'regional_coordinator' && region) {
+      const { data: existingCoordinator } = await supabaseAdmin
+        .from('staff_assignments')
+        .select('user_id')
+        .eq('role', 'regional_coordinator')
+        .eq('region', region)
+        .maybeSingle();
+
+      if (existingCoordinator) {
+        throw new Error(`A regional coordinator already exists for ${region}. Only one coordinator per region is allowed.`);
+      }
+    }
+
+    if (role === 'district_coordinator' && region && district) {
+      const { data: existingCoordinator } = await supabaseAdmin
+        .from('staff_assignments')
+        .select('user_id')
+        .eq('role', 'district_coordinator')
+        .eq('region', region)
+        .eq('district', district)
+        .maybeSingle();
+
+      if (existingCoordinator) {
+        throw new Error(`A district coordinator already exists for ${district}, ${region}. Only one coordinator per district is allowed.`);
+      }
+    }
+
     // For department roles, create department_staff_assignments
     if (isDepartmentRole) {
       // Create department staff assignment

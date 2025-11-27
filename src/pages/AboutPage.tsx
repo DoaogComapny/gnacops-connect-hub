@@ -3,18 +3,25 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { cn } from "@/lib/utils";
 
 const AboutPage = () => {
   const { settings } = useSiteSettings();
   const [isDirectorMessageOpen, setIsDirectorMessageOpen] = useState(false);
   const [isMissionExpanded, setIsMissionExpanded] = useState(false);
-  const [openAccordionIndex, setOpenAccordionIndex] = useState<number | null>(null);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
   const aboutPage = settings?.aboutPage;
+
+  const toggleSection = (key: string) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -99,53 +106,95 @@ const AboutPage = () => {
           </Card>
         )}
 
-        {/* More About GNACOPS Accordion Sections */}
-        {aboutPage?.detailedSections && aboutPage.detailedSections.filter((section: any) => section?.title && section?.content).length > 0 && (
-          <Card className="hover-glow">
-            <CardHeader>
-              <CardTitle className="text-2xl text-gradient-accent">More About GNACOPS</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="w-full space-y-3">
-                {aboutPage.detailedSections
-                  .filter((section: any) => section?.title && section?.content)
-                  .map((section: any, index: number) => {
-                    const isOpen = openAccordionIndex === index;
+        {/* More About GNACOPS Sections */}
+        {(() => {
+          // Safely extract and validate sections - only require title, content is optional
+          const sectionsArray = Array.isArray(aboutPage?.detailedSections) 
+            ? aboutPage.detailedSections 
+            : [];
+          
+          // Filter sections that have at least a title
+          const validSections = sectionsArray
+            .filter((section: any) => {
+              if (!section || typeof section !== 'object') return false;
+              // Only require title, content is optional
+              const hasTitle = section.title && typeof section.title === 'string' && section.title.trim().length > 0;
+              return hasTitle;
+            })
+            .map((section: any, index: number) => ({
+              key: section.key || String.fromCharCode(65 + index),
+              emoji: section.emoji || '',
+              title: section.title?.trim() || '',
+              content: section.content?.trim() || ''
+            }));
+          
+          if (validSections.length === 0) {
+            return null;
+          }
+          
+          return (
+            <Card className="hover-glow">
+              <CardHeader>
+                <CardTitle className="text-2xl text-gradient-accent">More About GNACOPS</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="w-full space-y-2">
+                  {validSections.map((section, index) => {
+                    const sectionKey = section.key || `section-${index}`;
+                    const isOpen = openSections[sectionKey] || false;
+                    const sectionContent = section.content || '';
+                    const previewText = sectionContent.slice(0, 100);
+                    const hasMore = sectionContent.length > 100;
                     
                     return (
-                      <div 
-                        key={`accordion-section-${index}`}
-                        className="border border-border rounded-lg hover-glow transition-all"
+                      <div
+                        key={`section-${sectionKey}`}
+                        className="border border-border rounded-lg p-3 hover-glow transition-all"
                       >
-                        <button
-                          onClick={() => setOpenAccordionIndex(isOpen ? null : index)}
-                          className="w-full flex items-center justify-between p-4 hover:bg-accent/5 transition-colors rounded-lg text-left"
-                        >
-                          <span className="flex items-center gap-3">
-                            {section.emoji && <span className="text-2xl">{section.emoji}</span>}
-                            <span className="font-semibold text-lg text-foreground">{section.title}</span>
-                          </span>
-                          <ChevronDown 
-                            className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${
-                              isOpen ? 'rotate-180' : ''
-                            }`}
-                          />
-                        </button>
-                        
-                        {isOpen && (
-                          <div className="px-4 pb-6 pt-2 animate-in slide-in-from-top-2 duration-200">
-                            <p className="text-muted-foreground leading-relaxed whitespace-pre-line pl-11">
-                              {section.content}
+                        <Collapsible open={isOpen} onOpenChange={() => toggleSection(sectionKey)}>
+                          {/* Section Header with Read More Button */}
+                          <div className="flex items-center justify-between gap-3 mb-2">
+                            <div className="flex items-center gap-2 flex-1">
+                              {section.emoji && <span className="text-base">{section.emoji}</span>}
+                              <h3 className="font-semibold text-base text-foreground">{section.title}</h3>
+                            </div>
+                            {hasMore && (
+                              <CollapsibleTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  className="gap-1 hover-glow transition-all shrink-0 h-8 px-2 text-xs"
+                                >
+                                  {isOpen ? (
+                                    <>
+                                      Less <ChevronUp className="h-3 w-3" />
+                                    </>
+                                  ) : (
+                                    <>
+                                      More <ChevronDown className="h-3 w-3" />
+                                    </>
+                                  )}
+                                </Button>
+                              </CollapsibleTrigger>
+                            )}
+                          </div>
+                          
+                          {/* Section Content */}
+                          <div className="prose prose-invert max-w-none">
+                            <p className="text-muted-foreground leading-relaxed whitespace-pre-line text-xs">
+                              {isOpen ? sectionContent : `${previewText}${hasMore ? "..." : ""}`}
+                              {!sectionContent && <span className="text-muted-foreground/60 italic">No content available</span>}
                             </p>
                           </div>
-                        )}
+                        </Collapsible>
                       </div>
                     );
                   })}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })()}
 
         {/* Mission, Vision, Values Grid */}
         {(aboutPage?.mission?.text || aboutPage?.vision?.text || aboutPage?.values?.items?.length > 0) && (

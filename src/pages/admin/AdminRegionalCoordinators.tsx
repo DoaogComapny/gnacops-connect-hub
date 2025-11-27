@@ -42,6 +42,7 @@ const AdminRegionalCoordinators = () => {
   }, []);
 
   const fetchCoordinators = async () => {
+    setLoading(true);
     try {
       // Fetch staff assignments
       const { data: assignments, error: assignmentsError } = await supabase
@@ -54,6 +55,7 @@ const AdminRegionalCoordinators = () => {
 
       if (!assignments || assignments.length === 0) {
         setCoordinators([]);
+        setLoading(false);
         return;
       }
 
@@ -142,6 +144,7 @@ const AdminRegionalCoordinators = () => {
       toast.success(`Regional coordinator "${fullName}" added successfully!`);
       setIsAddDialogOpen(false);
       resetForm();
+      // Refresh coordinators list
       await fetchCoordinators();
     } catch (error: any) {
       console.error("Error adding coordinator:", error);
@@ -338,15 +341,26 @@ const AdminRegionalCoordinators = () => {
                   <SelectValue placeholder="Select a region" />
                 </SelectTrigger>
                 <SelectContent>
-                  {regions.map((region) => (
-                    <SelectItem key={region} value={region}>
-                      {region}
-                    </SelectItem>
-                  ))}
+                  {regions.map((region) => {
+                    // Check if region already has a coordinator
+                    const hasCoordinator = coordinators.some(
+                      (c) => c.region === region
+                    );
+                    return (
+                      <SelectItem 
+                        key={region} 
+                        value={region}
+                        disabled={hasCoordinator}
+                        className={hasCoordinator ? "opacity-50 cursor-not-allowed" : ""}
+                      >
+                        {region} {hasCoordinator && "(Already assigned)"}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
               <p className="text-sm text-muted-foreground">
-                This coordinator will have read-only access to all schools in this region
+                This coordinator will have read-only access to all schools in this region. Only one coordinator per region is allowed.
               </p>
             </div>
 

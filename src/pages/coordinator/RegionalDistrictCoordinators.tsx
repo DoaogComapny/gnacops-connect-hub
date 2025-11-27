@@ -47,35 +47,66 @@ const RegionalDistrictCoordinators = () => {
         .eq("role", "district_coordinator")
         .eq("region", assignment.region);
 
-      if (coordError) throw coordError;
+      if (coordError) {
+        console.error("Error fetching coordinators:", coordError);
+        throw coordError;
+      }
+
+      // Handle empty results
+      if (!coordData || coordData.length === 0) {
+        setCoordinators([]);
+        setLoading(false);
+        return;
+      }
 
       // Fetch profiles separately
-      const userIds = coordData?.map(c => c.user_id) || [];
-      const { data: profilesData } = await supabase
+      const userIds = coordData.map(c => c.user_id);
+      const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
         .select("id, full_name, email, phone")
         .in("id", userIds);
 
-      const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+      if (profilesError) {
+        console.error("Error fetching profiles:", profilesError);
+        throw profilesError;
+      }
+
+      const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
       
-      const coordsWithProfiles = coordData?.map(coord => ({
+      const coordsWithProfiles = coordData.map(coord => ({
         ...coord,
         profiles: profilesMap.get(coord.user_id) || { full_name: "", email: "", phone: "" }
-      })) || [];
+      }));
 
       // For each coordinator, count their schools
       const coordinatorsWithCounts = await Promise.all(
         coordsWithProfiles.map(async (coord) => {
-          const { count } = await supabase
-            .from("form_submissions")
-            .select("*", { count: "exact", head: true })
-            .eq("submission_data->>region", assignment.region)
-            .eq("submission_data->>district", coord.district);
+          try {
+            const { count, error: countError } = await supabase
+              .from("form_submissions")
+              .select("*", { count: "exact", head: true })
+              .eq("submission_data->>region", assignment.region)
+              .eq("submission_data->>district", coord.district);
 
-          return {
-            ...coord,
-            schoolCount: count || 0,
-          };
+            if (countError) {
+              console.error(`Error counting schools for ${coord.district}:`, countError);
+              return {
+                ...coord,
+                schoolCount: 0,
+              };
+            }
+
+            return {
+              ...coord,
+              schoolCount: count || 0,
+            };
+          } catch (error) {
+            console.error(`Error counting schools for ${coord.district}:`, error);
+            return {
+              ...coord,
+              schoolCount: 0,
+            };
+          }
         })
       );
 
@@ -84,6 +115,7 @@ const RegionalDistrictCoordinators = () => {
     } catch (error) {
       console.error("Error fetching coordinators:", error);
       toast.error("Failed to load district coordinators");
+      setCoordinators([]);
     } finally {
       setLoading(false);
     }

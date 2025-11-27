@@ -149,6 +149,7 @@ import AdminMarketplaceDelivery from "./pages/admin/AdminMarketplaceDelivery";
 import AdminMarketplacePayments from "./pages/admin/AdminMarketplacePayments";
 import AdminMarketplaceMarketing from "./pages/admin/AdminMarketplaceMarketing";
 import AdminMarketplaceStaff from "./pages/admin/AdminMarketplaceStaff";
+import AdminPageEditor from "./pages/admin/AdminPageEditor";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -241,6 +242,7 @@ const App = () => (
             <Route path="marketplace/marketing" element={<AdminMarketplaceMarketing />} />
             <Route path="marketplace/staff" element={<AdminMarketplaceStaff />} />
             <Route path="marketplace/onboarding" element={<AdminMarketplaceOnboarding />} />
+            <Route path="page-editor" element={<AdminPageEditor />} />
           </Route>
 
           {/* Secretary Routes */}

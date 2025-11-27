@@ -45,6 +45,7 @@ const AdminDistrictCoordinators = () => {
   }, []);
 
   const fetchCoordinators = async () => {
+    setLoading(true);
     try {
       // Fetch staff assignments
       const { data: assignments, error: assignmentsError } = await supabase
@@ -57,6 +58,7 @@ const AdminDistrictCoordinators = () => {
 
       if (!assignments || assignments.length === 0) {
         setCoordinators([]);
+        setLoading(false);
         return;
       }
 
@@ -147,6 +149,7 @@ const AdminDistrictCoordinators = () => {
       toast.success(`District coordinator "${fullName}" added successfully!`);
       setIsAddDialogOpen(false);
       resetForm();
+      // Refresh coordinators list
       await fetchCoordinators();
     } catch (error: any) {
       console.error("Error adding coordinator:", error);
@@ -372,15 +375,26 @@ const AdminDistrictCoordinators = () => {
                     <SelectValue placeholder="Select a district" />
                   </SelectTrigger>
                   <SelectContent>
-                    {districts.map((district) => (
-                      <SelectItem key={district} value={district}>
-                        {district}
-                      </SelectItem>
-                    ))}
+                    {districts.map((district) => {
+                      // Check if district already has a coordinator
+                      const hasCoordinator = coordinators.some(
+                        (c) => c.region === selectedRegion && c.district === district
+                      );
+                      return (
+                        <SelectItem 
+                          key={district} 
+                          value={district}
+                          disabled={hasCoordinator}
+                          className={hasCoordinator ? "opacity-50 cursor-not-allowed" : ""}
+                        >
+                          {district} {hasCoordinator && "(Already assigned)"}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
                 <p className="text-sm text-muted-foreground">
-                  This coordinator will have read-only access to all schools in this district
+                  This coordinator will have read-only access to all schools in this district. Only one coordinator per district is allowed.
                 </p>
               </div>
             )}
